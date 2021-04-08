@@ -1,0 +1,9 @@
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\bin\Debug\netstandard2.0\NetworkController.deps.json
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\bin\Debug\netstandard2.0\NetworkController.dll
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\bin\Debug\netstandard2.0\NetworkController.pdb
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.csprojAssemblyReference.cache
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.AssemblyInfoInputs.cache
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.AssemblyInfo.cs
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.csproj.CoreCompileInputs.cache
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.dll
+C:\Users\Jalle\Documents\GitHub\game-ice_cold_coders_game\TankWars\NetworkController\obj\Debug\netstandard2.0\NetworkController.pdb
