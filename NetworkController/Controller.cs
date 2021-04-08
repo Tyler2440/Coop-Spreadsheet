@@ -1,4 +1,7 @@
 ﻿//////////////////////////////////////////////
+using NetworkUtil;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 ///FileName: Controller.cs
 ///Authors: Dallon Haley and Tyler Allen
 ///Created On: 11/14/2020
@@ -9,9 +12,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
-using NetworkUtil;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace TankGameController
 {

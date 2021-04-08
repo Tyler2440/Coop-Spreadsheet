@@ -1,32 +1,35 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jalle\\Documents\\GitHub\\BATED-Project-CS-3505\\Client\\NetworkController\\NetworkController.csproj": {}
+    "C:\\Users\\bmalo\\Source\\Repos\\BATED-Spreadsheet-CS3505\\NetworkController\\NetworkController.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jalle\\Documents\\GitHub\\BATED-Project-CS-3505\\Client\\NetworkController\\NetworkController.csproj": {
+    "C:\\Users\\bmalo\\Source\\Repos\\BATED-Spreadsheet-CS3505\\NetworkController\\NetworkController.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jalle\\Documents\\GitHub\\BATED-Project-CS-3505\\Client\\NetworkController\\NetworkController.csproj",
+        "projectUniqueName": "C:\\Users\\bmalo\\Source\\Repos\\BATED-Spreadsheet-CS3505\\NetworkController\\NetworkController.csproj",
         "projectName": "NetworkController",
-        "projectPath": "C:\\Users\\Jalle\\Documents\\GitHub\\BATED-Project-CS-3505\\Client\\NetworkController\\NetworkController.csproj",
-        "packagesPath": "C:\\Users\\Jalle\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jalle\\Documents\\GitHub\\BATED-Project-CS-3505\\Client\\NetworkController\\obj\\",
+        "projectPath": "C:\\Users\\bmalo\\Source\\Repos\\BATED-Spreadsheet-CS3505\\NetworkController\\NetworkController.csproj",
+        "packagesPath": "C:\\Users\\bmalo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\bmalo\\Source\\Repos\\BATED-Spreadsheet-CS3505\\NetworkController\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Jalle\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\bmalo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "netstandard2.0"
+          "netcoreapp3.1"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netstandard2.0": {
-            "targetAlias": "netstandard2.0",
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
             "projectReferences": {}
           }
         },
@@ -37,20 +40,8 @@
         }
       },
       "frameworks": {
-        "netstandard2.0": {
-          "targetAlias": "netstandard2.0",
-          "dependencies": {
-            "NETStandard.Library": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[2.0.3, )",
-              "autoReferenced": true
-            },
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.1, )"
-            }
-          },
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
           "imports": [
             "net461",
             "net462",
@@ -61,6 +52,11 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.201\\RuntimeIdentifierGraph.json"
         }
       }
