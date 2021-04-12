@@ -1,13 +1,12 @@
 #include <iostream>
 #include <boost/asio.hpp>
-#include <boost/asio/io_service.hpp>
 
 using boost::asio::ip::tcp;
 
 int main()
 {
     std::cout << "Hello World!\n";
-    try {
+    /*try {
         boost::asio::io_service io_service;
         while (true)
         {
@@ -24,7 +23,7 @@ int main()
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
-    }
+    }*/
 
     return 0;
 }

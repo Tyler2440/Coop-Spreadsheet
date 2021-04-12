@@ -1,30 +1,33 @@
 #include <iostream>
 #include <boost/asio.hpp>
-//#include <boost/asio/io_service.hpp>
 
 //using boost::asio::ip::tcp;
 
 int main()
 {
     std::cout << "Hello World!\n";
-    /*try {
+    try {
         boost::asio::io_service io_service;
+        std::cout << "Accepting Clients!" << std::endl;
+        boost::asio::ip::tcp::acceptor accepter(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 1100));
         while (true)
-        {
-            tcp::acceptor accepter(io_service, tcp::endpoint(tcp::v4(), 1100));
-            std::cout << "Accepting Clients!" << std::endl;
+        {               
             for (;;)
             {
-                tcp::socket socket(io_service);
+                boost::asio::ip::tcp::socket socket(io_service);
                 accepter.accept(socket);
-                socket.send("yo!");
+                std::cout << "Client Accepted!" << std::endl;
+                std::string message = "yo!";
+                boost::system::error_code ignored_error;
+                boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+                //socket.send("yo!");
             }
         }
     }
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
-    }*/
+    }
 
     return 0;
 }

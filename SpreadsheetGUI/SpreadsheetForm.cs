@@ -20,7 +20,7 @@ namespace SpreadsheetGUI
         // Creates a controller object to reference the Controller class, the brains of the spreadsheet GUI
         Controller controller;
 
-        SpreadsheetController.Controller networkController;
+        SpreadsheetController.Controller networkController = new SpreadsheetController.Controller();
 
         // Col/row hold the current cell's place in the spreadsheet
         int col, row;
