@@ -85,6 +85,10 @@
       <Project>{1EBB45E0-C37E-4077-A096-6139C4ED044F}</Project>
       <Name>Formula</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NetworkController1\NetworkController.csproj">
+      <Project>{b421232d-272c-4a3a-a4b3-d27b082f49b2}</Project>
+      <Name>NetworkController</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SpreadsheetPanel\SpreadsheetPanel.csproj">
       <Project>{730D2042-4C1E-438A-B4BB-21DE6CB5DB51}</Project>
       <Name>SpreadsheetPanel</Name>

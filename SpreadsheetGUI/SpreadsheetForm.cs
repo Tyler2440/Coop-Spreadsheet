@@ -1,4 +1,5 @@
 ﻿using SS;
+using SpreadsheetController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +19,8 @@ namespace SpreadsheetGUI
     {
         // Creates a controller object to reference the Controller class, the brains of the spreadsheet GUI
         Controller controller;
+
+        SpreadsheetController.Controller networkController;
 
         // Col/row hold the current cell's place in the spreadsheet
         int col, row;
@@ -243,6 +246,60 @@ namespace SpreadsheetGUI
         {
             displaySelection(spreadsheetPanel1);
             CellContentText.SelectAll();
+        }
+
+        private void JoinButton_Click(object sender, EventArgs e)
+        {
+            networkController.Connect("localhost", "Chad");
+        }
+
+        /// <summary>
+        /// if server name is not empty, method updates Controller with server name and player name in order to initialize server connection. 
+        /// </summary>
+        private void Connect(object sender, EventArgs e)
+        {
+            if (ServerLabel.Text == "") //check for empty server box 
+            {
+                MessageBox.Show("Please enter a server address.");
+                return;
+            }
+
+            // Disable the controls and try connecting
+            AddressText.Enabled = false;
+            JoinButton.Enabled = false;
+            KeyPreview = true;
+
+            networkController.Connect(AddressText.Text, "Chad"); //initate connection network protocol in controller 
+        }
+
+        ///<summary>
+        /// Event handler for server updates, updates drawings 
+        ///</summary> 
+        private void ProcessData()
+        {
+            try
+            {
+                MethodInvoker invalidator = new MethodInvoker(() => this.Invalidate(true));
+                this.Invoke(invalidator);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Error event handler
+        /// Displays error message with given err string 
+        /// </summary>
+        private void Error(string err)
+        {
+            MessageBox.Show(err);
+
+            this.Invoke(new MethodInvoker(() =>
+            {
+                AddressText.Enabled = true;
+                JoinButton.Enabled = true;
+            }));
         }
 
         /// <summary>

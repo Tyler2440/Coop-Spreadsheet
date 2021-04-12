@@ -1,19 +1,19 @@
 ﻿//////////////////////////////////////////////
+//FileName: Controller.cs
+//Authors: Dallon Haley and Tyler Allen
+//Created On: 11/14/2020
+//Description: Handles networking and game logic
+/////////////////////////////////////////////
 using NetworkUtil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-///FileName: Controller.cs
-///Authors: Dallon Haley and Tyler Allen
-///Created On: 11/14/2020
-///Description: Handles networking and game logic
-/////////////////////////////////////////////
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
-namespace TankGameController
+namespace SpreadsheetController
 {
     /// <summary>
     /// Handles logic and networking protocol for Spreadsheet

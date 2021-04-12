@@ -26,13 +26,7 @@ namespace SpreadsheetGUI
         private void InitializeComponent()
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CellInfoPanel = new System.Windows.Forms.Panel();
             this.CellContentText = new System.Windows.Forms.TextBox();
             this.ContentLabel = new System.Windows.Forms.Label();
@@ -41,6 +35,9 @@ namespace SpreadsheetGUI
             this.CellValueText = new System.Windows.Forms.TextBox();
             this.CellNameText = new System.Windows.Forms.TextBox();
             this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
+            this.ServerLabel = new System.Windows.Forms.Label();
+            this.AddressText = new System.Windows.Forms.TextBox();
+            this.JoinButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.CellInfoPanel.SuspendLayout();
             this.SuspendLayout();
@@ -48,53 +45,13 @@ namespace SpreadsheetGUI
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.undoToolStripMenuItem,
-            this.helpToolStripMenuItem});
+            this.undoToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.menuStrip1.Size = new System.Drawing.Size(703, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem,
-            this.openToolStripMenuItem,
-            this.saveToolStripMenuItem,
-            this.closeToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.closeToolStripMenuItem.Text = "Close";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // undoToolStripMenuItem
             // 
@@ -102,13 +59,6 @@ namespace SpreadsheetGUI
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.undoToolStripMenuItem.Text = "Undo";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "Help";
-            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // CellInfoPanel
             // 
@@ -191,11 +141,40 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.Size = new System.Drawing.Size(703, 383);
             this.spreadsheetPanel1.TabIndex = 0;
             // 
+            // ServerLabel
+            // 
+            this.ServerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ServerLabel.Location = new System.Drawing.Point(7, 3);
+            this.ServerLabel.Name = "ServerLabel";
+            this.ServerLabel.Size = new System.Drawing.Size(49, 18);
+            this.ServerLabel.TabIndex = 3;
+            this.ServerLabel.Text = "Server";
+            // 
+            // AddressText
+            // 
+            this.AddressText.Location = new System.Drawing.Point(54, 3);
+            this.AddressText.Name = "AddressText";
+            this.AddressText.Size = new System.Drawing.Size(100, 20);
+            this.AddressText.TabIndex = 4;
+            // 
+            // JoinButton
+            // 
+            this.JoinButton.Location = new System.Drawing.Point(170, 0);
+            this.JoinButton.Name = "JoinButton";
+            this.JoinButton.Size = new System.Drawing.Size(75, 23);
+            this.JoinButton.TabIndex = 5;
+            this.JoinButton.Text = "Join";
+            this.JoinButton.UseVisualStyleBackColor = true;
+            this.JoinButton.Click += new System.EventHandler(this.JoinButton_Click);
+            // 
             // SpreadsheetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(703, 407);
+            this.Controls.Add(this.JoinButton);
+            this.Controls.Add(this.AddressText);
+            this.Controls.Add(this.ServerLabel);
             this.Controls.Add(this.CellInfoPanel);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.menuStrip1);
@@ -219,9 +198,6 @@ namespace SpreadsheetGUI
 
         private SpreadsheetPanel spreadsheetPanel1;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.Panel CellInfoPanel;
         private System.Windows.Forms.TextBox CellContentText;
         private System.Windows.Forms.Label ContentLabel;
@@ -229,10 +205,10 @@ namespace SpreadsheetGUI
         private System.Windows.Forms.Label CellLabel;
         private System.Windows.Forms.TextBox CellValueText;
         private System.Windows.Forms.TextBox CellNameText;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+        private System.Windows.Forms.Label ServerLabel;
+        private System.Windows.Forms.TextBox AddressText;
+        private System.Windows.Forms.Button JoinButton;
     }
 }
 
