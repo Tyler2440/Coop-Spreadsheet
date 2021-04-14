@@ -14,12 +14,12 @@ int main()
         {               
             for (;;)
             {
-                boost::asio::ip::tcp::socket socket(io_service);
-                accepter.accept(socket);
+                boost::asio::ip::tcp::socket * socket =  new boost::asio::ip::tcp::socket(io_service);
+                accepter.accept(*socket);
                 std::cout << "Client Accepted!" << std::endl;
                 std::string message = "yo!";
                 boost::system::error_code ignored_error;
-                boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+                boost::asio::write(*socket, boost::asio::buffer(message), ignored_error);
                 //socket.send("yo!");
             }
         }
