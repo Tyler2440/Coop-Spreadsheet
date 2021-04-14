@@ -122,6 +122,7 @@ namespace SpreadsheetController
 
             Networking.Send(state.TheSocket, "Now Dallon is dumb\n");
             Networking.Send(state.TheSocket, "ERIK WHY DUMB\n");
+            Networking.Send(state.TheSocket, "Tyler VERY dumb\n");
         }
     }
 }
