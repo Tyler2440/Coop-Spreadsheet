@@ -35,8 +35,7 @@ int main()
             std::cout << "MESSAGE FROM CLIENT: " << messagets << std::endl;
 
             messagets = read(*socket);
-            std::cout << "MESSAGE FROM CLIENT: " << messagets << std::endl;
-            
+            std::cout << "MESSAGE FROM CLIENT: " << messagets << std::endl;           
         }
     }
     catch (std::exception& e)
