@@ -39,6 +39,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{D716A844-AB96-4C3F-9314-18249FCF618E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerConsole", "ServerConsole\ServerConsole.vcxproj", "{82453C79-C066-4279-B1EF-6890CB6CFA7D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E8BCE319-9F13-43E4-8A52-EEE81D6DFC43} = {E8BCE319-9F13-43E4-8A52-EEE81D6DFC43}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Controller", "Controller\Controller.vcxproj", "{E8BCE319-9F13-43E4-8A52-EEE81D6DFC43}"
 EndProject
