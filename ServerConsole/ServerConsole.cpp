@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/bind/bind.hpp>
 #include <boost/asio.hpp>
 #include "server_controller.h"
 
@@ -12,8 +13,8 @@ int main()
     try
     {
         boost::asio::io_context io_context;
-        server_ptr server(new Server(io_context));
-        //Server server(io_context);
+        //server_ptr server(new Server(io_context));
+        Server server(io_context);
         io_context.run();
     }
     catch (std::exception& e)
