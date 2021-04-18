@@ -16,8 +16,16 @@ typedef boost::shared_ptr<connection_handler> pointer;
 int Server::next_ID;
 
 
-connection_handler::connection_handler(boost::asio::io_context& io_context) : sock(io_context) 
+connection_handler::connection_handler(boost::asio::io_context& io_context)
+	: sock(io_context)
 {
+	ID = 0;
+};
+
+connection_handler::connection_handler(boost::asio::io_context& io_context, Server *s)
+	: sock(io_context)
+{
+	server = s;
 	ID = 0;
 };
 
@@ -53,13 +61,11 @@ void connection_handler::start()
 
 	std::string message = std::to_string(ID) + " Fake list of spreadsheets!";
 
-	std::map<std::string, Spreadsheet> spreadsheets = Server::get_spreadsheets();
-	for (Spreadsheet spreadsheet : spreadsheets)
+	std::map<std::string, Spreadsheet> spreadsheets = server->get_spreadsheets();
+	for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets.begin(); it != spreadsheets.end(); ++it)
 	{
-
+		sock.write_some(boost::asio::buffer(it->first, max_length));
 	}
-
-	sock.write_some(boost::asio::buffer(message));
 
 	sock.read_some(boost::asio::buffer(data, max_length));
 

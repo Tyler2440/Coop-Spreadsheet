@@ -7,9 +7,11 @@
 
 using boost::asio::ip::tcp;
 
+
 class connection_handler : public boost::enable_shared_from_this<connection_handler>
 {
     private:
+        Server* server;
         tcp::socket sock;
         //std::string message = "Hello From Server!";
         std::string name;
@@ -20,6 +22,7 @@ class connection_handler : public boost::enable_shared_from_this<connection_hand
     public:
         typedef boost::shared_ptr<connection_handler> pointer;
         connection_handler(boost::asio::io_context& io_context);
+        connection_handler(boost::asio::io_context& io_context, Server *s);
 
         // creating the pointer
         static pointer create(boost::asio::io_context& io_context);
@@ -35,16 +38,16 @@ class connection_handler : public boost::enable_shared_from_this<connection_hand
 
 class Server
 {
-    private:    
-        std::map<std::string, Spreadsheet> *spreadsheets;    
-        tcp::acceptor acceptor;
-        boost::asio::io_context& io_context_;
-        void start_accept();
-        void handle_accept(connection_handler::pointer connection_handler, const boost::system::error_code& err);
+private:
+  std::map<std::string, Spreadsheet>* spreadsheets;
+  tcp::acceptor acceptor;
+  boost::asio::io_context& io_context_;
+  void start_accept();
+  void handle_accept(connection_handler::pointer connection_handler, const boost::system::error_code& err);
 
-    public:
-        static int next_ID;
-        //constructor for accepting clients
-        Server(boost::asio::io_context& io_context);
-        std::map<std::string, Spreadsheet> get_spreadsheets();
+public:
+  static int next_ID;
+  //constructor for accepting clients
+  Server(boost::asio::io_context& io_context);
+  std::map<std::string, Spreadsheet> get_spreadsheets();
 };
