@@ -88,7 +88,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+<<<<<<< HEAD
       <AdditionalIncludeDirectories>C:\Users\Owner\source\repos\BATED-Spreadsheet-CS3505\Controller;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+=======
+      <AdditionalIncludeDirectories>C:\Users\Jalle\Desktop\Spring2021 School\CS3505\BATED-Spreadsheet CS3505\Debug;C:\Users\bmalo\source\repos\BATED-Spreadsheet-CS3505;C:\Users\Jalle\Desktop\Spring2021 School\CS3505\BATED-Spreadsheet CS3505\Controller</AdditionalIncludeDirectories>
+>>>>>>> 9b588b5d5c6aadd227dd85c374fa44a792ec4dfb
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,7 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ServerConsole.cpp" />
+    <ClCompile Include="ServerConsole.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\austi\source\repos\Tyler2440\BATED-Spreadsheet-CS3505\Controller;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
