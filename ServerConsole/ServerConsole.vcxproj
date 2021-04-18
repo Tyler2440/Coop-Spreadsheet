@@ -144,9 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ServerConsole.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\austi\source\repos\Tyler2440\BATED-Spreadsheet-CS3505\Controller;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
+    <ClCompile Include="ServerConsole.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
