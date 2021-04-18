@@ -19,13 +19,15 @@ class Cell {
 
 public:
 
-	//Cell(std::string name); //constructor 
+	Cell(std::string content); //constructor 
 
 	std::string get_name();
 
 	std::string get_contents();
 
-	void set_contents();
+	void set_contents(std::string content);
+
+	std::string get_previous_change();
 };
 
 
@@ -34,8 +36,6 @@ public:
 */
 class Spreadsheet {
 
-
-
 	std::map<std::string, Cell> cells;
 
 	std::stack<Cell> history;
@@ -43,7 +43,7 @@ class Spreadsheet {
 public:
 
 	std::map<std::string, Cell> get_cells();
-
+	Cell get_cell(std::string cell_name);
 };
 
 
