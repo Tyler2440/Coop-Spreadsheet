@@ -8,39 +8,24 @@
 #include "ServerSpreadsheet.h"
 #include <map>
 
-// Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-
 using boost::asio::ip::tcp;
 typedef boost::shared_ptr<connection_handler> pointer;
 
-int Server::next_ID;
-
-
+// Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
 connection_handler::connection_handler(boost::asio::io_context& io_context)
 	: sock(io_context)
 {
-	ID = 0;
-};
-
-connection_handler::connection_handler(boost::asio::io_context& io_context, Server *s)
-	: sock(io_context)
-{
-	server = s;
-	ID = 0;
 };
 
 //constructor for accepting connection from client
 Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor(io_context, tcp::endpoint(tcp::v4(), 1100))
 {
-	Server::spreadsheets = new std::map<std::string, Spreadsheet>();
-    Server::next_ID = 0;
+	spreadsheets = new std::map<std::string, Spreadsheet>();
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *(new Spreadsheet())) );
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
+	//Server::next_ID = 0;
 	start_accept();
-}
-
-// creating the pointer
-pointer connection_handler::create(boost::asio::io_context& io_context)
-{
-	return pointer(new connection_handler(io_context));
 }
 
 //socket creation
@@ -49,27 +34,19 @@ tcp::socket& connection_handler::socket()
 	return sock;
 }
 
-void connection_handler::start()
+void connection_handler::start(std::string spreadsheets)
 {
 	sock.read_some(boost::asio::buffer(data, max_length));
 
 	name = data;
 
-	//LOCK THIS
-	ID = Server::next_ID;
-	Server::next_ID++;
+	std::string message = spreadsheets;
 
-	std::string message = std::to_string(ID) + " Fake list of spreadsheets!";
-
-	std::map<std::string, Spreadsheet> spreadsheets = server->get_spreadsheets();
-	for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets.begin(); it != spreadsheets.end(); ++it)
-	{
-		sock.write_some(boost::asio::buffer(it->first, max_length));
-	}
-
-	sock.read_some(boost::asio::buffer(data, max_length));
-
-	std::cout << data << std::endl;
+	sock.write_some(boost::asio::buffer(message, max_length));
+	
+	boost::asio::async_read(sock, boost::asio::buffer(data, max_length), 
+		boost::bind(&connection_handler::handle_read, shared_from_this(), 
+		boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
 void connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
@@ -97,7 +74,7 @@ void connection_handler::handle_write(const boost::system::error_code& err, size
 void Server::start_accept()
 {
 	// socket
-	connection_handler::pointer connection = connection_handler::create(io_context_);
+	connection_handler::pointer connection(new connection_handler(io_context_));
 
 	// asynchronous accept operation and wait for a new connection.
 	acceptor.async_accept(connection->socket(),
@@ -107,13 +84,18 @@ void Server::start_accept()
 
 void Server::handle_accept(connection_handler::pointer connection, const boost::system::error_code& err)
 {
-	if (!err) {
-		connection->start();
-	}
+	if (!err)
+		connection->start(get_spreadsheets());
+
 	start_accept();
 }
 
-std::map<std::string, Spreadsheet> Server::get_spreadsheets()
+std::string Server::get_spreadsheets()
 {
-	return *Server::spreadsheets;
+	std::string spreadsheets = "";
+	for (std::map<std::string, Spreadsheet>::iterator it = Server::spreadsheets->begin(); it != Server::spreadsheets->end(); ++it)
+	{
+		spreadsheets.append(it->first + "\n");
+	}
+	return spreadsheets + "\n";
 }

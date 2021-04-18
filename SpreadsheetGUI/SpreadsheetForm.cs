@@ -250,7 +250,7 @@ namespace SpreadsheetGUI
 
         private void JoinButton_Click(object sender, EventArgs e)
         {
-            networkController.Connect("localhost", "NOW BEN TOO?? DUMB\n");
+            networkController.Connect("localhost", "Chad\n");
         }
 
         /// <summary>

@@ -1,6 +1,10 @@
 #include <map>
 #include "ServerSpreadsheet.h"
 
+Cell::Cell()
+{
+}
+
 Cell::Cell(std::string content)
 {
 	this->set_contents(content);

@@ -1,17 +1,18 @@
+#ifndef SERVER_CONTROLLER
+#define SERVER_CONTROLLER
+
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "ServerSpreadsheet.h"
+#include "../Model/ServerSpreadsheet.h"
 #include <map>
 
 using boost::asio::ip::tcp;
 
-
 class connection_handler : public boost::enable_shared_from_this<connection_handler>
 {
     private:
-        Server* server;
         tcp::socket sock;
         //std::string message = "Hello From Server!";
         std::string name;
@@ -21,8 +22,8 @@ class connection_handler : public boost::enable_shared_from_this<connection_hand
 
     public:
         typedef boost::shared_ptr<connection_handler> pointer;
+        //connection_handler(boost::asio::io_context& io_context);
         connection_handler(boost::asio::io_context& io_context);
-        connection_handler(boost::asio::io_context& io_context, Server *s);
 
         // creating the pointer
         static pointer create(boost::asio::io_context& io_context);
@@ -30,7 +31,7 @@ class connection_handler : public boost::enable_shared_from_this<connection_hand
         //socket creation
         tcp::socket& socket();
 
-        void start();
+        void start(std::string spreadsheets);
 
         void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
         void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
@@ -47,7 +48,10 @@ private:
 
 public:
   static int next_ID;
+
   //constructor for accepting clients
   Server(boost::asio::io_context& io_context);
-  std::map<std::string, Spreadsheet> get_spreadsheets();
+  std::string get_spreadsheets();
 };
+
+#endif

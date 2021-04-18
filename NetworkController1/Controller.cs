@@ -81,9 +81,12 @@ namespace SpreadsheetController
             string totalData = state.GetData();
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
-            Console.WriteLine(parts[0] + "\n");
+            foreach (string name in parts)
+            {
+                Console.Write(name);
+            }
 
-            state.RemoveData(0, parts[0].Length); // remove first two (already handled) lines from server string builder 
+            state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder 
             //DataEvent(spreadsheet); //update view 
             state.OnNetworkAction = OnReceive; //change OnNetworkAction for normal JSON server communications 
             Networking.GetData(state);
@@ -120,9 +123,7 @@ namespace SpreadsheetController
             // Debug.WriteLine();
             Console.WriteLine(parts[0]);
 
-            Networking.Send(state.TheSocket, "Now Dallon is dumb\n");
-            Networking.Send(state.TheSocket, "ERIK WHY DUMB\n");
-            Networking.Send(state.TheSocket, "Tyler VERY dumb\n");
+            Networking.Send(state.TheSocket, "Test\n");
         }
     }
 }
