@@ -10,35 +10,41 @@
 
 using boost::asio::ip::tcp;
 
-class connection_handler : public boost::enable_shared_from_this<connection_handler>
-{
-    private:
-        tcp::socket sock;
-        //std::string message = "Hello From Server!";
-        std::string name;
-        int ID;
-        enum { max_length = 1024 };
-        char data[max_length];
 
-    public:
-        typedef boost::shared_ptr<connection_handler> pointer;
-        //connection_handler(boost::asio::io_context& io_context);
-        connection_handler(boost::asio::io_context& io_context);
-
-        // creating the pointer
-        static pointer create(boost::asio::io_context& io_context);
-
-        //socket creation
-        tcp::socket& socket();
-
-        void start(std::string spreadsheets);
-
-        void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
-        void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
-};
 
 class Server
 {
+public:
+  class connection_handler : public boost::enable_shared_from_this<connection_handler>
+  {
+  private:
+    Server* server;
+    tcp::socket sock;
+    //std::string message = "Hello From Server!";
+    std::string client_name;
+    int ID;
+    enum { max_length = 1024 };
+    char data[max_length];
+
+  public:
+    typedef boost::shared_ptr<connection_handler> pointer;
+    //connection_handler(boost::asio::io_context& io_context);
+    connection_handler(boost::asio::io_context& io_context, Server * s);
+
+    // creating the pointer
+    static pointer create(boost::asio::io_context& io_context);
+
+    //socket creation
+    tcp::socket& socket();
+
+    void start();
+
+    void on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred);
+    void on_name(const boost::system::error_code& err, size_t bytes_transferred);
+    void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
+    void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
+  };
+
 private:
   std::map<std::string, Spreadsheet>* spreadsheets;
   tcp::acceptor acceptor;

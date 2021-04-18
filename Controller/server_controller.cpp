@@ -5,16 +5,19 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "server_controller.h"
-#include "ServerSpreadsheet.h"
+#include "../Model/ServerSpreadsheet.h"
 #include <map>
 
 using boost::asio::ip::tcp;
-typedef boost::shared_ptr<connection_handler> pointer;
+typedef boost::shared_ptr<Server::connection_handler> pointer;
+
+int Server::next_ID;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-connection_handler::connection_handler(boost::asio::io_context& io_context)
+Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server * s)
 	: sock(io_context)
 {
+	server = s;
 };
 
 //constructor for accepting connection from client
@@ -29,15 +32,19 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 }
 
 //socket creation
-tcp::socket& connection_handler::socket()
+tcp::socket& Server::connection_handler::socket()
 {
 	return sock;
 }
 
-void connection_handler::start(std::string spreadsheets)
+void Server::connection_handler::start()
 {
-	sock.read_some(boost::asio::buffer(data, max_length));
+	// Start asynchrounous handshake, look for name
+	sock.async_read_some(boost::asio::buffer(data, max_length),
+		boost::bind(&connection_handler::on_name, shared_from_this(),
+			boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 
+	/*
 	name = data;
 
 	std::string message = spreadsheets;
@@ -47,9 +54,62 @@ void connection_handler::start(std::string spreadsheets)
 	boost::asio::async_read(sock, boost::asio::buffer(data, max_length), 
 		boost::bind(&connection_handler::handle_read, shared_from_this(), 
 		boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+		*/
 }
 
-void connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
+void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)
+{
+	if (!err) {
+		client_name = data;
+
+		// LOCK THIS
+		ID = next_ID;
+		next_ID++;
+
+		std::cout << "New client connected" << std::endl;
+
+		// Send list of spreadsheet names to client
+		sock.write_some(boost::asio::buffer(server->get_spreadsheets(), max_length));
+
+		// Continue asynchronous handshake, look for spreadsheet choice
+		sock.async_read_some(boost::asio::buffer(data, max_length),
+			boost::bind(&connection_handler::on_spreadsheet, shared_from_this(),
+				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+	}
+	else {
+		std::cerr << "error: " << err.message() << std::endl;
+		sock.close();
+	}
+}
+
+void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
+{
+	if (!err) {
+		std::string spreadsheet_name = data;
+
+		// Send data of chosen spreadsheet
+		Spreadsheet &spreadsheet = server->spreadsheets->at(spreadsheet_name);
+		std::map<std::string, Cell> cells = spreadsheet.get_cells();
+
+		// Send every edited cell
+		for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
+		{
+			std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
+			sock.write_some(boost::asio::buffer(message, max_length));
+		}
+
+		// Send every selected cell
+
+
+		spreadsheet.add_user(client_name, ID);
+	}
+	else {
+		std::cerr << "error: " << err.message() << std::endl;
+		sock.close();
+	}
+}
+
+void Server::connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
 		std::cout << data << std::endl;
@@ -60,7 +120,7 @@ void connection_handler::handle_read(const boost::system::error_code& err, size_
 	}
 }
 
-void connection_handler::handle_write(const boost::system::error_code& err, size_t bytes_transferred)
+void Server::connection_handler::handle_write(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
 		std::cout << "Server sent Hello message!" << std::endl;
@@ -74,7 +134,7 @@ void connection_handler::handle_write(const boost::system::error_code& err, size
 void Server::start_accept()
 {
 	// socket
-	connection_handler::pointer connection(new connection_handler(io_context_));
+	connection_handler::pointer connection(new connection_handler(io_context_, this));
 
 	// asynchronous accept operation and wait for a new connection.
 	acceptor.async_accept(connection->socket(),
@@ -85,7 +145,7 @@ void Server::start_accept()
 void Server::handle_accept(connection_handler::pointer connection, const boost::system::error_code& err)
 {
 	if (!err)
-		connection->start(get_spreadsheets());
+		connection->start();
 
 	start_accept();
 }
