@@ -2,6 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include "ServerSpreadsheet.h"
+#include <map>
 
 using boost::asio::ip::tcp;
 
@@ -33,7 +35,8 @@ class connection_handler : public boost::enable_shared_from_this<connection_hand
 
 class Server
 {
-    private:
+    private:    
+        std::map<std::string, Spreadsheet> *spreadsheets;    
         tcp::acceptor acceptor;
         boost::asio::io_context& io_context_;
         void start_accept();
@@ -43,4 +46,5 @@ class Server
         static int next_ID;
         //constructor for accepting clients
         Server(boost::asio::io_context& io_context);
+        std::map<std::string, Spreadsheet> get_spreadsheets();
 };

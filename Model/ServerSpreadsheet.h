@@ -41,7 +41,6 @@ class Spreadsheet {
 	std::stack<Cell> history;
 
 public:
-
 	std::map<std::string, Cell> get_cells();
 	Cell get_cell(std::string cell_name);
 };

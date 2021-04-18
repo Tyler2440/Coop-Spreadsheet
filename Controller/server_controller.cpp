@@ -5,6 +5,8 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "server_controller.h"
+#include "ServerSpreadsheet.h"
+#include <map>
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
 
@@ -12,6 +14,7 @@ using boost::asio::ip::tcp;
 typedef boost::shared_ptr<connection_handler> pointer;
 
 int Server::next_ID;
+
 
 connection_handler::connection_handler(boost::asio::io_context& io_context) : sock(io_context) 
 {
@@ -21,7 +24,8 @@ connection_handler::connection_handler(boost::asio::io_context& io_context) : so
 //constructor for accepting connection from client
 Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor(io_context, tcp::endpoint(tcp::v4(), 1100))
 {
-  Server::next_ID = 0;
+	Server::spreadsheets = new std::map<std::string, Spreadsheet>();
+    Server::next_ID = 0;
 	start_accept();
 }
 
@@ -48,6 +52,12 @@ void connection_handler::start()
 	Server::next_ID++;
 
 	std::string message = std::to_string(ID) + " Fake list of spreadsheets!";
+
+	std::map<std::string, Spreadsheet> spreadsheets = Server::get_spreadsheets();
+	for (Spreadsheet spreadsheet : spreadsheets)
+	{
+
+	}
 
 	sock.write_some(boost::asio::buffer(message));
 
@@ -95,4 +105,9 @@ void Server::handle_accept(connection_handler::pointer connection, const boost::
 		connection->start();
 	}
 	start_accept();
+}
+
+std::map<std::string, Spreadsheet> Server::get_spreadsheets()
+{
+	return *Server::spreadsheets;
 }
