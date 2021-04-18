@@ -11,11 +11,17 @@
 using boost::asio::ip::tcp;
 typedef boost::shared_ptr<connection_handler> pointer;
 
-connection_handler::connection_handler(boost::asio::io_context& io_context) : sock(io_context) {};
+int Server::next_ID;
+
+connection_handler::connection_handler(boost::asio::io_context& io_context) : sock(io_context) 
+{
+	ID = 0;
+};
 
 //constructor for accepting connection from client
 Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor(io_context, tcp::endpoint(tcp::v4(), 1100))
 {
+  Server::next_ID = 0;
 	start_accept();
 }
 
@@ -33,19 +39,21 @@ tcp::socket& connection_handler::socket()
 
 void connection_handler::start()
 {
-	sock.async_read_some(
-		boost::asio::buffer(data, max_length),
-		boost::bind(&connection_handler::handle_read,
-			shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+	sock.read_some(boost::asio::buffer(data, max_length));
 
-	sock.async_write_some(
-		boost::asio::buffer(message, max_length),
-		boost::bind(&connection_handler::handle_write,
-			shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+	name = data;
+
+	//LOCK THIS
+	ID = Server::next_ID;
+	Server::next_ID++;
+
+	std::string message = std::to_string(ID) + " Fake list of spreadsheets!";
+
+	sock.write_some(boost::asio::buffer(message));
+
+	sock.read_some(boost::asio::buffer(data, max_length));
+
+	std::cout << data << std::endl;
 }
 
 void connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)

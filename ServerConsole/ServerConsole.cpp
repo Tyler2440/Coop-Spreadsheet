@@ -12,9 +12,19 @@ int main()
     try
     {
         boost::asio::io_context io_context;
-        server_ptr server(new Server(io_context));
-        //Server server(io_context);
+        //server_ptr server(new Server(io_context));
+        Server server(io_context);
         io_context.run();
+
+        std::string cmd;
+        while (true)
+        {
+          std::cin >> cmd;
+          if (cmd == "exit")
+          {
+            return 0;
+          }
+        }
     }
     catch (std::exception& e)
     {
