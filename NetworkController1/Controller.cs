@@ -22,15 +22,18 @@ namespace SpreadsheetController
     {
         private static SocketState theServer = null; //socket for connection to server 
         private static string name = ""; //user name of local client 
+        private static int id;
 
         // Event to update wiew with new info from server
-        public delegate void DataHandler();
+        public delegate void DataHandler(List<string> spreadsheets, SocketState state);
         //public delegate void DataHandler(Spreadsheet spreadsheet);
-        public event DataHandler DataEvent;
+        public event DataHandler FileSelect;
 
         // Event to update view of network errors
         public delegate void ErrorHandler(string err);
         public event ErrorHandler Error;
+
+        private List<string> spreadsheets;
 
         /// <summary>
         /// Sets up initial connection with server 
@@ -59,7 +62,7 @@ namespace SpreadsheetController
 
             theServer = state;
             Networking.Send(state.TheSocket, name + "\n"); //update server with user name 
-            state.OnNetworkAction = OnHandshake; //set up OnNetworkAction for handshake protocol 
+            state.OnNetworkAction = OnRecieveFile; //set up OnNetworkAction for handshake protocol 
 
             Networking.GetData(state); //initiate receive network loop 
         }
@@ -70,7 +73,7 @@ namespace SpreadsheetController
         /// GetData event loop is continued with OnReceive as the new OnNetworkAction delegate
         /// </summary>
         /// <param name="state"></param>
-        private void OnHandshake(SocketState state)
+        private void OnRecieveFile(SocketState state)
         {
             if (state.ErrorOccured)
             {
@@ -81,11 +84,49 @@ namespace SpreadsheetController
             string totalData = state.GetData();
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
+            foreach(String name in parts)
+            {
+                if (name.Equals("\n"))
+                    break;             
+                spreadsheets.Add(name);
+            }
+
+            for(int i = 0; i < parts.Length; i++)
+            {
+                state.RemoveData(i,parts[i].Length); // remove already handled lines from server string builder 
+            }
+
             Console.WriteLine(parts[0] + "\n");
 
-            state.RemoveData(0, parts[0].Length); // remove first two (already handled) lines from server string builder 
+            FileSelect(spreadsheets, state);
+
             //DataEvent(spreadsheet); //update view 
-            state.OnNetworkAction = OnReceive; //change OnNetworkAction for normal JSON server communications 
+            state.OnNetworkAction = OnReceiveID; //change OnNetworkAction for normal JSON server communications 
+            Networking.GetData(state);
+        }
+
+        /// <summary>
+        /// On Network Action method to be called when message(clientID) has been receieved. 
+        /// If error occured, view is updated. 
+        /// </summary>
+        /// <param name="state"></param>
+        private void OnReceiveID(SocketState state)
+        {
+            if (state.ErrorOccured)
+            {
+                Error("Error while retrieving Client ID"); //update view of error 
+                return;
+            }
+
+            string totalData = state.GetData();
+
+            string[] parts = Regex.Split(totalData, @"(?<=[\n])");
+
+            String id = parts[0];
+
+            state.RemoveData(0, parts[0].Length);
+
+            state.OnNetworkAction = OnReceive;
             Networking.GetData(state);
         }
 
@@ -123,6 +164,16 @@ namespace SpreadsheetController
             Networking.Send(state.TheSocket, "Now Dallon is dumb\n");
             Networking.Send(state.TheSocket, "ERIK WHY DUMB\n");
             Networking.Send(state.TheSocket, "Tyler VERY dumb\n");
+        }
+
+        public List<String> GetSpreadsheets()
+        {
+            return null;
+        }
+
+        public void SendFileSelect(string file, SocketState state)
+        {
+            Networking.Send(state.TheSocket, file + "\n");
         }
     }
 }

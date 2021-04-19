@@ -32,6 +32,7 @@ namespace SpreadsheetGUI
             // Initializes the controller object
             controller = new Controller();
 
+
             // Adds two events to SelectionChanged: displaySelection and HighlightCellContentsOnClick. When a cell is
             // clicked on, these two events are run
             spreadsheetPanel1.SelectionChanged += displaySelection;
@@ -40,6 +41,14 @@ namespace SpreadsheetGUI
             // Initially, highlight cell A1 and update CellNameText to display A1
             spreadsheetPanel1.SetSelection(0, 0);
             CellNameText.Text = "A1";
+
+            networkController.FileSelect += JoinServer;
+        }
+
+        private void JoinServer(List<string> spreadsheets, SocketState state)
+        {
+            FileSelector fileselector = new FileSelector(spreadsheets, state, networkController);
+            fileselector.Show();
         }
 
         public SpreadsheetForm(string file)
@@ -250,7 +259,7 @@ namespace SpreadsheetGUI
 
         private void JoinButton_Click(object sender, EventArgs e)
         {
-            networkController.Connect("localhost", "NOW BEN TOO?? DUMB\n");
+            networkController.Connect(AddressText.Text, UsernameBox.Text);
         }
 
         /// <summary>

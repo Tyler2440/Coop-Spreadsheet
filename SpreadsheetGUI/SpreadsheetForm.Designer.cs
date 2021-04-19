@@ -38,6 +38,8 @@ namespace SpreadsheetGUI
             this.ServerLabel = new System.Windows.Forms.Label();
             this.AddressText = new System.Windows.Forms.TextBox();
             this.JoinButton = new System.Windows.Forms.Button();
+            this.UsernameBox = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.CellInfoPanel.SuspendLayout();
             this.SuspendLayout();
@@ -49,7 +51,7 @@ namespace SpreadsheetGUI
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.menuStrip1.Size = new System.Drawing.Size(703, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(750, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -71,9 +73,9 @@ namespace SpreadsheetGUI
             this.CellInfoPanel.Controls.Add(this.CellLabel);
             this.CellInfoPanel.Controls.Add(this.CellValueText);
             this.CellInfoPanel.Controls.Add(this.CellNameText);
-            this.CellInfoPanel.Location = new System.Drawing.Point(0, 362);
+            this.CellInfoPanel.Location = new System.Drawing.Point(0, 434);
             this.CellInfoPanel.Name = "CellInfoPanel";
-            this.CellInfoPanel.Size = new System.Drawing.Size(685, 27);
+            this.CellInfoPanel.Size = new System.Drawing.Size(732, 27);
             this.CellInfoPanel.TabIndex = 2;
             // 
             // CellContentText
@@ -138,7 +140,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 24);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(703, 383);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(750, 455);
             this.spreadsheetPanel1.TabIndex = 0;
             // 
             // ServerLabel
@@ -159,7 +161,7 @@ namespace SpreadsheetGUI
             // 
             // JoinButton
             // 
-            this.JoinButton.Location = new System.Drawing.Point(170, 0);
+            this.JoinButton.Location = new System.Drawing.Point(352, 0);
             this.JoinButton.Name = "JoinButton";
             this.JoinButton.Size = new System.Drawing.Size(75, 23);
             this.JoinButton.TabIndex = 5;
@@ -167,11 +169,29 @@ namespace SpreadsheetGUI
             this.JoinButton.UseVisualStyleBackColor = true;
             this.JoinButton.Click += new System.EventHandler(this.JoinButton_Click);
             // 
+            // UsernameBox
+            // 
+            this.UsernameBox.Location = new System.Drawing.Point(228, 3);
+            this.UsernameBox.Name = "UsernameBox";
+            this.UsernameBox.Size = new System.Drawing.Size(100, 20);
+            this.UsernameBox.TabIndex = 6;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(167, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(55, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Username";
+            // 
             // SpreadsheetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(703, 407);
+            this.ClientSize = new System.Drawing.Size(750, 479);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.UsernameBox);
             this.Controls.Add(this.JoinButton);
             this.Controls.Add(this.AddressText);
             this.Controls.Add(this.ServerLabel);
@@ -209,6 +229,8 @@ namespace SpreadsheetGUI
         private System.Windows.Forms.Label ServerLabel;
         private System.Windows.Forms.TextBox AddressText;
         private System.Windows.Forms.Button JoinButton;
+        private System.Windows.Forms.TextBox UsernameBox;
+        private System.Windows.Forms.Label label1;
     }
 }
 

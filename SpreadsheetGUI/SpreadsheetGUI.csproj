@@ -47,6 +47,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller.cs" />
+    <Compile Include="FileSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileSelector.Designer.cs">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="SpreadsheetForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -55,6 +61,9 @@
     </Compile>
     <Compile Include="SpreadsheetGUIContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FileSelector.resx">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SpreadsheetForm.resx">
       <DependentUpon>SpreadsheetForm.cs</DependentUpon>
     </EmbeddedResource>
