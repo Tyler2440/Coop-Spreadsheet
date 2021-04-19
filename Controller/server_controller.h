@@ -22,6 +22,7 @@ public:
     tcp::socket sock;
     //std::string message = "Hello From Server!";
     std::string client_name;
+    std::string fdsa;
     int ID;
     enum { max_length = 1024 };
     char data[max_length];
@@ -43,6 +44,7 @@ public:
     void on_name(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
+    void on_connect(const boost::system::error_code& err, size_t bytes_transferred);
   };
 
 private:
@@ -51,6 +53,7 @@ private:
   boost::asio::io_context& io_context_;
   void start_accept();
   void handle_accept(connection_handler::pointer connection_handler, const boost::system::error_code& err);
+  
 
 public:
   static int next_ID;

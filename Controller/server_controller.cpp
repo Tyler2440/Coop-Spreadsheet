@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -39,11 +40,9 @@ tcp::socket& Server::connection_handler::socket()
 
 void Server::connection_handler::start()
 {
-	// Start asynchrounous handshake, look for name
 	sock.async_read_some(boost::asio::buffer(data, max_length),
-		boost::bind(&connection_handler::on_name, shared_from_this(),
+		boost::bind(&connection_handler::on_connect, shared_from_this(),
 			boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-
 	/*
 	name = data;
 
@@ -57,10 +56,41 @@ void Server::connection_handler::start()
 		*/
 }
 
+void Server::connection_handler::on_connect(const boost::system::error_code& err, size_t bytes_transferred)
+{
+	
+	/*
+	boost::split(stuff, data, boost::is_any_of("\n"));
+
+	std::cout << stuff[0] << std::endl;
+	std::cout << stuff.size() << std::endl;
+
+	if (stuff.size() <= 1)
+	{
+		sock.async_read_some(boost::asio::buffer(data, max_length),
+			boost::bind(&connection_handler::wait_for_newline, shared_from_this(),
+				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+	}
+	else
+		on_name(err, bytes_transferred);*/
+	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa), 
+		'\n', boost::bind(&connection_handler::on_name, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+
+		//// Start asynchrounous handshake, look for name
+		//sock.async_read_some(boost::asio::buffer(data, max_length),
+		//	boost::bind(&connection_handler::on_name, shared_from_this(),
+		//		boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+}
+
 void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		client_name = data;
+		
+		std::cout << "Enter spreadsheet name" << std::endl;
+		client_name = fdsa;
+		std::cout << client_name << std::endl;
+
+		fdsa.clear();
 
 		// LOCK THIS
 		ID = next_ID;
@@ -72,7 +102,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 		sock.write_some(boost::asio::buffer(server->get_spreadsheets(), max_length));
 
 		// Continue asynchronous handshake, look for spreadsheet choice
-		sock.async_read_some(boost::asio::buffer(data, max_length),
+		boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa), '\n',
 			boost::bind(&connection_handler::on_spreadsheet, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
@@ -85,16 +115,22 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::string spreadsheet_name = data;
+		std::string spreadsheet_name = fdsa;
+
+		std::cout << spreadsheet_name << std::endl;
+
+		std::cout << server->spreadsheets->size() << std::endl;
 
 		// Send data of chosen spreadsheet
 		Spreadsheet &spreadsheet = server->spreadsheets->at(spreadsheet_name);
 		std::map<std::string, Cell> cells = spreadsheet.get_cells();
 
+		std::cout << "here" << std::endl;
 		// Send every edited cell
 		for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
 		{
 			std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
+			std::cout << "haha" << std::endl;
 			sock.write_some(boost::asio::buffer(message, max_length));
 		}
 
