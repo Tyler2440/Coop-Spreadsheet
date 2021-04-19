@@ -40,46 +40,8 @@ tcp::socket& Server::connection_handler::socket()
 
 void Server::connection_handler::start()
 {
-	sock.async_read_some(boost::asio::buffer(data, max_length),
-		boost::bind(&connection_handler::on_connect, shared_from_this(),
-			boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-	/*
-	name = data;
-
-	std::string message = spreadsheets;
-
-	sock.write_some(boost::asio::buffer(message, max_length));
-	
-	boost::asio::async_read(sock, boost::asio::buffer(data, max_length), 
-		boost::bind(&connection_handler::handle_read, shared_from_this(), 
-		boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-		*/
-}
-
-void Server::connection_handler::on_connect(const boost::system::error_code& err, size_t bytes_transferred)
-{
-	
-	/*
-	boost::split(stuff, data, boost::is_any_of("\n"));
-
-	std::cout << stuff[0] << std::endl;
-	std::cout << stuff.size() << std::endl;
-
-	if (stuff.size() <= 1)
-	{
-		sock.async_read_some(boost::asio::buffer(data, max_length),
-			boost::bind(&connection_handler::wait_for_newline, shared_from_this(),
-				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-	}
-	else
-		on_name(err, bytes_transferred);*/
-	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa), 
+	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa),
 		'\n', boost::bind(&connection_handler::on_name, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-
-		//// Start asynchrounous handshake, look for name
-		//sock.async_read_some(boost::asio::buffer(data, max_length),
-		//	boost::bind(&connection_handler::on_name, shared_from_this(),
-		//		boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
 void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)

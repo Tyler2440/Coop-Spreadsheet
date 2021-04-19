@@ -44,7 +44,6 @@ public:
     void on_name(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
-    void on_connect(const boost::system::error_code& err, size_t bytes_transferred);
   };
 
 private:
