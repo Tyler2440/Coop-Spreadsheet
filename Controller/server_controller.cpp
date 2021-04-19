@@ -40,7 +40,7 @@ tcp::socket& Server::connection_handler::socket()
 
 void Server::connection_handler::start()
 {
-	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa),
+	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(buffer),
 		'\n', boost::bind(&connection_handler::on_name, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
@@ -49,10 +49,10 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 	if (!err) {
 		
 		std::cout << "Enter spreadsheet name" << std::endl;
-		client_name = fdsa;
+		client_name = buffer.substr(0, buffer.size() - 2);
 		std::cout << client_name << std::endl;
 
-		fdsa.clear();
+		buffer.clear();
 
 		// LOCK THIS
 		ID = next_ID;
@@ -64,7 +64,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 		sock.write_some(boost::asio::buffer(server->get_spreadsheets(), max_length));
 
 		// Continue asynchronous handshake, look for spreadsheet choice
-		boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(fdsa), '\n',
+		boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(buffer), '\n',
 			boost::bind(&connection_handler::on_spreadsheet, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
@@ -77,14 +77,14 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::string spreadsheet_name = fdsa;
+		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 2);;
 
 		std::cout << spreadsheet_name << std::endl;
 
 		std::cout << server->spreadsheets->size() << std::endl;
 
 		// Send data of chosen spreadsheet
-		Spreadsheet &spreadsheet = server->spreadsheets->at(spreadsheet_name);
+		Spreadsheet spreadsheet = server->spreadsheets->at(spreadsheet_name);
 		std::map<std::string, Cell> cells = spreadsheet.get_cells();
 
 		std::cout << "here" << std::endl;

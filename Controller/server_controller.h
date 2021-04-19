@@ -22,7 +22,7 @@ public:
     tcp::socket sock;
     //std::string message = "Hello From Server!";
     std::string client_name;
-    std::string fdsa;
+    std::string buffer;
     int ID;
     enum { max_length = 1024 };
     char data[max_length];
