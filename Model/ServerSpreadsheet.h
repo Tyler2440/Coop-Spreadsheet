@@ -1,6 +1,5 @@
-#ifndef BATED_SERVER_SPREADSHEET
-#define BATED_SERVER_SPREADSHEET
-
+#ifndef SERVERSPREADSHEET_H
+#define SERVERSPREADSHEET_H
 
 #include <string>
 #include <map>
@@ -18,7 +17,7 @@ class Cell {
 	std::stack<std::string> previous_changes;
 
 public:
-
+	Cell();
 	Cell(std::string content); //constructor 
 
 	std::string get_name();
@@ -37,49 +36,17 @@ public:
 class Spreadsheet {
 
 	std::map<std::string, Cell> cells;
+	std::map<int, std::string> users;
 
 	std::stack<Cell> history;
 
 public:
 	std::map<std::string, Cell> get_cells();
 	Cell get_cell(std::string cell_name);
+
+	const std::map<int, std::string> get_users();
+	void add_user(std::string name, int ID);
+	void delete_user(int ID);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

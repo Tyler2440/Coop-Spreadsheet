@@ -84,6 +84,7 @@ namespace SpreadsheetController
             string totalData = state.GetData();
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
+<<<<<<< HEAD
             foreach(String name in parts)
             {
                 if (name.Equals("\n"))
@@ -100,6 +101,14 @@ namespace SpreadsheetController
 
             FileSelect(spreadsheets, state);
 
+=======
+            foreach (string name in parts)
+            {
+                Console.Write(name);
+            }
+
+            state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder 
+>>>>>>> 968001293dcc5a2eca9793373d4624f1593affa7
             //DataEvent(spreadsheet); //update view 
             state.OnNetworkAction = OnReceiveID; //change OnNetworkAction for normal JSON server communications 
             Networking.GetData(state);
@@ -161,9 +170,7 @@ namespace SpreadsheetController
             // Debug.WriteLine();
             Console.WriteLine(parts[0]);
 
-            Networking.Send(state.TheSocket, "Now Dallon is dumb\n");
-            Networking.Send(state.TheSocket, "ERIK WHY DUMB\n");
-            Networking.Send(state.TheSocket, "Tyler VERY dumb\n");
+            Networking.Send(state.TheSocket, "Test\n");
         }
 
         public List<String> GetSpreadsheets()

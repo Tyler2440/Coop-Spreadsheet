@@ -1,6 +1,10 @@
 #include <map>
 #include "ServerSpreadsheet.h"
 
+Cell::Cell()
+{
+}
+
 Cell::Cell(std::string content)
 {
 	this->set_contents(content);
@@ -42,4 +46,17 @@ std::map<std::string, Cell> Spreadsheet::get_cells()
 Cell Spreadsheet::get_cell(std::string cell_name)
 {
 	return cells[cell_name];
+}
+
+const std::map<int, std::string> Spreadsheet::get_users()
+{
+	return users;
+}
+void Spreadsheet::add_user(std::string name, int ID)
+{
+	users.insert(std::pair<int, std::string>(ID, name));
+}
+void Spreadsheet::delete_user(int ID)
+{
+	users.erase(ID);
 }
