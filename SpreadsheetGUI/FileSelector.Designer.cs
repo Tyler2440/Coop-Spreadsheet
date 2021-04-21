@@ -58,6 +58,8 @@ namespace SpreadsheetGUI
             // 
             // textBox1
             // 
+            this.textBox1.HideSelection = false;
+            this.textBox1.ImeMode = System.Windows.Forms.ImeMode.On;
             this.textBox1.Location = new System.Drawing.Point(67, 161);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(123, 20);

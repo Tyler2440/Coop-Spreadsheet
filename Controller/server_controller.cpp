@@ -26,9 +26,12 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	Spreadsheet *test1 = new Spreadsheet();
-	//test1->set_cell("a1", "jingle");
-	//test1->add_user("chad", 2);
-	//test1->select_cell(2, "a1");
+	test1->set_cell("a1", "jingle");
+	test1->add_user("chad", 2);
+	test1->set_cell("a2", "jangle");
+	test1->set_cell("a3", "jongle");
+	test1->set_cell("a4", "jungle");
+	test1->set_cell("a5", "jyngle");
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
@@ -112,11 +115,13 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		// Send every selected cell
 		for (std::map<int, User>::iterator it = users.begin(); it != users.end(); ++it)
 		{
-			//std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\" selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}";
-			std::string message = "a person\n";
-			//std::cout << "haha 2 electric bugaloo" << std::endl;
+			std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\", selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}\n";
+			std::cout << "haha 2 electric bugaloo" << std::endl;
 			sock.write_some(boost::asio::buffer(message, max_length));
 		}
+
+		std::string message = "3\n";
+		sock.write_some(boost::asio::buffer(message, max_length));
 
 		spreadsheet.add_user(client_name, ID);
 
