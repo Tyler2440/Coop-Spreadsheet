@@ -12,13 +12,14 @@ namespace SpreadsheetGUI
 {
     public partial class FileSelector : Form
     {
-        ComboBox box = new ComboBox();
+        ComboBox box;
         SocketState state;
         SpreadsheetController.Controller controller;
         public FileSelector(List<string> spreadsheets, SocketState state, SpreadsheetController.Controller controller)
-        {
+        {          
             InitializeComponent();
 
+            box = new ComboBox();
             this.state = state;
             this.controller = controller;
             box.Location = new Point(67,90);
@@ -29,8 +30,12 @@ namespace SpreadsheetGUI
             {
                 box.Items.Add(spreadsheet);
             }
-
+            box.Text = "Select Spreadsheet";
+            this.Controls.Add(box);
         }
+
+
+
         private void select_Click(object sender, EventArgs e)
         {
             controller.SendFileSelect(box.SelectedItem.ToString(), state);

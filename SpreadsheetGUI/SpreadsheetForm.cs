@@ -48,7 +48,7 @@ namespace SpreadsheetGUI
         private void JoinServer(List<string> spreadsheets, SocketState state)
         {
             FileSelector fileselector = new FileSelector(spreadsheets, state, networkController);
-            fileselector.Show();
+            fileselector.ShowDialog();
         }
 
         public SpreadsheetForm(string file)
@@ -259,8 +259,8 @@ namespace SpreadsheetGUI
 
         private void JoinButton_Click(object sender, EventArgs e)
         {
-            networkController.Connect(AddressText.Text, UsernameBox.Text);
-            networkController.Connect("localhost", "Chad\n");
+            Connect(sender, e);
+            //networkController.Connect("localhost", "Chad\n");
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace SpreadsheetGUI
             JoinButton.Enabled = false;
             KeyPreview = true;
 
-            networkController.Connect(AddressText.Text, "Chad"); //initate connection network protocol in controller 
+            networkController.Connect(AddressText.Text, UsernameBox.Text); //initate connection network protocol in controller 
         }
 
         ///<summary>

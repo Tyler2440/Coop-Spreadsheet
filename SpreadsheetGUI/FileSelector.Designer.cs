@@ -32,7 +32,6 @@ namespace SpreadsheetGUI
             this.SelectButton = new System.Windows.Forms.Button();
             this.NewButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -65,15 +64,6 @@ namespace SpreadsheetGUI
             this.textBox1.Text = "Enter Name";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(67, 90);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(123, 21);
-            this.comboBox1.TabIndex = 3;
-            this.comboBox1.Text = "Select Spreadsheet";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -89,7 +79,6 @@ namespace SpreadsheetGUI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(356, 269);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.NewButton);
             this.Controls.Add(this.SelectButton);
             this.Controls.Add(this.textBox1);
@@ -104,7 +93,6 @@ namespace SpreadsheetGUI
         private System.Windows.Forms.Button SelectButton;
         private System.Windows.Forms.Button NewButton;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label2;
     }
 }
