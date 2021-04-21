@@ -96,8 +96,6 @@ namespace SpreadsheetController
                 state.RemoveData(0, parts[i].Length); // remove already handled lines from server string builder 
             //}
 
-            Console.WriteLine(parts[0] + "\n");
-
             FileSelect(spreadsheets, state);
 
             foreach (string name in parts)
@@ -143,9 +141,17 @@ namespace SpreadsheetController
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine(totalData);
+                    //System.Diagnostics.Debug.WriteLine(totalData);
                     var result = JsonConvert.DeserializeObject<JToken>(part);
-                    System.Diagnostics.Debug.WriteLine(result["cellName"]);
+                    System.Diagnostics.Debug.WriteLine(result["messageType"]);
+                    if (result["messageType"].ToString() == "cellUpdated")
+                    {
+
+                    }
+                    else if (result["messageType"].ToString() == "cellSelected")
+                    {
+
+                    }
                 }
             }
            
