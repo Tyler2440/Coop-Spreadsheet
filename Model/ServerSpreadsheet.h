@@ -29,6 +29,22 @@ public:
 	std::string get_previous_change();
 };
 
+class User 
+{	
+	private:
+		int ID;
+		std::string selected;
+		std::string name;
+
+	public:
+		int get_ID();
+		std::string get_selected();
+		std::string get_name();
+		void select(std::string cell_name);
+
+		User();
+		User (int ID, std::string name);
+};
 
 /*
 * Represents collaborative spreadsheet
@@ -36,7 +52,7 @@ public:
 class Spreadsheet {
 
 	std::map<std::string, Cell> cells;
-	std::map<int, std::string> users;
+	std::map<int, User> users;
 
 	std::stack<Cell> history;
 
@@ -44,8 +60,9 @@ public:
 	std::map<std::string, Cell> get_cells();
 	Cell get_cell(std::string cell_name);
 	void set_cell(std::string cell_name, std::string contents);
+	void select_cell(int ID_of_selector, std::string cell_name);
 
-	const std::map<int, std::string> get_users();
+	const std::map<int, User> get_users();
 	void add_user(std::string name, int ID);
 	void delete_user(int ID);
 };

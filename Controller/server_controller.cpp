@@ -27,6 +27,8 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	Spreadsheet *test1 = new Spreadsheet();
 	test1->set_cell("a1", "jingle");
+	test1->add_user("chad", 2);
+	test1->select_cell(2, "a1");
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
@@ -85,6 +87,10 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 
 		std::cout << server->spreadsheets->size() << std::endl;
 
+		buffer.clear();
+
+		// LOCK THE SPREADSHEET
+
 		// Send data of chosen spreadsheet
 		Spreadsheet spreadsheet = server->spreadsheets->at(spreadsheet_name);
 		std::map<std::string, Cell> cells = spreadsheet.get_cells();
@@ -98,10 +104,22 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 			sock.write_some(boost::asio::buffer(message, max_length));
 		}
 
+		std::map<int, User> users = spreadsheet.get_users();
 		// Send every selected cell
-		
+		for (std::map<int, User>::iterator it = users.begin(); it != users.end(); ++it)
+		{
+			std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\" selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}";
+			std::cout << "haha 2 electric bugaloo" << std::endl;
+			sock.write_some(boost::asio::buffer(message, max_length));
+		}
 
 		spreadsheet.add_user(client_name, ID);
+
+		// END OF LOCK
+
+		boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(buffer), '\n',
+			boost::bind(&connection_handler::handle_read, shared_from_this(),
+				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;
@@ -112,7 +130,14 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 void Server::connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
+		// change to send data to other clients
 		std::cout << data << std::endl;
+
+		buffer.clear();
+
+		boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(buffer), '\n',
+			boost::bind(&connection_handler::handle_read, shared_from_this(),
+				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;

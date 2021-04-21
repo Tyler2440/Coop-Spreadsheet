@@ -61,17 +61,53 @@ void Spreadsheet::set_cell(std::string cell_name, std::string contents)
 	}
 }
 
-const std::map<int, std::string> Spreadsheet::get_users()
+const std::map<int, User> Spreadsheet::get_users()
 {
 	return users;
 }
 
 void Spreadsheet::add_user(std::string name, int ID)
 {
-	users.insert(std::pair<int, std::string>(ID, name));
+	users.insert(std::pair<int, User>(ID, *(new User(ID, name))));
 }
 
 void Spreadsheet::delete_user(int ID)
 {
 	users.erase(ID);
+}
+
+int User::get_ID()
+{
+	return ID;
+}
+
+std::string User::get_selected()
+{
+	return selected;
+}
+
+User::User()
+{
+}
+
+User::User(int ID, std::string name) 
+{
+	this->ID = ID;
+	this->name = name;
+}
+
+std::string User::get_name()
+{
+	return name;
+}
+
+void Spreadsheet::select_cell(int ID_of_selector, std::string cell_name)
+{
+	users[ID_of_selector].select(cell_name);
+	users.insert(std::pair<int, User>(ID_of_selector, users[ID_of_selector]));
+}
+
+void User::select(std::string cell_name)
+{
+	selected = cell_name;
 }
