@@ -33,6 +33,7 @@ namespace SpreadsheetGUI
             this.NewButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // SelectButton
@@ -67,23 +68,34 @@ namespace SpreadsheetGUI
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(174, 127);
+            this.label2.Location = new System.Drawing.Point(157, 123);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(16, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "or";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(86, 56);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(160, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Select a spreadsheet to work on";
             // 
             // FileSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(356, 269);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.NewButton);
             this.Controls.Add(this.SelectButton);
             this.Controls.Add(this.textBox1);
             this.Name = "FileSelector";
-            this.Text = "Form1";
+            this.Text = "Spreadsheet Selector ";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -94,5 +106,6 @@ namespace SpreadsheetGUI
         private System.Windows.Forms.Button NewButton;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
     }
 }
