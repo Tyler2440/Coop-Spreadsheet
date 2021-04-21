@@ -91,9 +91,9 @@ namespace SpreadsheetController
                 spreadsheets.Add(name);
             }
 
-           // for(int i = 0; i < parts.Length; i++)
+            for(int i = 0; i < parts.Length; i++)
             //{
-                state.RemoveData(0,parts[0].Length); // remove already handled lines from server string builder 
+                state.RemoveData(0, parts[i].Length); // remove already handled lines from server string builder 
             //}
 
             Console.WriteLine(parts[0] + "\n");
@@ -105,9 +105,9 @@ namespace SpreadsheetController
                 Console.Write(name);
             }
 
-            state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder
+            //state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder
             //DataEvent(spreadsheet); //update view 
-            state.OnNetworkAction = OnReceiveID; //change OnNetworkAction for normal JSON server communications 
+            state.OnNetworkAction = OnReceiveSpreadsheet; //change OnNetworkAction for normal JSON server communications 
             Networking.GetData(state);
         }
 
@@ -116,7 +116,7 @@ namespace SpreadsheetController
         /// If error occured, view is updated. 
         /// </summary>
         /// <param name="state"></param>
-        private void OnReceiveID(SocketState state)
+        private void OnReceiveSpreadsheet(SocketState state)
         {
             if (state.ErrorOccured)
             {
@@ -128,11 +128,28 @@ namespace SpreadsheetController
 
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
-            String id = parts[0];
+            foreach (string part in parts)
+            {
+                state.RemoveData(0, part.Length); // remove already handled lines from server string builder 
+                if (part.Length == 0)
+                    continue;
+                if (part[part.Length - 1] != '\n')
+                    break;
 
-            state.RemoveData(0, parts[0].Length);
+                if (part.Equals("3\n"))
+                {
+                    state.OnNetworkAction = OnReceive;                  
+                    break;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine(totalData);
+                    var result = JsonConvert.DeserializeObject<JToken>(part);
+                    System.Diagnostics.Debug.WriteLine(result["cellName"]);
+                }
+            }
+           
 
-            state.OnNetworkAction = OnReceive;
             Networking.GetData(state);
         }
 
@@ -150,7 +167,7 @@ namespace SpreadsheetController
             }
 
             ProcessMessages(state); //convert JSON data to spreadsheet cell objects
-
+            
             Networking.GetData(state);
         }
 

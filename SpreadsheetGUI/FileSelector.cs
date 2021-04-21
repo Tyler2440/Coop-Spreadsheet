@@ -34,8 +34,6 @@ namespace SpreadsheetGUI
             this.Controls.Add(box);
         }
 
-
-
         private void select_Click(object sender, EventArgs e)
         {
             controller.SendFileSelect(box.SelectedItem.ToString(), state);
