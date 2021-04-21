@@ -259,11 +259,8 @@ namespace SpreadsheetGUI
 
         private void JoinButton_Click(object sender, EventArgs e)
         {
-<<<<<<< HEAD
             networkController.Connect(AddressText.Text, UsernameBox.Text);
-=======
             networkController.Connect("localhost", "Chad\n");
->>>>>>> 968001293dcc5a2eca9793373d4624f1593affa7
         }
 
         /// <summary>

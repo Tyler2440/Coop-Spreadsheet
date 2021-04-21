@@ -25,7 +25,9 @@ Server::connection_handler::connection_handler(boost::asio::io_context& io_conte
 Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor(io_context, tcp::endpoint(tcp::v4(), 1100))
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *(new Spreadsheet())) );
+	Spreadsheet *test1 = new Spreadsheet();
+	test1->set_cell("a1", "jingle");
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
 	//Server::next_ID = 0;
@@ -97,7 +99,7 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		}
 
 		// Send every selected cell
-
+		
 
 		spreadsheet.add_user(client_name, ID);
 	}

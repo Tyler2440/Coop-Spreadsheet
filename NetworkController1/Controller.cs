@@ -33,7 +33,7 @@ namespace SpreadsheetController
         public delegate void ErrorHandler(string err);
         public event ErrorHandler Error;
 
-        private List<string> spreadsheets;
+        private List<string> spreadsheets = new List<string>();
 
         /// <summary>
         /// Sets up initial connection with server 
@@ -84,7 +84,6 @@ namespace SpreadsheetController
             string totalData = state.GetData();
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
-<<<<<<< HEAD
             foreach(String name in parts)
             {
                 if (name.Equals("\n"))
@@ -92,23 +91,21 @@ namespace SpreadsheetController
                 spreadsheets.Add(name);
             }
 
-            for(int i = 0; i < parts.Length; i++)
-            {
-                state.RemoveData(i,parts[i].Length); // remove already handled lines from server string builder 
-            }
+           // for(int i = 0; i < parts.Length; i++)
+            //{
+                state.RemoveData(0,parts[0].Length); // remove already handled lines from server string builder 
+            //}
 
             Console.WriteLine(parts[0] + "\n");
 
             FileSelect(spreadsheets, state);
 
-=======
             foreach (string name in parts)
             {
                 Console.Write(name);
             }
 
-            state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder 
->>>>>>> 968001293dcc5a2eca9793373d4624f1593affa7
+            state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder
             //DataEvent(spreadsheet); //update view 
             state.OnNetworkAction = OnReceiveID; //change OnNetworkAction for normal JSON server communications 
             Networking.GetData(state);
