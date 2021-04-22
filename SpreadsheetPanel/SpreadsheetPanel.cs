@@ -243,7 +243,7 @@ namespace SS
             // The containing panel
             private SpreadsheetPanel _ssp;
 
-            Dictionary<int, User> users;
+            Dictionary<int, User> users = new Dictionary<int, User>();
 
 
             public DrawingPanel(SpreadsheetPanel ss)
@@ -394,7 +394,24 @@ namespace SS
                 {
                     Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
-                }                
+                }
+
+                foreach (User u in users.Values)
+                {
+                    // Highlight the selection of all users                 
+                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
+                    {
+                        
+                        Pen userPen = new Pen(u.getColor());
+
+                        e.Graphics.DrawRectangle(
+                            userPen,
+                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                    }
+                }
 
                 // Highlight the client sselection, if it is visible
                 if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
@@ -406,23 +423,7 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-                foreach(User u in users.Values)
-                {
-                    // Highlight the selection of all users                 
-                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
-                    {
-                        Pen userPen = new Pen(u.getColor());
-
-                        e.Graphics.DrawRectangle(
-                            userPen,
-                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
-                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                          DATA_COL_WIDTH - 2,
-                                          DATA_ROW_HEIGHT - 2));
-                    }
-                }
                
-
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {

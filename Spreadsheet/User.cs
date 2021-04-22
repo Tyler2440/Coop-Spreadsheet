@@ -15,13 +15,13 @@ namespace SS
         List<Color> colors = new List<Color>() {Color.Blue, Color.Red, Color.Purple, Color.Green, Color.Orange, Color.Brown, Color.Lime, Color.Fuchsia, Color.Aqua, Color.Yellow};
 
 
-        public User(int ID, string name, int col, int row)
+        public User(int ID, string name, int col, int row, Color color)
         {
             this.ID = ID;
             this.name = name;
             this.col = col;
             this.row = row;
-            calculateColor();
+            this.color = color;
         }
 
         public int getID()
@@ -59,11 +59,9 @@ namespace SS
             this.col = col;
         }
 
-        private void calculateColor()
+        public void setColor(Color color)
         {
-            int colorIndex = ID % 10;
-
-            this.color = colors[colorIndex];
+            this.color = color;
         }
     }
 }

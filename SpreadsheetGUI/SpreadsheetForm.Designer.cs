@@ -158,28 +158,29 @@ namespace SpreadsheetGUI
             this.AddressText.Name = "AddressText";
             this.AddressText.Size = new System.Drawing.Size(100, 20);
             this.AddressText.TabIndex = 4;
+            this.AddressText.Text = "localhost";
             // 
             // JoinButton
             // 
-            this.JoinButton.Location = new System.Drawing.Point(352, 0);
+            this.JoinButton.Location = new System.Drawing.Point(334, 0);
             this.JoinButton.Name = "JoinButton";
             this.JoinButton.Size = new System.Drawing.Size(75, 23);
-            this.JoinButton.TabIndex = 5;
+            this.JoinButton.TabIndex = 6;
             this.JoinButton.Text = "Join";
             this.JoinButton.UseVisualStyleBackColor = true;
             this.JoinButton.Click += new System.EventHandler(this.JoinButton_Click);
             // 
             // UsernameBox
             // 
-            this.UsernameBox.Location = new System.Drawing.Point(228, 3);
+            this.UsernameBox.Location = new System.Drawing.Point(221, 3);
             this.UsernameBox.Name = "UsernameBox";
             this.UsernameBox.Size = new System.Drawing.Size(100, 20);
-            this.UsernameBox.TabIndex = 6;
+            this.UsernameBox.TabIndex = 5;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(167, 6);
+            this.label1.Location = new System.Drawing.Point(160, 6);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 13);
             this.label1.TabIndex = 7;

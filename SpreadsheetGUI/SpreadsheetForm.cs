@@ -119,6 +119,7 @@ namespace SpreadsheetGUI
         private void SetUserSelectedCell(string cellName, int ID, string userName)
         {
             Dictionary<int, User> users = controller.UpdateUserCellSelection(ID, userName, cellName);
+            spreadsheetPanel1.SetUserSelection(users);
 
             //update list of Users and their selections 
             //tell spreadsheet panel 

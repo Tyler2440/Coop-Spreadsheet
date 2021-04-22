@@ -156,6 +156,8 @@ namespace SpreadsheetController
 
                     else if (result["messageType"].ToString() == "cellSelected")
                     {
+                        System.Diagnostics.Debug.WriteLine("CellName: " + result["cellName"].ToString());
+
                         //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                         cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                     }
@@ -207,7 +209,7 @@ namespace SpreadsheetController
 
         public void SendFileSelect(string file, SocketState state)
         {
-            Networking.Send(state.TheSocket, file + "\n");
+            Networking.Send(state.TheSocket, file);
         }
     }
 }
