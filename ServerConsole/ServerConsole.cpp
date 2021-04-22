@@ -43,9 +43,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
-//std::map<std::string, Spreadsheet> spreadsheets = Server::get_spreadsheets();
-//for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets.begin(); it != spreadsheets.end(); ++it)
-//{
-//    connection->socket().write_some(boost::asio::buffer(it->first, 1024));
-//}

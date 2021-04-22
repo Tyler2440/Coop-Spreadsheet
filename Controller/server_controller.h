@@ -32,7 +32,7 @@ public:
   public:
     typedef boost::shared_ptr<connection_handler> pointer;
     //connection_handler(boost::asio::io_context& io_context);
-    connection_handler(boost::asio::io_context& io_context, Server* s);
+    connection_handler(boost::asio::io_context& io_context, Server & s);
 
     // creating the pointer
     static pointer create(boost::asio::io_context& io_context);

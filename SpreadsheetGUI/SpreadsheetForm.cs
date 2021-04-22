@@ -26,6 +26,8 @@ namespace SpreadsheetGUI
         // Col/row hold the current cell's place in the spreadsheet
         int col, row;
 
+        
+
         public SpreadsheetForm()
         {
             InitializeComponent();
@@ -45,6 +47,7 @@ namespace SpreadsheetGUI
 
             networkController.FileSelect += JoinServer;
             networkController.Update += UpdateSpreadsheet;
+            networkController.cellSelection += SetUserSelectedCell;
         }
 
 
@@ -104,6 +107,21 @@ namespace SpreadsheetGUI
             //{
             //    UpdateSpreadsheetUsers(ID);
             //}
+
+        }
+
+        /// <summary>
+        /// Upates Spreadsheet Panel with user selected cells 
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <param name="ID"></param>
+        /// <param name="userName"></param>
+        private void SetUserSelectedCell(string cellName, int ID, string userName)
+        {
+            Dictionary<int, User> users = controller.UpdateUserCellSelection(ID, userName, cellName);
+
+            //update list of Users and their selections 
+            //tell spreadsheet panel 
 
         }
         /// <summary>
