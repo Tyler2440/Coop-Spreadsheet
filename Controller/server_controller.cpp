@@ -55,13 +55,14 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 {
 	if (!err) {
 		
-		std::cout << "Enter spreadsheet name" << std::endl;
+		//std::cout << "Enter spreadsheet name" << std::endl;
 		client_name = buffer.substr(0, buffer.size() - 2);
-		std::cout << client_name << std::endl;
+		//std::cout << client_name << std::endl;
 
 		buffer.clear();
 
-		// LOCK THIS
+		// LOCK next_ID
+		server->connections.insert(std::pair<int, connection_handler::pointer>(next_ID, this));
 		ID = next_ID;
 		next_ID++;
 
@@ -86,24 +87,27 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 	if (!err) {
 		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 2);;
 
-		std::cout << spreadsheet_name << std::endl;
-
-		std::cout << server->spreadsheets->size() << std::endl;
-
 		buffer.clear();
+
+		curr_spreadsheet = spreadsheet_name;
+
+		//std::cout << spreadsheet_name << std::endl;
+
+		//std::cout << server->spreadsheets->size() << std::endl;
+
 
 		// LOCK THE SPREADSHEET
 
 		// Send data of chosen spreadsheet
-		Spreadsheet spreadsheet = server->spreadsheets->at(spreadsheet_name);
+		Spreadsheet &spreadsheet = server->spreadsheets->at(spreadsheet_name);
 		std::map<std::string, Cell> cells = spreadsheet.get_cells();
 
-		std::cout << "here" << std::endl;
+		//std::cout << "here" << std::endl;
 		// Send every edited cell
 		for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
 		{
 			std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
-			std::cout << "haha" << std::endl;
+			//std::cout << "haha" << std::endl;
 			sock.write_some(boost::asio::buffer(message, max_length));
 		}
 
@@ -136,8 +140,20 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 void Server::connection_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		// change to send data to other clients
-		std::cout << data << std::endl;
+		std::cout << "sending " << buffer << std::endl;
+
+		// maybe LOCK this?
+
+		// go through each connection and send the data to those on the same spreadsheet
+		std::map<int, connection_handler::pointer> connections = server->connections;
+		for (std::map<int, connection_handler::pointer>::iterator it = connections.begin(); it != connections.end(); ++it)
+		{
+			//maybe get wierd errors with other connection_handlers sending stuff at same time
+			if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+				it->second.get()->sock.write_some(boost::asio::buffer(buffer, max_length));
+		}
+
+		// end of LOCK
 
 		buffer.clear();
 

@@ -21,6 +21,8 @@ public:
     Server* server;
     tcp::socket sock;
     //std::string message = "Hello From Server!";
+    // the spreadsheet this connection/client is currently on
+    std::string curr_spreadsheet;
     std::string client_name;
     std::string buffer;
     int ID;
@@ -48,6 +50,7 @@ public:
 
 private:
   std::map<std::string, Spreadsheet>* spreadsheets;
+  std::map<int, connection_handler::pointer> connections;
   tcp::acceptor acceptor;
   boost::asio::io_context& io_context_;
   void start_accept();
