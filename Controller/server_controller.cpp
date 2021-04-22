@@ -15,10 +15,10 @@ typedef boost::shared_ptr<Server::connection_handler> pointer;
 int Server::next_ID;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server* s)
+Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server & s)
 	: sock(io_context)
 {
-	server = s;
+	server = &s;
 };
 
 //constructor for accepting connection from client
@@ -54,10 +54,10 @@ void Server::connection_handler::start()
 
 void Server::stop()
 {
-	/*for (std::pair<int, connection_handler::pointer> connection : *connections)
+	for (std::pair<int, connection_handler::pointer> connection : connections)
 	{
 		connection.second.get()->socket().close();
-	}*/
+	}
 	io_context_.stop();
 }
 
@@ -173,6 +173,18 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			boost::bind(&connection_handler::handle_read, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
+	// client has disconnected
+	else if ((boost::asio::error::eof == err) ||
+		(boost::asio::error::connection_reset == err))
+	{
+		//check if all connections are gone, if they are stop the server
+		if (server->connections->size() == 1)
+			server->io_context_.stop();
+
+		sock.close();
+
+		server->io_context_.stop();
+	}
 	else
 	{
 		std::cerr << "error: " << err.message() << std::endl;
@@ -194,7 +206,7 @@ void Server::connection_handler::handle_write(const boost::system::error_code& e
 void Server::start_accept()
 {
 	// socket
-	connection_handler::pointer connection(new connection_handler(io_context_, this));
+	connection_handler::pointer connection(new connection_handler(io_context_, *this));
 
 	// asynchronous accept operation and wait for a new connection.
 	acceptor.async_accept(connection->socket(),
