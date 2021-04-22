@@ -52,6 +52,15 @@ void Server::connection_handler::start()
 		'\n', boost::bind(&connection_handler::on_name, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 }
 
+void Server::stop()
+{
+	for (std::pair<int, connection_handler::pointer> connection : connections)
+	{
+		connection.second.get()->socket().close();
+	}
+	io_context_.stop();
+}
+
 void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {

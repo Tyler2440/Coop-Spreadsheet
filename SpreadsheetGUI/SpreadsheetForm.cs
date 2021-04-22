@@ -111,11 +111,14 @@ namespace SpreadsheetGUI
         /// </summary>
         private void UpdateSpreadsheetValue(string cell)
         {
-            int colTemp = col;
-            int rowTemp = row;
-            controller.GetColRow(cell, out colTemp, out rowTemp);
-            spreadsheetPanel1.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp)); //updates cell value displayed in cell
-            displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
+            this.BeginInvoke((MethodInvoker)delegate ()
+            {
+                int colTemp = col;
+                int rowTemp = row;
+                controller.GetColRow(cell, out colTemp, out rowTemp);
+                spreadsheetPanel1.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp)); //updates cell value displayed in cell
+                displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
+            });
         }
 
         //private void UpdateSpreadsheetUsers(int ID)
@@ -140,6 +143,7 @@ namespace SpreadsheetGUI
             int rowTemp;
             
             sp.GetSelection(out colTemp, out rowTemp); // Update col and row variables  to current selection 
+            sp.SetSelection(colTemp, rowTemp);
             sp.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp)); //sets current selected cell's value
            
             this.BeginInvoke((MethodInvoker) delegate()
