@@ -16,7 +16,6 @@ namespace SS
 
     public delegate void SelectionChangedHandler(SpreadsheetPanel sender);
 
-    
 
     /// <summary>
     /// A panel that displays a spreadsheet with 26 columns (labeled A-Z) and 99 rows
@@ -30,6 +29,8 @@ namespace SS
 
     public partial class SpreadsheetPanel : UserControl
     {
+
+
         /// <summary>
         /// The event used to send notifications of a selection change
         /// </summary>
@@ -131,9 +132,9 @@ namespace SS
             return drawingPanel.GetValue(col, row, out value);
         }
 
-        public bool SetUserSelection(int col, int row, int ID, string name)
+        public void SetUserSelection(Dictionary<int, User> users)
         {
-            return drawingPanel.SetUserSelection(col, row, ID, name);
+            drawingPanel.SetUserSelection(users);
         }
 
 
@@ -242,6 +243,8 @@ namespace SS
             // The containing panel
             private SpreadsheetPanel _ssp;
 
+            Dictionary<int, User> users;
+
 
             public DrawingPanel(SpreadsheetPanel ss)
             {
@@ -311,16 +314,9 @@ namespace SS
                 return true;
             }
 
-            public bool SetUserSelection(int col, int row, int ID, string name)
+            public void SetUserSelection(Dictionary<int, User> users)
             {
-                if (InvalidAddress(col, row))
-                    return false;
-
-                _selectedCol = col;
-                _selectedRow = row;
-                
-                Invalidate();
-                return true;
+                this.users = users;
             }
 
             public void GetSelection(out int col, out int row)
@@ -410,19 +406,22 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-
-                // Highlight the selection of all users                 
-                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                foreach(User u in users.Values)
                 {
-                    Pen userPen = new Pen(Color.Blue);
+                    // Highlight the selection of all users                 
+                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
+                    {
+                        Pen userPen = new Pen(u.getColor());
 
-                    e.Graphics.DrawRectangle(
-                        userPen,
-                        new Rectangle(LABEL_COL_WIDTH + (5 - _firstColumn) * DATA_COL_WIDTH + 1,
-                                      LABEL_ROW_HEIGHT + (5 - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                      DATA_COL_WIDTH - 2,
-                                      DATA_ROW_HEIGHT - 2));
+                        e.Graphics.DrawRectangle(
+                            userPen,
+                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                    }
                 }
+               
 
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)

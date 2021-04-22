@@ -47,6 +47,7 @@ namespace SpreadsheetGUI
 
             networkController.FileSelect += JoinServer;
             networkController.Update += UpdateSpreadsheet;
+            networkController.cellSelection += SetUserSelectedCell;
         }
 
 
@@ -115,11 +116,9 @@ namespace SpreadsheetGUI
         /// <param name="cellName"></param>
         /// <param name="ID"></param>
         /// <param name="userName"></param>
-        private void SetUserSelectedCell(String cellName, int ID, String userName)
+        private void SetUserSelectedCell(string cellName, int ID, string userName)
         {
-            int col;
-            int row;
-            controller.GetColRow(cellName, out col, out row);
+            Dictionary<int, User> users = controller.UpdateUserCellSelection(ID, userName, cellName);
 
             //update list of Users and their selections 
             //tell spreadsheet panel 

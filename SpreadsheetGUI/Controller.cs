@@ -19,6 +19,9 @@ namespace SpreadsheetGUI
 
         /// Tracks whether the last change to spreadsheet was an "undo" function
         bool undone;
+
+        ///  
+        Dictionary<int, User> users;
         
         /// <summary>
         /// Creates a new Controller object that instantiates a Spreadsheet object with default parameters, and the version "ps6"
@@ -27,6 +30,7 @@ namespace SpreadsheetGUI
         {
             spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
             changes = new Stack<string>();
+            users = new Dictionary<int, User>();
         }
 
         /// <summary>
@@ -188,5 +192,26 @@ namespace SpreadsheetGUI
             // cell's previous content
             return SetCellContent(col, row, content).ToList();
         }
+
+        public Dictionary<int, User> UpdateUserCellSelection(int ID, string username, string cellName)
+        {
+            int col;
+            int row;
+
+            GetColRow(cellName, out col, out row);
+
+            if (users.ContainsKey(ID))
+            {
+                users[ID].setCol(col);
+                users[ID].setRow(row);
+            }
+            else
+            {
+                users.Add(ID, new User(ID, username, col, row));
+            }
+
+            return users;
+        }
+
     }
 }

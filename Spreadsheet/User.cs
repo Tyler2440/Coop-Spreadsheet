@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace SS
 {
-    class User
+    public class User
     {
         private int ID;
         private string name;
@@ -42,6 +42,21 @@ namespace SS
         public int getRow()
         {
             return this.row;
+        }
+
+        public Color getColor()
+        {
+            return this.color;
+        }
+
+        public void setRow(int row)
+        {
+            this.row = row;
+        }
+
+        public void setCol(int col)
+        {
+            this.col = col;
         }
 
         private void calculateColor()
