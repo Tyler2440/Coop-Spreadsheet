@@ -98,12 +98,13 @@ namespace SpreadsheetGUI
             {    
                 UpdateSpreadsheetValue(cell);
             }
+            Application.DoEvents();
 
             //foreach (int ID in controller.GetUsers())
             //{
             //    UpdateSpreadsheetUsers(ID);
             //}
-            
+
         }
         /// <summary>
         /// Helper method to update individual displayed cell value after change to spreadsheet

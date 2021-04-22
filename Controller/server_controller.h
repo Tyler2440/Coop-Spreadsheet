@@ -32,7 +32,7 @@ public:
   public:
     typedef boost::shared_ptr<connection_handler> pointer;
     //connection_handler(boost::asio::io_context& io_context);
-    connection_handler(boost::asio::io_context& io_context, Server * s);
+    connection_handler(boost::asio::io_context& io_context, Server & s);
 
     // creating the pointer
     static pointer create(boost::asio::io_context& io_context);
@@ -46,11 +46,14 @@ public:
     void on_name(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
+
+  private:
+    static std::string find_request_type(std::string);
   };
 
 private:
   std::map<std::string, Spreadsheet>* spreadsheets;
-  std::map<int, connection_handler::pointer> connections;
+  std::map<int, connection_handler::pointer>* connections;
   tcp::acceptor acceptor;
   boost::asio::io_context& io_context_;
   void start_accept();

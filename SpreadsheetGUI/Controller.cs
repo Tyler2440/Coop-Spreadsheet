@@ -79,7 +79,7 @@ namespace SpreadsheetGUI
         {
             // Translates the col, given as an int, into a letter value via the ASCII table. Adds one to row to
             // display the correct row (accounts for SpreadsheetPanel's row array starting at 0).
-            return ((char)(col + 65)).ToString().ToLower() + (row+1).ToString();
+            return ((char)(col + 65)).ToString() + (row+1).ToString();
         }
 
         /// <summary>

@@ -17,16 +17,6 @@ int main()
         Server server(io_context);
         std::cout << "[SERVER] Server started!" << std::endl;
         io_context.run();
-
-        std::string cmd;
-        while (true)
-        {
-          std::cin >> cmd;
-          if (cmd == "exit")
-          {
-            return 0;
-          }
-        }
     }
     catch (std::exception& e)
     {
