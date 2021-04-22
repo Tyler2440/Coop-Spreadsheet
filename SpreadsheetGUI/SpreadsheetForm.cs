@@ -26,6 +26,8 @@ namespace SpreadsheetGUI
         // Col/row hold the current cell's place in the spreadsheet
         int col, row;
 
+        
+
         public SpreadsheetForm()
         {
             InitializeComponent();
@@ -104,6 +106,23 @@ namespace SpreadsheetGUI
             //{
             //    UpdateSpreadsheetUsers(ID);
             //}
+
+        }
+
+        /// <summary>
+        /// Upates Spreadsheet Panel with user selected cells 
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <param name="ID"></param>
+        /// <param name="userName"></param>
+        private void SetUserSelectedCell(String cellName, int ID, String userName)
+        {
+            int col;
+            int row;
+            controller.GetColRow(cellName, out col, out row);
+
+            //update list of Users and their selections 
+            //tell spreadsheet panel 
 
         }
         /// <summary>

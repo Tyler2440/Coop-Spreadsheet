@@ -398,15 +398,28 @@ namespace SS
                 {
                     Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
-                }
+                }                
 
-                // Highlight the selection, if it is visible
+                // Highlight the client sselection, if it is visible
                 if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
                 {
                     e.Graphics.DrawRectangle(
                         pen,
                         new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
                                       LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                      DATA_COL_WIDTH - 2,
+                                      DATA_ROW_HEIGHT - 2));
+                }
+
+                // Highlight the selection of all users                 
+                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                {
+                    Pen userPen = new Pen(Color.Blue);
+
+                    e.Graphics.DrawRectangle(
+                        userPen,
+                        new Rectangle(LABEL_COL_WIDTH + (5 - _firstColumn) * DATA_COL_WIDTH + 1,
+                                      LABEL_ROW_HEIGHT + (5 - _firstRow) * DATA_ROW_HEIGHT + 1,
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }

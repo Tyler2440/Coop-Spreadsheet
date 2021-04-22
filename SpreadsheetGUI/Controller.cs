@@ -17,7 +17,7 @@ namespace SpreadsheetGUI
         /// Spreadsheet object, handles internal logic
         Spreadsheet spreadsheet;
 
-        /// Tracks whether the last change to spreadsheet was an "undo"function
+        /// Tracks whether the last change to spreadsheet was an "undo" function
         bool undone;
         
         /// <summary>
