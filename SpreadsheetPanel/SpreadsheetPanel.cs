@@ -311,7 +311,7 @@ namespace SS
                 return true;
             }
 
-            public bool SetUserSelection(int col, int row, int iD, string name)
+            public bool SetUserSelection(int col, int row, int ID, string name)
             {
                 if (InvalidAddress(col, row))
                     return false;

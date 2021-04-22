@@ -26,12 +26,12 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	Spreadsheet *test1 = new Spreadsheet();
-	test1->set_cell("a1", "jingle");
+	test1->set_cell("A1", "jingle");
 	test1->add_user("chad", 2);
-	test1->set_cell("a2", "jangle");
-	test1->set_cell("a3", "jongle");
-	test1->set_cell("a4", "jungle");
-	test1->set_cell("a5", "jyngle");
+	test1->set_cell("A2", "jangle");
+	test1->set_cell("A3", "jongle");
+	test1->set_cell("A4", "jungle");
+	test1->set_cell("A5", "jyngle");
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
@@ -49,6 +49,15 @@ void Server::connection_handler::start()
 {
 	boost::asio::async_read_until(sock, boost::asio::dynamic_buffer(buffer),
 		'\n', boost::bind(&connection_handler::on_name, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+}
+
+void Server::stop()
+{
+	for (std::pair<int, connection_handler::pointer> connection : connections)
+	{
+		connection.second.get()->socket().close();
+	}
+	io_context_.stop();
 }
 
 void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)
