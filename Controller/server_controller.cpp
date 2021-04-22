@@ -29,7 +29,11 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	Spreadsheet *test1 = new Spreadsheet();
 	test1->set_cell("A1", "jingle");
 	test1->add_user("chad", 2);
-	test1->select_cell(2, "A1");
+	test1->select_cell(2, "B1");
+	test1->add_user("abracadabra", 3);
+	test1->select_cell(3, "B2");
+	test1->add_user("d", 4);
+	test1->select_cell(4, "B3");
 	test1->set_cell("A2", "jangle");
 	test1->set_cell("A3", "jongle");
 	test1->set_cell("A4", "jungle");
@@ -55,7 +59,7 @@ void Server::connection_handler::start()
 
 void Server::stop()
 {
-	for (std::pair<int, connection_handler::pointer> connection : connections)
+	for (std::pair<int, connection_handler::pointer> connection : *connections)
 	{
 		connection.second.get()->socket().close();
 	}

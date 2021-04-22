@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpreadsheetUtilities;
+using System.Drawing;
 using SS;
 
 namespace SpreadsheetGUI
@@ -20,8 +21,9 @@ namespace SpreadsheetGUI
         /// Tracks whether the last change to spreadsheet was an "undo" function
         bool undone;
 
-        ///  
         Dictionary<int, User> users;
+
+        HashSet<Color> colorsInUse;
         
         /// <summary>
         /// Creates a new Controller object that instantiates a Spreadsheet object with default parameters, and the version "ps6"
@@ -31,6 +33,7 @@ namespace SpreadsheetGUI
             spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
             changes = new Stack<string>();
             users = new Dictionary<int, User>();
+            colorsInUse = new HashSet<Color>();
         }
 
         /// <summary>
@@ -207,11 +210,33 @@ namespace SpreadsheetGUI
             }
             else
             {
-                users.Add(ID, new User(ID, username, col, row));
+                Color newColor = GetNewUserColor();
+                colorsInUse.Add(newColor);
+                users.Add(ID, new User(ID, username, col, row, newColor));
             }
 
             return users;
         }
 
+        /// <summary>
+        /// Helper method to find unused color for new user
+        /// </summary>
+        /// <returns>color</returns>
+        private Color GetNewUserColor()
+        {
+            while (true)
+            {
+                Random rand = new Random();
+                int r = rand.Next(256);
+                int g = rand.Next(256);
+                int b = rand.Next(256);
+                Color col = Color.FromArgb(r, g, b);
+
+                if(!colorsInUse.Contains(col))
+                {
+                    return col;
+                }
+            }
+        }
     }
 }
