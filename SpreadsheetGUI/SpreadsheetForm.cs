@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace SpreadsheetGUI
 {
@@ -43,7 +44,10 @@ namespace SpreadsheetGUI
             CellNameText.Text = "A1";
 
             networkController.FileSelect += JoinServer;
+            networkController.Update += UpdateSpreadsheet;
         }
+
+
 
         private void JoinServer(List<string> spreadsheets, SocketState state)
         {
@@ -56,10 +60,10 @@ namespace SpreadsheetGUI
             InitializeComponent();
 
             // Initializes the controller object
-            controller = new Controller(file);
+            controller = new Controller();
 
             // Sets up the spreadsheet's cells from the file
-            SetupSpreadsheet();
+            // SetupSpreadsheet();
 
             // Initially, fill in CellValueText and CellContentText respectively
             CellValueText.Text = controller.GetCellValue(0, 0);
@@ -87,6 +91,20 @@ namespace SpreadsheetGUI
             }
         }
 
+        private void UpdateSpreadsheet(Spreadsheet spreadsheet)
+        {          
+            controller.SetSpreadsheet(spreadsheet); 
+            foreach (string cell in controller.GetNonEmptyCells())
+            {    
+                UpdateSpreadsheetValue(cell);
+            }
+
+            //foreach (int ID in controller.GetUsers())
+            //{
+            //    UpdateSpreadsheetUsers(ID);
+            //}
+            
+        }
         /// <summary>
         /// Helper method to update individual displayed cell value after change to spreadsheet
         /// </summary>
@@ -99,6 +117,16 @@ namespace SpreadsheetGUI
             displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
         }
 
+        //private void UpdateSpreadsheetUsers(int ID)
+        //{
+        //    string name;
+        //    string cell = controller.GetUserSelection(ID, out name);
+        //    int colTemp;
+        //    int rowTemp;
+        //    controller.GetColRow(cell, out colTemp, out rowTemp);
+        //    spreadsheetPanel1.SetUserSelection(colTemp, rowTemp, ID, name);
+        //}
+
         /// <summary>
         /// Every time the selection changes, this method is called with the
         /// Spreadsheet as its parameter.  The bottom panel text boxes and the inner cell displayed value 
@@ -107,13 +135,21 @@ namespace SpreadsheetGUI
         /// <param name="sp"> The form's spreadsheet panel to update </param>
         private void displaySelection(SpreadsheetPanel sp)
         {
-            sp.GetSelection(out col, out row); // Update col and row variables  to current selection 
-            sp.SetValue(col, row, controller.GetCellValue(col, row)); //sets current selected cell's value
-
-            //set bottom panel text boxes
-            CellNameText.Text = controller.GetName(col, row);
-            CellContentText.Text = controller.GetCellContent(col, row);
-            CellValueText.Text = controller.GetCellValue(col, row);
+            int colTemp;
+            int rowTemp;
+            
+            sp.GetSelection(out colTemp, out rowTemp); // Update col and row variables  to current selection 
+            sp.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp)); //sets current selected cell's value
+           
+            this.BeginInvoke((MethodInvoker) delegate()
+            {
+                //set bottom panel text boxes
+                CellNameText.Text = controller.GetName(colTemp, rowTemp);
+                CellContentText.Text = controller.GetCellContent(colTemp, rowTemp);
+                CellValueText.Text = controller.GetCellValue(colTemp, rowTemp);
+                sp.Refresh();
+                //this.Refresh();
+            });             
         }
 
         /// <summary>

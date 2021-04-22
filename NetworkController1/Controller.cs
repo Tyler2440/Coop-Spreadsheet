@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using SS;
 
 namespace SpreadsheetController
 {
@@ -26,8 +27,9 @@ namespace SpreadsheetController
 
         // Event to update wiew with new info from server
         public delegate void DataHandler(List<string> spreadsheets, SocketState state);
-        //public delegate void DataHandler(Spreadsheet spreadsheet);
+        public delegate void DataEvent(Spreadsheet spreadsheet);
         public event DataHandler FileSelect;
+        public event DataEvent Update;
 
         // Event to update view of network errors
         public delegate void ErrorHandler(string err);
@@ -104,7 +106,6 @@ namespace SpreadsheetController
             }
 
             //state.RemoveData(0, parts.Length); // remove first two (already handled) lines from server string builder
-            //DataEvent(spreadsheet); //update view 
             state.OnNetworkAction = OnReceiveSpreadsheet; //change OnNetworkAction for normal JSON server communications 
             Networking.GetData(state);
         }
@@ -122,6 +123,8 @@ namespace SpreadsheetController
                 return;
             }
 
+            Spreadsheet spreadsheet = new Spreadsheet();
+            
             string totalData = state.GetData();
 
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
@@ -146,16 +149,17 @@ namespace SpreadsheetController
                     System.Diagnostics.Debug.WriteLine(result["messageType"]);
                     if (result["messageType"].ToString() == "cellUpdated")
                     {
-
+                        spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
                     }
+
                     else if (result["messageType"].ToString() == "cellSelected")
                     {
-
+                        //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());   
                     }
                 }
             }
            
-
+            Update(spreadsheet); // Update view
             Networking.GetData(state);
         }
 

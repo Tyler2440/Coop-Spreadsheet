@@ -39,6 +39,11 @@ namespace SpreadsheetGUI
             changes = new Stack<string>();
         }
 
+        public void SetSpreadsheet(Spreadsheet spreadsheet)
+        {
+            this.spreadsheet = spreadsheet;
+        }
+
         /// <summary>
         /// Returns the cell's content given by its position in the spreadsheet, col/row.
         /// </summary>
@@ -74,7 +79,7 @@ namespace SpreadsheetGUI
         {
             // Translates the col, given as an int, into a letter value via the ASCII table. Adds one to row to
             // display the correct row (accounts for SpreadsheetPanel's row array starting at 0).
-            return ((char)(col + 65)).ToString() + (row+1).ToString();
+            return ((char)(col + 65)).ToString().ToLower() + (row+1).ToString();
         }
 
         /// <summary>
@@ -105,6 +110,11 @@ namespace SpreadsheetGUI
             return spreadsheet.SetContentsOfCell(name, text).ToList();
         }
 
+        //public string GetUserSelection(int ID, out string name)
+        //{
+        //    return spreadsheet.GetUserSelection(ID, out name);
+        //}
+
         /// <summary>
         /// Converts the numerical values of the cell's position in the spreadsheet. For example,
         /// converts from the coordinates (3, 3) to E4
@@ -134,6 +144,11 @@ namespace SpreadsheetGUI
         {
             return spreadsheet.GetNamesOfAllNonemptyCells().ToList();
         }
+
+        //public List<int> GetUsers()
+        //{
+        //    return spreadsheet.GetUsers();
+        //}
 
         /// <summary>
         /// Returns whether the spreadsheet has been changed, True if it has, and false otherwise.

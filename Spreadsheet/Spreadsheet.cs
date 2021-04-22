@@ -25,6 +25,8 @@ namespace SS
         /// Holds the dependencygraph held in the spreadsheet
         private DependencyGraph graph;
 
+        private HashSet<User> users;
+
         /// Tracks whether the spreadsheet has been changed since the last save
         private bool changed;
 
@@ -39,6 +41,7 @@ namespace SS
             cells = new Dictionary<string, Cell>();
             changed = false;
             graph = new DependencyGraph();
+            users = new HashSet<User>();
         }
 
         /// <summary>
@@ -55,6 +58,7 @@ namespace SS
             cells = new Dictionary<string, Cell>();
             changed = false;
             graph = new DependencyGraph();
+            users = new HashSet<User>();
         }
 
         /// <summary>
@@ -91,6 +95,11 @@ namespace SS
         // keep update/get Changed.
         public override bool Changed { get => changed; protected set => changed = value; }
 
+        //public string GetUserSelection(int ID, out string name)
+        //{
+        //    return users.ElementAt(ID).getSelected(name);
+        //}
+
         /// <summary>
         /// Enumerates the names of all the non-empty cells in the spreadsheet.
         /// </summary>
@@ -108,6 +117,16 @@ namespace SS
             }
 
             return nonEmptyCells;
+        }
+
+        public List<int> GetUsers()
+        {
+            List<int> list = new List<int>();
+            foreach (User user in users)
+            {
+                list.Add(user.getID());
+            }
+            return list;
         }
 
         /// <summary>
@@ -139,6 +158,21 @@ namespace SS
                 return new Formula(cellContent.ToString());
 
             return "";
+        }
+
+
+        public void SetSelected(string cell, int ID, string name)
+        {
+            User user = new User(ID, name, cell);
+            if (users.Contains(user))
+            {
+                user.setSelected(cell);
+            }
+            else
+            {
+                users.Add(user);
+                user.setSelected(cell);
+            }
         }
 
         /// <summary>
@@ -600,6 +634,45 @@ namespace SS
 
             return double.Parse(cellValue.ToString());
         }
+
+
+        private class User
+        {
+            private int ID;
+            private string name;
+            private string cellSelected;
+
+            public User (int ID, string name, string cell)
+            {
+                this.ID = ID;
+                this.name = name;
+                this.cellSelected = cell;
+            }
+
+            public int getID()
+            {
+                return ID;
+            }
+
+            public string getName()
+            {
+                return name;
+            }
+
+            // Returns which cell this user has selected
+            public string getSelected(out string name)
+            {
+                name = this.name;
+                return cellSelected;
+            }
+
+            public void setSelected(string cell)
+            {
+                this.cellSelected = cell;
+            }
+
+        }
+
 
         /// <summary>
         /// This Cell class holds the content, value, and DependencyGraph of each Cell in the Spreadsheet.

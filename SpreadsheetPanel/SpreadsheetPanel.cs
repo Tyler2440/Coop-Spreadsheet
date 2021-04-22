@@ -131,6 +131,11 @@ namespace SS
             return drawingPanel.GetValue(col, row, out value);
         }
 
+        public bool SetUserSelection(int col, int row, int ID, string name)
+        {
+            return drawingPanel.SetUserSelection(col, row, ID, name);
+        }
+
 
         /// <summary>
         /// If the zero-based column and row are in range, uses them to set
@@ -226,7 +231,7 @@ namespace SS
             // of the selected cell.
             private int _selectedCol;
             private int _selectedRow;
-
+            List<Tuple<int, int, int, string>> selected = new List<Tuple<int, int, int, string>>();
             // Coordinate of cell in upper-left corner of display
             private int _firstColumn = 0;
             private int _firstRow = 0;
@@ -306,6 +311,17 @@ namespace SS
                 return true;
             }
 
+            public bool SetUserSelection(int col, int row, int iD, string name)
+            {
+                if (InvalidAddress(col, row))
+                    return false;
+
+                _selectedCol = col;
+                _selectedRow = row;
+                
+                Invalidate();
+                return true;
+            }
 
             public void GetSelection(out int col, out int row)
             {
@@ -419,10 +435,7 @@ namespace SS
                             LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
                     }
                 }
-
-
             }
-
 
             /// <summary>
             /// Draws a column label.  The columns are indexed beginning with zero.
@@ -486,7 +499,6 @@ namespace SS
                 }
                 Invalidate();
             }
-
         }
 
     }
