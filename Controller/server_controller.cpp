@@ -15,16 +15,17 @@ typedef boost::shared_ptr<Server::connection_handler> pointer;
 int Server::next_ID;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server * s)
+Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server & s)
 	: sock(io_context)
 {
-	server = s;
+	server = &s;
 };
 
 //constructor for accepting connection from client
 Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor(io_context, tcp::endpoint(tcp::v4(), 1100))
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
+	connections = new std::map<int, connection_handler::pointer>();
 	Spreadsheet *test1 = new Spreadsheet();
 	test1->set_cell("A1", "jingle");
 	test1->add_user("chad", 2);
@@ -71,7 +72,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 		buffer.clear();
 
 		// LOCK next_ID
-		server->connections.insert(std::pair<int, connection_handler::pointer>(next_ID, this));
+		server->connections->insert(std::pair<int, connection_handler::pointer>(next_ID, this));
 		ID = next_ID;
 		next_ID++;
 
@@ -151,11 +152,13 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 	if (!err) {
 		std::cout << "sending " << buffer << std::endl;
 
+		find_request_type(buffer);
+
 		// maybe LOCK this?
 
 		// go through each connection and send the data to those on the same spreadsheet
-		std::map<int, connection_handler::pointer> connections = server->connections;
-		for (std::map<int, connection_handler::pointer>::iterator it = connections.begin(); it != connections.end(); ++it)
+		std::map<int, connection_handler::pointer>* connections = server->connections;
+		for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 		{
 			//maybe get wierd errors with other connection_handlers sending stuff at same time
 			if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
@@ -170,7 +173,20 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			boost::bind(&connection_handler::handle_read, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
-	else {
+	// client has disconnected
+	else if ((boost::asio::error::eof == err) ||
+		(boost::asio::error::connection_reset == err))
+	{
+		//check if all connections are gone, if they are stop the server
+		if (server->connections->size() == 1)
+			server->io_context_.stop();
+
+		sock.close();
+
+		server->io_context_.stop();
+	}
+	else
+	{
 		std::cerr << "error: " << err.message() << std::endl;
 		sock.close();
 	}
@@ -190,7 +206,7 @@ void Server::connection_handler::handle_write(const boost::system::error_code& e
 void Server::start_accept()
 {
 	// socket
-	connection_handler::pointer connection(new connection_handler(io_context_, this));
+	connection_handler::pointer connection(new connection_handler(io_context_, *this));
 
 	// asynchronous accept operation and wait for a new connection.
 	acceptor.async_accept(connection->socket(),
@@ -214,4 +230,14 @@ std::string Server::get_spreadsheets()
 		spreadsheets.append(it->first + "\n");
 	}
 	return spreadsheets + "\n";
+}
+
+std::string Server::connection_handler::find_request_type(std::string s)
+{
+	int first = s.find("\"");
+	std::string temp = s.substr(first + 1, s.size());
+	int second = temp.find("\"");
+	std::string val = s.substr(first + 1, second + 1);
+	std::cout << val << std::endl;
+	return val;
 }

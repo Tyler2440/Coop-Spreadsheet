@@ -30,6 +30,8 @@ namespace SpreadsheetController
         public delegate void DataEvent(Spreadsheet spreadsheet);
         public event DataHandler FileSelect;
         public event DataEvent Update;
+        public delegate void CellSelectionHandler(string cellName, int ID, string username);
+        public event CellSelectionHandler cellSelection;
 
         // Event to update view of network errors
         public delegate void ErrorHandler(string err);
@@ -154,7 +156,8 @@ namespace SpreadsheetController
 
                     else if (result["messageType"].ToString() == "cellSelected")
                     {
-                        spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());   
+                        //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                        cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                     }
                 }
             }
