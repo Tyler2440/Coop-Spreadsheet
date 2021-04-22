@@ -29,6 +29,7 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	Spreadsheet *test1 = new Spreadsheet();
 	test1->set_cell("A1", "jingle");
 	test1->add_user("chad", 2);
+	test1->select_cell(2, "A1");
 	test1->set_cell("A2", "jangle");
 	test1->set_cell("A3", "jongle");
 	test1->set_cell("A4", "jungle");
@@ -66,7 +67,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 	if (!err) {
 		
 		//std::cout << "Enter spreadsheet name" << std::endl;
-		client_name = buffer.substr(0, buffer.size() - 2);
+		client_name = buffer.substr(0, buffer.size() - 1);
 		//std::cout << client_name << std::endl;
 
 		buffer.clear();
@@ -95,7 +96,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 2);;
+		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 1);
 
 		buffer.clear();
 
