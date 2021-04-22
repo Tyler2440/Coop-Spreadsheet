@@ -94,7 +94,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 2);;
+		std::string spreadsheet_name = buffer.substr(0, buffer.size() - 1);;
 
 		buffer.clear();
 
