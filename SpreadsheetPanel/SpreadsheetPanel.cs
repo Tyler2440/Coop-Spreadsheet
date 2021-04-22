@@ -243,7 +243,7 @@ namespace SS
             // The containing panel
             private SpreadsheetPanel _ssp;
 
-            Dictionary<int, User> users;
+            Dictionary<int, User> users = new Dictionary<int, User>();
 
 
             public DrawingPanel(SpreadsheetPanel ss)
@@ -394,19 +394,8 @@ namespace SS
                 {
                     Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
-                }                
-
-                // Highlight the client sselection, if it is visible
-                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
-                {
-                    e.Graphics.DrawRectangle(
-                        pen,
-                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
-                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                      DATA_COL_WIDTH - 2,
-                                      DATA_ROW_HEIGHT - 2));
                 }
-                foreach(User u in users.Values)
+                foreach (User u in users.Values)
                 {
                     // Highlight the selection of all users                 
                     if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
@@ -419,10 +408,41 @@ namespace SS
                                           LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
                                           DATA_COL_WIDTH - 2,
                                           DATA_ROW_HEIGHT - 2));
+
+                        String text = u.getName();
+                        int x = u.getCol() - _firstColumn;
+                        int y = u.getRow() - _firstRow;
+                        float height = e.Graphics.MeasureString(text, regularFont).Height;
+                        float width = e.Graphics.MeasureString(text, regularFont).Width;
+                        if (x >= 0 && y >= 0)
+                        {
+                            Region cellClip = new Region(new Rectangle(LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
+                                                                       LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
+                                                                       DATA_COL_WIDTH - 2 * PADDING,
+                                                                       DATA_ROW_HEIGHT));
+                            cellClip.Intersect(clip);
+                            e.Graphics.Clip = cellClip;
+                            e.Graphics.DrawString(
+                                text,
+                                regularFont,
+                                brush,
+                                LABEL_COL_WIDTH + x * DATA_COL_WIDTH + 65,
+                                LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + 5 + (DATA_ROW_HEIGHT - height) / 2) ;
+                        }
                     }
                 }
-               
 
+                // Highlight the client sselection, if it is visible
+                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                {
+                    e.Graphics.DrawRectangle(
+                        pen,
+                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
+                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                      DATA_COL_WIDTH - 2,
+                                      DATA_ROW_HEIGHT - 2));
+                }
+               
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {
