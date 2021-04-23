@@ -6,65 +6,70 @@ using boost::asio::ip::tcp;
 using namespace std::chrono_literals;
 
 boost::asio::io_context io_context;
-tcp::socket sock= tcp::socket(io_context);
+tcp::socket sock = tcp::socket(io_context);
 std::string buffer = "";
 std::condition_variable cv;
 
 // Forward declarations
 bool TestConnection(std::string ip, int port);
 
-int main(int testNum, std::string ipPort)
+int main(int argc, char** argv)
 {
-    int i = ipPort.find(":");
-    std::string ip = ipPort.substr(0, i);
-    int port = stoi(ipPort.substr(i + 1, ipPort.size()));
-     
-    bool test = false;
+  std::string ipPort = argv[2];
+  int testNum = std::stoi(argv[1]);
+  int i = ipPort.find(":");
 
-    switch (testNum)
+  std::string ip = ipPort.substr(0, i);
+  int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+
+  bool test = false;
+
+  switch (testNum)
+  {
+  case 1:
+  {
+    std::cout << "5 seconds" << std::endl;
+
+    std::mutex m;
+    std::condition_variable cv;
+    int retValue;
+
+    std::thread t([&cv, &retValue, &ip, &port]()
+      {
+        retValue = TestConnection(ip, port);
+        cv.notify_one();
+      });
+
+    t.detach();
+
     {
-        case 1:
-        {
-            std::cout << "5 seconds" << std::endl;
-
-            std::mutex m;
-            std::condition_variable cv;
-            int retValue;
-
-            std::thread t([&cv, &retValue, &ip, &port]()
-                {
-                    retValue = TestConnection(ip, port);
-                    cv.notify_one();
-                });
-
-            t.detach();
-
-            {
-                std::unique_lock<std::mutex> l(m);
-                if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                    throw std::runtime_error("False");
-            }
-
-            return retValue;
-
-            // auto task = std::async(TestConnection);
-
-            break;
-        }
+      std::unique_lock<std::mutex> l(m);
+      if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+        throw std::runtime_error("False");
     }
+
+    std::cout << "Returned with value: " << retValue << std::endl;
+
+    return retValue;
+
+    // auto task = std::async(TestConnection);
+
+    break;
+  }
+  }
 }
 
 bool TestConnection(std::string ip, int port)
 {
-    try
-    {
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
-    return true;
+  try
+  {
+    sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+  }
+  catch (std::exception e)
+  {
+    return false;
+  }
+  return true;
 }
 
 /*
@@ -154,13 +159,13 @@ bool TestConnection(std::string ip, int port)
                         Console.WriteLine("Doesn't Finish");
 
                     break;
-                }        
+                }
         }
     }
 
     public static bool TestConnection()
     {
-        try { 
+        try {
             socket.Connect(address, int.Parse(ipPortArray[1]));
         }
         catch (Exception e)
@@ -294,7 +299,7 @@ bool TestConnection(std::string ip, int port)
             // Sends spreadsheet name
             byte[] msg2 = Encoding.UTF8.GetBytes("test1\n");
             //Console.WriteLine(Encoding.UTF8.GetString(msg2));
-            socket.Send(msg2);           
+            socket.Send(msg2);
 
 
             bool done = false;
