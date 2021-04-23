@@ -169,8 +169,27 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 {
 	if (!err) {
 		std::cout << "sending " << buffer << std::endl;
+		std::string cellName;
+		std::string contents;
+		//std::cout << find_request_type(buffer, out cellName, out contents) << std::endl;
 
-		std::cout << find_request_type(buffer) << std::endl;
+		std::string request = find_request_type(buffer, cellName, contents);
+		
+		if (request == "selectCell")
+		{
+			server->spreadsheets->at(curr_spreadsheet).select_cell(ID, cellName);
+
+			std::map<int, connection_handler::pointer>* connections = server->connections;
+			for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
+			{
+				//maybe get weird errors with other connection_handlers sending stuff at same time
+				if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+				{
+					std::string message = "{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName:  \"" + client_name + "\"";
+					it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+				}
+			}
+		}
 
 		// maybe LOCK this?
 
@@ -250,12 +269,53 @@ std::string Server::get_spreadsheets()
 	return spreadsheets + "\n";
 }
 
-std::string Server::connection_handler::find_request_type(std::string s)
+std::string Server::connection_handler::find_request_type(std::string s, std::string& cellName, std::string& contents)
 {
 	int first = s.find("\"");
 	std::string temp = s.substr(first + 1, s.size());
 	int second = temp.find("\"");
-	std::string val = s.substr(first + 1, second + 1);
+	std::string val = s.substr(first + 1, second);
 	std::cout << val << std::endl;
+	s = s.substr(second + 1, s.size());
+
+	if (val == "selectCell")
+	{
+		first = s.find("\"");
+		temp = s.substr(first + 1, s.size());
+		second = temp.find("\"");
+		val = s.substr(first + 1, second);
+		cellName = val;
+	}
+	
+	else if (val == "editCell")
+	{
+		first = s.find("\"");
+		temp = s.substr(first + 1, s.size());
+		second = temp.find("\"");
+		val = s.substr(first + 1, second);
+		cellName = val;
+
+		s = s.substr(second + 1, s.size());
+		first = s.find("\"");
+		temp = s.substr(first + 1, s.size());
+		second = temp.find("\"");
+		val = s.substr(first + 1, second);
+		contents = val;
+	}
+	
+	else if (val == "undoCell")
+	{
+		return val;
+	}
+
+	else if (val == "revertCell")
+	{
+		first = s.find("\"");
+		temp = s.substr(first + 1, s.size());
+		second = temp.find("\"");
+		val = s.substr(first + 1, second);
+		cellName = val;
+	}
+
 	return val;
 }

@@ -48,7 +48,7 @@ public:
     void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
 
   private:
-    static std::string find_request_type(std::string);
+      static std::string find_request_type(std::string s, std::string& cellName, std::string& contents);
   };
 
 private:
