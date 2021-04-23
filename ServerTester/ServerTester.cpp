@@ -9,6 +9,7 @@ boost::asio::io_context io_context;
 tcp::socket sock = tcp::socket(io_context);
 std::string buffer = "";
 std::condition_variable cv;
+enum { max_length = 1024 };
 
 // Forward declarations
 bool TestConnection(std::string ip, int port);
@@ -16,365 +17,432 @@ bool TestSendName(std::string ip, int port);
 bool TestReceiveSpreadsheets(std::string ip, int port);
 bool TestSendSpreadsheetName(std::string ip, int port);
 bool TestSendNewSpreadsheetName(std::string ip, int port);
+bool TestReceiveSpreadsheetCells(std::string ip, int port);
 
 int main(int argc, char** argv)
 {
-    std::string ipPort = argv[2];
-    int testNum = std::stoi(argv[1]);
-    int i = ipPort.find(":");
+	std::string ipPort = argv[2];
+	int testNum = std::stoi(argv[1]);
+	int i = ipPort.find(":");
 
-    std::string ip = ipPort.substr(0, i);
-    int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+	std::string ip = ipPort.substr(0, i);
+	int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
 
-    bool test = false;
+	bool test = false;
 
-    switch (testNum)
-    {
-    case 1:
-    {
-        std::cout << "5 seconds" << std::endl;
+	switch (testNum)
+	{
+	case 1:
+	{
+		try
+		{
+			std::cout << "Test 1" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestConnection(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestConnection(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
+		break;
+	}
 
-    case 2:
-    {
-        std::cout << "5 seconds" << std::endl;
+	case 2:
+	{
+		try
+		{
+			std::cout << "Test 2" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestSendName(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendName(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
+		break;
+	}
 
-    case 3:
-    {
-        std::cout << "5 seconds" << std::endl;
+	case 3:
+	{
+		try
+		{
+			std::cout << "Test 3" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestReceiveSpreadsheets(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestReceiveSpreadsheets(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
+		break;
+	}
 
-    case 4:
-    {
-        std::cout << "5 seconds" << std::endl;
+	case 4:
+	{
+		try
+		{
+			std::cout << "Test 4" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestSendSpreadsheetName(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendSpreadsheetName(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
+		break;
+	}
 
-    case 5:
-    {
-        std::cout << "5 seconds" << std::endl;
+	case 5:
+	{
+		try
+		{
+			std::cout << "Test 5" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestSendNewSpreadsheetName(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendNewSpreadsheetName(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
+		break;
+	}
 
-    case 6:
-    {
-        std::cout << "5 seconds" << std::endl;
+	case 6:
+	{
+		try
+		{
+			std::cout << "Test 6" << std::endl;
 
-        std::mutex m;
-        std::condition_variable cv;
-        int retValue;
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
 
-        std::thread t([&cv, &retValue, &ip, &port]()
-            {
-                retValue = TestReceiveSpreadsheetCells(ip, port);
-                cv.notify_one();
-            });
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestReceiveSpreadsheetCells(ip, port);
+					cv.notify_one();
+				});
 
-        t.detach();
+			t.detach();
 
-        {
-            std::unique_lock<std::mutex> l(m);
-            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-                throw std::runtime_error("False");
-        }
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
 
-        std::cout << "Returned with value: " << retValue << std::endl;
+			if (retValue == 1)
+				std::cout << "Passed" << std::endl << std::endl;
+			else
+				std::cout << "Failed" << std::endl << std::endl;
 
-        return retValue;
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Ran out of Time" << std::endl << std::endl;
+			return false;
+		}
 
-        // auto task = std::async(TestConnection);
+		// auto task = std::async(TestConnection);
 
-        break;
-    }
-    }
+		break;
+	}
+	}
 }
 
 bool TestConnection(std::string ip, int port)
 {
-  try
-  {
-    sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
-  }
-  catch (std::exception e)
-  {
-    return false;
-  }
+	try
+	{
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
 
-  sock.close();
-  return true;
+	sock.close();
+	return true;
 }
 
 bool TestSendName(std::string ip, int port)
 {
-    try
-    {
-        // Connect to server
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-        // Send name
-        sock.send("Chad\n");
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
+		// Send name
 
-    sock.close();
-    return true;
+		sock.send(boost::asio::buffer("Chad\n", max_length));
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	sock.close();
+	return true;
 }
 
 bool TestReceiveSpreadsheets(std::string ip, int port)
 {
-    try
-    {
-        // Connect to server
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-        // Send name
-        sock.send("Chad\n");
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
 
-        // Receive the names of the spreadsheets
-        sock.receive(buffer);
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
+		// Receive the names of the spreadsheets
+		sock.send(boost::asio::buffer(buffer, max_length));
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
 
-    sock.close();
-    return true;
+	sock.close();
+	return true;
 }
 
 bool TestSendSpreadsheetName(std::string ip, int port)
 {
-    try
-    {
-        // Connect to server
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-        // Send name
-        sock.send("Chad\n");
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
 
-        // Receive the names of the spreadsheets
-        sock.receive(buffer);
+		// Receive the names of the spreadsheets
+		sock.send(boost::asio::buffer(buffer, max_length));
 
-        // Send a name of existing spreadsheet
-        sock.send("test1\n");
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
+		// Send a name of existing spreadsheet
+		sock.send(boost::asio::buffer("test1\n", max_length));
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
 
-    sock.close();
-    return true;
+	sock.close();
+	return true;
 }
 
-bool TestSendNewSpreadsheet(std::string ip, int port)
+bool TestSendNewSpreadsheetName(std::string ip, int port)
 {
-    try
-    {
-        // Connect to server
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-        // Send name
-        sock.send("Chad\n");
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
 
-        // Receive the names of the spreadsheets
-        sock.receive(buffer);
+		// Receive the names of the spreadsheets
+		sock.send(boost::asio::buffer(buffer, max_length));
 
-        // Send a name of new spreadsheet
-        sock.send("newspreadsheet\n");
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
 
-    sock.close();
-    return true;
+	sock.close();
+	return true;
 }
 
 // Finish seperating cells the server sends into individual cells (whether that is with regex or some other magic)
 bool TestReceiveSpreadsheetCells(std::string ip, int port)
 {
-    try
-    {
-        // Connect to server
-        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-        // Send name
-        sock.send("Chad\n");
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
 
-        // Receive the names of the spreadsheets
-        sock.receive(buffer);
+		// Receive the names of the spreadsheets
+		sock.send(boost::asio::buffer(buffer, max_length));
 
-        // Send a name of new spreadsheet
-        sock.send("newspreadsheet\n");
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
 
-        bool done = false;
-        while (done == false)
-        {
-            buffer = "";
-            sock.receive(buffer);
+		bool done = false;
+		while (done == false)
+		{
+			buffer = "";
+			sock.send(boost::asio::buffer(buffer, max_length));
+		}
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
 
-        }
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }
-
-    sock.close();
-    return true;
+	sock.close();
+	return true;
 }
 /*
-    public static bool TestReceiveSpreadsheetCells()
-    {
-            bool done = false;
-            while (done == false)
-            {
-                socket.Receive(bytes);
-                //Console.WriteLine(Encoding.UTF8.GetString(bytes));
-                string names = Encoding.UTF8.GetString(bytes);
-                string[] parts = Regex.Split(names, @"(?<=[\n])");
+		public static bool TestReceiveSpreadsheetCells()
+		{
+						bool done = false;
+						while (done == false)
+						{
+								socket.Receive(bytes);
+								//Console.WriteLine(Encoding.UTF8.GetString(bytes));
+								string names = Encoding.UTF8.GetString(bytes);
+								string[] parts = Regex.Split(names, @"(?<=[\n])");
 
-                foreach (string part in parts)
-                {
-                    if (part == "3\n")
-                    {
-                        done = true;
-                    }
-                }
-            }
-    }
+								foreach (string part in parts)
+								{
+										if (part == "3\n")
+										{
+												done = true;
+										}
+								}
+						}
+		}
 }*/
