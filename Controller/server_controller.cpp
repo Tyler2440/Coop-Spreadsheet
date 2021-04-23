@@ -255,7 +255,7 @@ std::string Server::connection_handler::find_request_type(std::string s)
 	int first = s.find("\"");
 	std::string temp = s.substr(first + 1, s.size());
 	int second = temp.find("\"");
-	std::string val = s.substr(first + 1, second + 1);
+	std::string val = s.substr(first + 1, second);
 	std::cout << val << std::endl;
 	return val;
 }
