@@ -185,7 +185,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 				//maybe get weird errors with other connection_handlers sending stuff at same time
 				if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 				{
-					std::string message = "{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName:  \"" + client_name + "\"";
+					std::string message = "\{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName:  \"" + client_name + "\"";
 					it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 				}
 			}
@@ -194,13 +194,13 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 		// maybe LOCK this?
 
 		// go through each connection and send the data to those on the same spreadsheet
-		std::map<int, connection_handler::pointer>* connections = server->connections;
-		for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
-		{
-			//maybe get wierd errors with other connection_handlers sending stuff at same time
-			if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
-				it->second.get()->sock.write_some(boost::asio::buffer(buffer, max_length));
-		}
+		//std::map<int, connection_handler::pointer>* connections = server->connections;
+		//for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
+		//{
+		//	//maybe get wierd errors with other connection_handlers sending stuff at same time
+		//	if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+		//		it->second.get()->sock.write_some(boost::asio::buffer(buffer, max_length));
+		//}
 
 		// end of LOCK
 
@@ -276,15 +276,14 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 	int second = temp.find("\"");
 	std::string val = s.substr(first + 1, second);
 	std::cout << val << std::endl;
-	s = s.substr(second + 1, s.size());
+	s = s.substr(first + second + 1, s.size());
 
 	if (val == "selectCell")
 	{
 		first = s.find("\"");
 		temp = s.substr(first + 1, s.size());
 		second = temp.find("\"");
-		val = s.substr(first + 1, second);
-		cellName = val;
+		cellName = s.substr(first + 1, second);
 	}
 	
 	else if (val == "editCell")
@@ -292,15 +291,13 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 		first = s.find("\"");
 		temp = s.substr(first + 1, s.size());
 		second = temp.find("\"");
-		val = s.substr(first + 1, second);
-		cellName = val;
+		cellName = s.substr(first + 1, second);
 
-		s = s.substr(second + 1, s.size());
+		s = s.substr(first + second + 1, s.size());
 		first = s.find("\"");
 		temp = s.substr(first + 1, s.size());
 		second = temp.find("\"");
-		val = s.substr(first + 1, second);
-		contents = val;
+		contents = s.substr(first + 1, second);
 	}
 	
 	else if (val == "undoCell")
@@ -313,8 +310,7 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 		first = s.find("\"");
 		temp = s.substr(first + 1, s.size());
 		second = temp.find("\"");
-		val = s.substr(first + 1, second);
-		cellName = val;
+		cellName = s.substr(first + 1, second);
 	}
 
 	return val;
