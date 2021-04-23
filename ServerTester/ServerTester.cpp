@@ -12,51 +12,210 @@ std::condition_variable cv;
 
 // Forward declarations
 bool TestConnection(std::string ip, int port);
+bool TestSendName(std::string ip, int port);
+bool TestReceiveSpreadsheets(std::string ip, int port);
+bool TestSendSpreadsheetName(std::string ip, int port);
+bool TestSendNewSpreadsheetName(std::string ip, int port);
 
 int main(int argc, char** argv)
 {
-  std::string ipPort = argv[2];
-  int testNum = std::stoi(argv[1]);
-  int i = ipPort.find(":");
+    std::string ipPort = argv[2];
+    int testNum = std::stoi(argv[1]);
+    int i = ipPort.find(":");
 
-  std::string ip = ipPort.substr(0, i);
-  int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+    std::string ip = ipPort.substr(0, i);
+    int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
 
-  bool test = false;
+    bool test = false;
 
-  switch (testNum)
-  {
-  case 1:
-  {
-    std::cout << "5 seconds" << std::endl;
-
-    std::mutex m;
-    std::condition_variable cv;
-    int retValue;
-
-    std::thread t([&cv, &retValue, &ip, &port]()
-      {
-        retValue = TestConnection(ip, port);
-        cv.notify_one();
-      });
-
-    t.detach();
-
+    switch (testNum)
     {
-      std::unique_lock<std::mutex> l(m);
-      if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-        throw std::runtime_error("False");
+    case 1:
+    {
+        std::cout << "5 seconds" << std::endl;
+
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
+
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestConnection(ip, port);
+                cv.notify_one();
+            });
+
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
     }
 
-    std::cout << "Returned with value: " << retValue << std::endl;
+    case 2:
+    {
+        std::cout << "5 seconds" << std::endl;
 
-    return retValue;
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
 
-    // auto task = std::async(TestConnection);
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestSendName(ip, port);
+                cv.notify_one();
+            });
 
-    break;
-  }
-  }
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
+    }
+
+    case 3:
+    {
+        std::cout << "5 seconds" << std::endl;
+
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
+
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestReceiveSpreadsheets(ip, port);
+                cv.notify_one();
+            });
+
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
+    }
+
+    case 4:
+    {
+        std::cout << "5 seconds" << std::endl;
+
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
+
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestSendSpreadsheetName(ip, port);
+                cv.notify_one();
+            });
+
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
+    }
+
+    case 5:
+    {
+        std::cout << "5 seconds" << std::endl;
+
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
+
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestSendNewSpreadsheetName(ip, port);
+                cv.notify_one();
+            });
+
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
+    }
+
+    case 6:
+    {
+        std::cout << "5 seconds" << std::endl;
+
+        std::mutex m;
+        std::condition_variable cv;
+        int retValue;
+
+        std::thread t([&cv, &retValue, &ip, &port]()
+            {
+                retValue = TestReceiveSpreadsheetCells(ip, port);
+                cv.notify_one();
+            });
+
+        t.detach();
+
+        {
+            std::unique_lock<std::mutex> l(m);
+            if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+                throw std::runtime_error("False");
+        }
+
+        std::cout << "Returned with value: " << retValue << std::endl;
+
+        return retValue;
+
+        // auto task = std::async(TestConnection);
+
+        break;
+    }
+    }
 }
 
 bool TestConnection(std::string ip, int port)
@@ -69,239 +228,138 @@ bool TestConnection(std::string ip, int port)
   {
     return false;
   }
+
+  sock.close();
   return true;
 }
 
+bool TestSendName(std::string ip, int port)
+{
+    try
+    {
+        // Connect to server
+        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+        // Send name
+        sock.send("Chad\n");
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }
+
+    sock.close();
+    return true;
+}
+
+bool TestReceiveSpreadsheets(std::string ip, int port)
+{
+    try
+    {
+        // Connect to server
+        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+        // Send name
+        sock.send("Chad\n");
+
+        // Receive the names of the spreadsheets
+        sock.receive(buffer);
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }
+
+    sock.close();
+    return true;
+}
+
+bool TestSendSpreadsheetName(std::string ip, int port)
+{
+    try
+    {
+        // Connect to server
+        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+        // Send name
+        sock.send("Chad\n");
+
+        // Receive the names of the spreadsheets
+        sock.receive(buffer);
+
+        // Send a name of existing spreadsheet
+        sock.send("test1\n");
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }
+
+    sock.close();
+    return true;
+}
+
+bool TestSendNewSpreadsheet(std::string ip, int port)
+{
+    try
+    {
+        // Connect to server
+        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+        // Send name
+        sock.send("Chad\n");
+
+        // Receive the names of the spreadsheets
+        sock.receive(buffer);
+
+        // Send a name of new spreadsheet
+        sock.send("newspreadsheet\n");
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }
+
+    sock.close();
+    return true;
+}
+
+// Finish seperating cells the server sends into individual cells (whether that is with regex or some other magic)
+bool TestReceiveSpreadsheetCells(std::string ip, int port)
+{
+    try
+    {
+        // Connect to server
+        sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+        // Send name
+        sock.send("Chad\n");
+
+        // Receive the names of the spreadsheets
+        sock.receive(buffer);
+
+        // Send a name of new spreadsheet
+        sock.send("newspreadsheet\n");
+
+        bool done = false;
+        while (done == false)
+        {
+            buffer = "";
+            sock.receive(buffer);
+
+        }
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }
+
+    sock.close();
+    return true;
+}
 /*
-            case 2:
-                {
-                    Console.WriteLine("5 seconds");
-
-                    var task = Task.Run(() =>
-                    {
-                        test = TestSendName();
-                    });
-
-                    bool isCompletedSucessfully = task.Wait(TimeSpan.FromSeconds(5));
-
-                    if (isCompletedSucessfully)
-                        Console.WriteLine(test);
-                    else
-                        Console.WriteLine("False");
-                    break;
-                }
-            case 3:
-                {
-                    Console.WriteLine("5 seconds");
-
-                    var task = Task.Run(() =>
-                    {
-                        test = TestReceiveSpreadsheets();
-                    });
-
-                    bool isCompletedSucessfully = task.Wait(TimeSpan.FromSeconds(5));
-
-                    if (isCompletedSucessfully)
-                        Console.WriteLine(test);
-                    else
-                        Console.WriteLine("False");
-                    break;
-                }
-            case 4:
-                {
-                    Console.WriteLine("5 seconds");
-
-                    var task = Task.Run(() =>
-                    {
-                        test = TestSendSpreadsheetName();
-                    });
-
-                    bool isCompletedSucessfully = task.Wait(TimeSpan.FromSeconds(5));
-
-                    if (isCompletedSucessfully)
-                        Console.WriteLine(test);
-                    else
-                        Console.WriteLine("False");
-                    break;
-                }
-            case 5:
-                {
-                    Console.WriteLine("5 seconds");
-
-                    var task = Task.Run(() =>
-                    {
-                        test = TestSendNewSpreadsheet();
-                    });
-
-                    bool isCompletedSucessfully = task.Wait(TimeSpan.FromSeconds(5));
-
-                    if (isCompletedSucessfully)
-                        Console.WriteLine(test);
-                    else
-                        Console.WriteLine("False");
-                    break;
-                }
-            case 6:
-                {
-                    //Console.WriteLine(TestReceiveSpreadsheetCells() + "\n");
-                    Console.WriteLine("5 seconds");
-
-                    var task = Task.Run(() =>
-                    {
-                        test = TestReceiveSpreadsheetCells();
-                    });
-
-                    bool isCompletedSucessfully = task.Wait(TimeSpan.FromSeconds(5));
-
-                    if (isCompletedSucessfully)
-                        Console.WriteLine(test);
-                    else
-                        Console.WriteLine("Doesn't Finish");
-
-                    break;
-                }
-        }
-    }
-
-    public static bool TestConnection()
-    {
-        try {
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
-    }
-
-    public static bool TestSendName()
-    {
-        try {
-            // Connect
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-
-            byte[] msg = Encoding.UTF8.GetBytes("Chad\n");
-            byte[] bytes = new byte[1024];
-
-            socket.Send(msg);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
-    }
-
-    public static bool TestReceiveSpreadsheets()
-    {
-        try {
-            // Connect
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-
-            // Send name after connecting
-            byte[] msg = Encoding.UTF8.GetBytes("Chad\n");
-            byte[] bytes = new byte[1024];
-            socket.Send(msg);
-
-
-            socket.Receive(bytes);
-            Console.WriteLine(Encoding.UTF8.GetString(bytes));
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
-    }
-
-    public static bool TestSendSpreadsheetName()
-    {
-        try
-        {
-            // Connect
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-
-            // Send name after connecting
-            byte[] msg = Encoding.UTF8.GetBytes("Chad\n");
-            byte[] bytes = new byte[1024];
-            socket.Send(msg);
-
-            // Receive spreadsheet names
-            socket.Receive(bytes);
-            Console.WriteLine(Encoding.UTF8.GetString(bytes));
-
-
-            byte[] msg2 = Encoding.UTF8.GetBytes("test1\n");
-            Console.WriteLine(Encoding.UTF8.GetString(msg2));
-            socket.Send(msg2);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
-    }
-
-    public static bool TestSendNewSpreadsheet()
-    {
-        try {
-            // Connect
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-
-            // Send name after connecting
-            byte[] msg = Encoding.UTF8.GetBytes("Chad\n");
-            byte[] bytes = new byte[1024];
-            socket.Send(msg);
-
-            // Receive spreadsheet names
-            socket.Receive(bytes);
-            Console.WriteLine(Encoding.UTF8.GetString(bytes));
-
-
-            byte[] msg2 = Encoding.UTF8.GetBytes("newspreadsheet\n");
-            Console.WriteLine(Encoding.UTF8.GetString(msg2));
-            socket.Send(msg2);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
-    }
-
     public static bool TestReceiveSpreadsheetCells()
     {
-        try
-        {
-            // Connect
-            socket.Connect(address, int.Parse(ipPortArray[1]));
-
-            // Send name after connecting
-            byte[] msg = Encoding.UTF8.GetBytes("Chad\n");
-            byte[] bytes = new byte[1024];
-            socket.Send(msg);
-
-            // Receive spreadsheet names
-            socket.Receive(bytes);
-            //Console.WriteLine(Encoding.UTF8.GetString(bytes));
-
-            // Sends spreadsheet name
-            byte[] msg2 = Encoding.UTF8.GetBytes("test1\n");
-            //Console.WriteLine(Encoding.UTF8.GetString(msg2));
-            socket.Send(msg2);
-
-
             bool done = false;
             while (done == false)
             {
@@ -318,13 +376,5 @@ bool TestConnection(std::string ip, int port)
                     }
                 }
             }
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        socket.Close();
-        return true;
     }
 }*/
