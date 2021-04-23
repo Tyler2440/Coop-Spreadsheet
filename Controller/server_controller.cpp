@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <iterator>
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -114,31 +115,43 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		// LOCK THE SPREADSHEET
 
 		// Send data of chosen spreadsheet
-		Spreadsheet spreadsheet = server->spreadsheets->at(spreadsheet_name);
-		std::map<std::string, Cell> cells = spreadsheet.get_cells();
+		Spreadsheet* spreadsheet;
+		std::map<std::string, Spreadsheet>::iterator it = server->spreadsheets->find(spreadsheet_name);
 
-		//std::cout << "here" << std::endl;
-		// Send every edited cell
-		for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
+		if (it != server->spreadsheets->end())
 		{
-			std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
-			//std::cout << "haha" << std::endl;
-			sock.write_some(boost::asio::buffer(message, max_length));
+			spreadsheet = &server->spreadsheets->at(spreadsheet_name);
+			std::map<std::string, Cell> cells = spreadsheet->get_cells();
+
+			//std::cout << "here" << std::endl;
+			// Send every edited cell
+			for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
+			{
+				std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
+				//std::cout << "haha" << std::endl;
+				sock.write_some(boost::asio::buffer(message, max_length));
+			}
+
+			std::map<int, User> users = spreadsheet->get_users();
+			// Send every selected cell
+			for (std::map<int, User>::iterator it = users.begin(); it != users.end(); ++it)
+			{
+				std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\", selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}\n";
+				std::cout << "haha 2 electric bugaloo" << std::endl;
+				sock.write_some(boost::asio::buffer(message, max_length));
+			}
 		}
 
-		std::map<int, User> users = spreadsheet.get_users();
-		// Send every selected cell
-		for (std::map<int, User>::iterator it = users.begin(); it != users.end(); ++it)
+		else
 		{
-			std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\", selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}\n";
-			std::cout << "haha 2 electric bugaloo" << std::endl;
-			sock.write_some(boost::asio::buffer(message, max_length));
+			spreadsheet = new Spreadsheet();
+			server->spreadsheets->insert(std::pair<std::string, Spreadsheet>(spreadsheet_name, *(spreadsheet)));
 		}
 
 		std::string message = "3\n";
 		sock.write_some(boost::asio::buffer(message, max_length));
 
-		spreadsheet.add_user(client_name, ID);
+		spreadsheet->add_user(client_name, ID);
 
 		// END OF LOCK
 
