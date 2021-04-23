@@ -21,6 +21,11 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port);
 
 int main(int argc, char** argv)
 {
+	if (argc == 1)
+	{
+		std::cout << "6" << std::endl;
+		return 0;
+	}
 	std::string ipPort = argv[2];
 	int testNum = std::stoi(argv[1]);
 	int i = ipPort.find(":");

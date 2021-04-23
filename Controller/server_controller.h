@@ -26,7 +26,7 @@ public:
     std::string client_name;
     std::string buffer;
     int ID;
-    enum { max_length = 1024 };
+    enum { max_length = 2048 };
     char data[max_length];
 
   public:
