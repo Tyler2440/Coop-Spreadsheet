@@ -15,10 +15,10 @@ typedef boost::shared_ptr<Server::connection_handler> pointer;
 int Server::next_ID;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server & s)
+Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server * s)
 	: sock(io_context)
 {
-	server = &s;
+	server = s;
 };
 
 //constructor for accepting connection from client
@@ -114,7 +114,7 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		// LOCK THE SPREADSHEET
 
 		// Send data of chosen spreadsheet
-		Spreadsheet &spreadsheet = server->spreadsheets->at(spreadsheet_name);
+		Spreadsheet spreadsheet = server->spreadsheets->at(spreadsheet_name);
 		std::map<std::string, Cell> cells = spreadsheet.get_cells();
 
 		//std::cout << "here" << std::endl;
@@ -157,7 +157,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 	if (!err) {
 		std::cout << "sending " << buffer << std::endl;
 
-		find_request_type(buffer);
+		std::cout << find_request_type(buffer) << std::endl;
 
 		// maybe LOCK this?
 
@@ -211,7 +211,7 @@ void Server::connection_handler::handle_write(const boost::system::error_code& e
 void Server::start_accept()
 {
 	// socket
-	connection_handler::pointer connection(new connection_handler(io_context_, *this));
+	connection_handler::pointer connection(new connection_handler(io_context_, this));
 
 	// asynchronous accept operation and wait for a new connection.
 	acceptor.async_accept(connection->socket(),

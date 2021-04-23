@@ -332,7 +332,7 @@ bool TestReceiveSpreadsheets(std::string ip, int port)
 		sock.send(boost::asio::buffer("Chad\n", max_length));
 
 		// Receive the names of the spreadsheets
-		sock.send(boost::asio::buffer(buffer, max_length));
+		sock.receive(boost::asio::buffer(buffer, max_length));
 	}
 	catch (std::exception e)
 	{
@@ -354,7 +354,7 @@ bool TestSendSpreadsheetName(std::string ip, int port)
 		sock.send(boost::asio::buffer("Chad\n", max_length));
 
 		// Receive the names of the spreadsheets
-		sock.send(boost::asio::buffer(buffer, max_length));
+		sock.receive(boost::asio::buffer(buffer, max_length));
 
 		// Send a name of existing spreadsheet
 		sock.send(boost::asio::buffer("test1\n", max_length));
@@ -379,7 +379,7 @@ bool TestSendNewSpreadsheetName(std::string ip, int port)
 		sock.send(boost::asio::buffer("Chad\n", max_length));
 
 		// Receive the names of the spreadsheets
-		sock.send(boost::asio::buffer(buffer, max_length));
+		sock.receive(boost::asio::buffer(buffer, max_length));
 
 		// Send a name of new spreadsheet
 		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
@@ -405,7 +405,7 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		sock.send(boost::asio::buffer("Chad\n", max_length));
 
 		// Receive the names of the spreadsheets
-		sock.send(boost::asio::buffer(buffer, max_length));
+		sock.receive(boost::asio::buffer(buffer, max_length));
 
 		// Send a name of new spreadsheet
 		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
@@ -414,7 +414,7 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		while (done == false)
 		{
 			buffer = "";
-			sock.send(boost::asio::buffer(buffer, max_length));
+			sock.receive(boost::asio::buffer(buffer, max_length));
 		}
 	}
 	catch (std::exception e)
