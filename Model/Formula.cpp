@@ -7,7 +7,7 @@
 #include "Formula.h"
 
 
-bool isValid(std::string formula) 
+bool Formula::isValid(std::string formula) 
 {
 	if (formula.empty()) {
 		throw "Formula is invalid! Formula is empty add at least on expression";
@@ -18,8 +18,8 @@ bool isValid(std::string formula)
 	std::list<std::string> parsed_tokens;
 
 	std::string normalized_formula = "";
-	std::list<std::string>tokens = Formula::get_tokens(formula);
-	std::list<std::string>normalized_variables;
+	std::vector<std::string>tokens = Formula::get_tokens(formula);
+	std::vector<std::string>normalized_variables;
 	int open_parenthesis = 0;
 	int closed_parenthesis = 0;
 
@@ -112,7 +112,7 @@ bool isValid(std::string formula)
 	}
 }
 
-std::vector<std::string> get_tokens(std::string formula, std::stack<std::string>& operatorStack, std::stack<std::string>& parenthesesStack)
+std::vector<std::string> Formula::get_tokens(std::string formula)
 {
 	std::vector<std::string> tokens;
 
@@ -143,13 +143,11 @@ std::vector<std::string> get_tokens(std::string formula, std::stack<std::string>
 			if (formula[i] == '+' || formula[i] == '-' || formula[i] == '*' || formula[i] == '/')
 			{
 				tokens.push_back(std::string(1, formula[i]));
-				operatorStack.push(std::string(1, formula[i]));
 				continue;
 			}
 			else
 			{
 				tokens.push_back(std::string(1, formula[i]));
-				parenthesesStack.push(std::string(1, formula[i]));
 				continue;
 			}
 		}
@@ -160,7 +158,7 @@ std::vector<std::string> get_tokens(std::string formula, std::stack<std::string>
 	return tokens;
 }
 
-static bool is_variable(std::string s)
+bool Formula::is_variable(std::string s)
 {
 	int i = 0;
 	while (std::isalpha(s[i]))

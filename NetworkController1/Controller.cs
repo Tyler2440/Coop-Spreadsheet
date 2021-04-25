@@ -132,7 +132,7 @@ namespace SpreadsheetController
                 return;
             }
 
-            Spreadsheet spreadsheet = new Spreadsheet();
+            //Spreadsheet spreadsheet = new Spreadsheet();
 
             string totalData = state.GetData();
 
