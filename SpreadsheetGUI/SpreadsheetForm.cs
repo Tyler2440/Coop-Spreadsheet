@@ -82,6 +82,7 @@ namespace SpreadsheetGUI
 
         }
         */
+
         /// <summary>
         /// Event handler for setting cell contents. Updates model with new contents 
         /// </summary>
@@ -374,7 +375,7 @@ namespace SpreadsheetGUI
         /// <param name="err">error message from server</param>
         private void DisplayRequestError(string cellName, string err)
         {
-            MessageBox.Show("Cell contents invalid at cell" + cellName + "\n" + "Error message: " + err);
+            MessageBox.Show("Cell contents invalid at cell " + cellName + "\n" + "Error message: " + err);
         }
 
         /// <summary>
