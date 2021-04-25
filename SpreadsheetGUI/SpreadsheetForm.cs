@@ -45,7 +45,6 @@ namespace SpreadsheetGUI
             CellNameText.Text = "A1";
 
             networkController.FileSelect += JoinServer;
-            networkController.Update += UpdateSpreadsheet;
             networkController.cellSelection += SetUserSelectedCell;
             networkController.UserDisconnected += DisconnectUser;
             networkController.RequestError += DisplayRequestError;
@@ -63,44 +62,6 @@ namespace SpreadsheetGUI
         }
 
         /*
-        public SpreadsheetForm(string file)
-        {
-            InitializeComponent();
-
-            // Initializes the controller object
-            controller = new Controller();
-
-            // Sets up the spreadsheet's cells from the file
-            // SetupSpreadsheet();
-
-            // Initially, fill in CellValueText and CellContentText respectively
-            CellValueText.Text = controller.GetCellValue(0, 0);
-            CellContentText.Text = controller.GetCellContent(0, 0);
-
-            // Adds two events to SelectionChanged: displaySelection and HighlightCellContentsOnClick. When a cell is
-            // clicked on, these two events are run
-            spreadsheetPanel1.SelectionChanged += OnCellClick;
-
-            // Initially, highlight cell A1 and update CellNameText to display A1
-            spreadsheetPanel1.SetSelection(0, 0);
-            CellNameText.Text = "A1";
-        }
-        
-
-
-        /// <summary>
-        /// After Controller reads through the file and sets up it's Spreadsheet object, this method runs 
-        /// and updates the GUI to display each cell's content and value.
-        /// </summary>
-        private void SetupSpreadsheet()
-        { 
-            foreach (string cell in controller.GetNonEmptyCells())
-            {
-                UpdateSpreadsheetValue(cell);
-            }
-        }
-        */
-
         /// <summary>
         /// Updates the state of spreadsheet when it recieves message from server
         /// </summary>
@@ -108,11 +69,11 @@ namespace SpreadsheetGUI
         private void UpdateSpreadsheet()
         {          
             //controller.SetSpreadsheet(spreadsheet); 
-            foreach (string cell in controller.GetNonEmptyCells())
-            {    
-                UpdateSpreadsheetValue(cell);
-            }
-            Application.DoEvents();
+            //foreach (string cell in controller.GetNonEmptyCells())
+            //{    
+            //    UpdateSpreadsheetValue(cell);
+            //}
+            //Application.DoEvents();
 
             //foreach (int ID in controller.GetUsers())
             //{
@@ -120,7 +81,7 @@ namespace SpreadsheetGUI
             //}
 
         }
-
+        */
         /// <summary>
         /// Event handler for setting cell contents. Updates model with new contents 
         /// </summary>
@@ -132,6 +93,7 @@ namespace SpreadsheetGUI
             int rowTemp;
             controller.GetColRow(cellName, out colTemp, out rowTemp);
             controller.SetCellContent(colTemp, rowTemp, contents);
+            UpdateSpreadsheetValue(cellName);
         }
 
         /// <summary>
@@ -144,9 +106,6 @@ namespace SpreadsheetGUI
         {
             Dictionary<int, User> users = controller.UpdateUserCellSelection(ID, userName, cellName);
             spreadsheetPanel1.SetUserSelection(users);
-
-            //update list of Users and their selections 
-            //tell spreadsheet panel 
         }
 
         /// <summary>
@@ -172,16 +131,6 @@ namespace SpreadsheetGUI
                 displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
             });
         }
-
-        //private void UpdateSpreadsheetUsers(int ID)
-        //{
-        //    string name;
-        //    string cell = controller.GetUserSelection(ID, out name);
-        //    int colTemp;
-        //    int rowTemp;
-        //    controller.GetColRow(cell, out colTemp, out rowTemp);
-        //    spreadsheetPanel1.SetUserSelection(colTemp, rowTemp, ID, name);
-        //}
 
         /// <summary>
         /// Every time the selection changes, this method is called with the

@@ -12,14 +12,8 @@ namespace SpreadsheetGUI
 {
     class Controller
     {
-        /// Stack to keep track of changes 
-        Stack<string> changes;
-
         /// Spreadsheet object, handles internal logic
         Spreadsheet spreadsheet;
-
-        /// Tracks whether the last change to spreadsheet was an "undo" function
-        bool undone;
 
         Dictionary<int, User> users;
 
@@ -31,29 +25,9 @@ namespace SpreadsheetGUI
         public Controller()
         {
             spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
-            changes = new Stack<string>();
             users = new Dictionary<int, User>();
             colorsInUse = new HashSet<Color>();
         }
-
-        /*
-        /// <summary>
-        /// Creates a new Controller object that instantiates a Spreadsheet object with the given file
-        /// and default parameters, with the version "ps6"
-        /// </summary>
-        public Controller(string file)
-        {
-            spreadsheet = new Spreadsheet(file, s => true, s => s.ToUpper(), "ps6");
-            changes = new Stack<string>();
-        }
-        */
-
-        /*
-        public void SetSpreadsheet(Spreadsheet spreadsheet)
-        {
-            this.spreadsheet = spreadsheet;
-        }
-        */
 
         /// <summary>
         /// Returns the cell's content given by its position in the spreadsheet, col/row.
@@ -108,11 +82,6 @@ namespace SpreadsheetGUI
             return spreadsheet.SetContentsOfCell(name, text).ToList();
         }
 
-        //public string GetUserSelection(int ID, out string name)
-        //{
-        //    return spreadsheet.GetUserSelection(ID, out name);
-        //}
-
         /// <summary>
         /// Converts the numerical values of the cell's position in the spreadsheet. For example,
         /// converts from the coordinates (3, 3) to E4
@@ -126,17 +95,6 @@ namespace SpreadsheetGUI
             row = int.Parse(cell.Substring(1, cell.Length-1))-1;
         }
 
-        /*
-        /// <summary>
-        /// Saves the spreadsheet.
-        /// </summary>
-        /// <param name="fileName">Name to call the saved file</param>
-        public void Save(string fileName)
-        {
-            spreadsheet.Save(fileName);
-        }
-        */
-
         /// <summary>
         /// Gets all non-empty cells inside of the spreadsheet.
         /// </summary>
@@ -144,52 +102,6 @@ namespace SpreadsheetGUI
         {
             return spreadsheet.GetNamesOfAllNonemptyCells().ToList();
         }
-
-        //public List<int> GetUsers()
-        //{
-        //    return spreadsheet.GetUsers();
-        //}
-        /*
-        /// <summary>
-        /// Returns whether the spreadsheet has been changed, True if it has, and false otherwise.
-        /// </summary>
-        public bool Changed()
-        {
-            return spreadsheet.Changed;
-        }
-        */
-        /*
-        /// <summary>
-        /// Set col, row, and content to match that of the last change made on the spreadsheet.
-        /// Undoes the last change, then returns the cells that need to be updated. If there were no changes, 
-        /// returns empty list. 
-        /// </summary>
-        public List<string> Undo(out int col, out int row, out string content)
-        {
-            // If there has been any changes, take the col/row and content of where the change
-            // needs to be done and set undone to true.
-            if (changes.Count > 0)
-            {
-                col = int.Parse(changes.Pop());
-                row = int.Parse(changes.Pop());
-                content = changes.Pop();
-                undone = true;
-            }
-
-            // Otherwise, return an empty list, as there are no changes to undo.
-            else
-            {
-                col = 0;
-                row = 0;
-                content = "";
-                return new List<string>();
-            }
-
-            // Returns the list of cells that need to be updated, and update the cell at the col/row with the
-            // cell's previous content
-            return SetCellContent(col, row, content).ToList();
-        }
-        */
 
         /// <summary>
         /// Updates model when other user selects new cell 

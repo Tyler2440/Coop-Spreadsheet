@@ -316,6 +316,7 @@ namespace SS
             public void SetUserSelection(Dictionary<int, User> users)
             {
                 this.users = users;
+                Invalidate();
             }
 
             public void GetSelection(out int col, out int row)
