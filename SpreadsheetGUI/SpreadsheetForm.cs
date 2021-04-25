@@ -102,9 +102,9 @@ namespace SpreadsheetGUI
         /// Updates the state of spreadsheet when it recieves message from server
         /// </summary>
         /// <param name="spreadsheet"></param>
-        private void UpdateSpreadsheet(Spreadsheet spreadsheet)
+        private void UpdateSpreadsheet()
         {          
-            controller.SetSpreadsheet(spreadsheet); 
+            //controller.SetSpreadsheet(spreadsheet); 
             foreach (string cell in controller.GetNonEmptyCells())
             {    
                 UpdateSpreadsheetValue(cell);

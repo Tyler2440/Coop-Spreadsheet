@@ -48,10 +48,12 @@ namespace SpreadsheetGUI
         }
         */
 
+        /*
         public void SetSpreadsheet(Spreadsheet spreadsheet)
         {
             this.spreadsheet = spreadsheet;
         }
+        */
 
         /// <summary>
         /// Returns the cell's content given by its position in the spreadsheet, col/row.
