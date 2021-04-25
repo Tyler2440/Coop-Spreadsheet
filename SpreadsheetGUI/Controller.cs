@@ -238,5 +238,10 @@ namespace SpreadsheetGUI
                 }
             }
         }
+
+        public void RemoveUser(int ID)
+        {
+            users.Remove(ID);
+        }
     }
 }

@@ -139,9 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FormulaEvaluator.h" />
     <ClInclude Include="ServerSpreadsheet.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FormulaEvaluator.cpp" />
     <ClCompile Include="ServerSpreadsheet.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

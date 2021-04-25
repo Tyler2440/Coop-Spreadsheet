@@ -40,6 +40,7 @@ namespace SpreadsheetGUI
             this.JoinButton = new System.Windows.Forms.Button();
             this.UsernameBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.revertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.CellInfoPanel.SuspendLayout();
             this.SuspendLayout();
@@ -47,7 +48,8 @@ namespace SpreadsheetGUI
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoToolStripMenuItem});
+            this.undoToolStripMenuItem,
+            this.revertToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
@@ -186,6 +188,13 @@ namespace SpreadsheetGUI
             this.label1.TabIndex = 7;
             this.label1.Text = "Username";
             // 
+            // revertToolStripMenuItem
+            // 
+            this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.revertToolStripMenuItem.Text = "Revert";
+            this.revertToolStripMenuItem.Click += new System.EventHandler(this.revertToolStripMenuItem_Click);
+            // 
             // SpreadsheetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -232,6 +241,7 @@ namespace SpreadsheetGUI
         private System.Windows.Forms.Button JoinButton;
         private System.Windows.Forms.TextBox UsernameBox;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem revertToolStripMenuItem;
     }
 }
 

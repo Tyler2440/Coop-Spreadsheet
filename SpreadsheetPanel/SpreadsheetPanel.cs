@@ -13,8 +13,7 @@ namespace SS
     /// The type of delegate used to register for SelectionChanged events
     /// </summary>
     /// <param name="sender"></param>
-
-    public delegate void SelectionChangedHandler(SpreadsheetPanel sender);
+    public delegate void SelectionChangedHandler(SpreadsheetPanel sender, int col, int row);
 
 
     /// <summary>
@@ -507,7 +506,7 @@ namespace SS
                     _selectedRow = y + _firstRow;
                     if (_ssp.SelectionChanged != null)
                     {
-                        _ssp.SelectionChanged(_ssp);
+                        _ssp.SelectionChanged(_ssp, _selectedCol, _selectedRow);
                     }
                 }
                 Invalidate();

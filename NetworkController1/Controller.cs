@@ -23,14 +23,21 @@ namespace SpreadsheetController
     {
         private static SocketState theServer = null; //socket for connection to server 
         private static string name = ""; //user name of local client 
-        private static int id;
+        private int id;
+        private bool finishedHandshake = false;
 
         // Event to update wiew with new info from server
         public delegate void DataHandler(List<string> spreadsheets, SocketState state);
         public delegate void DataEvent(Spreadsheet spreadsheet);
+        public delegate void CellSelectionHandler(string cellName, int ID, string username);
+        public delegate void UserDisconnectedHandler(int ID);
+        public delegate void ServerErrorHandler(string message);
+        public delegate void RequestErrorHandler(string cellname, string message);
+        public event ServerErrorHandler ServerError;
+        public event RequestErrorHandler RequestError;
+        public event UserDisconnectedHandler UserDisconnected;
         public event DataHandler FileSelect;
         public event DataEvent Update;
-        public delegate void CellSelectionHandler(string cellName, int ID, string username);
         public event CellSelectionHandler cellSelection;
 
         // Event to update view of network errors
@@ -88,15 +95,15 @@ namespace SpreadsheetController
             string totalData = state.GetData();
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
-            foreach(String name in parts)
+            foreach (String name in parts)
             {
                 if (name.Equals("\n"))
-                    break;             
+                    break;
                 spreadsheets.Add(name);
             }
 
-            for(int i = 0; i < parts.Length; i++)
-            //{
+            for (int i = 0; i < parts.Length; i++)
+                //{
                 state.RemoveData(0, parts[i].Length); // remove already handled lines from server string builder 
             //}
 
@@ -126,7 +133,7 @@ namespace SpreadsheetController
             }
 
             Spreadsheet spreadsheet = new Spreadsheet();
-            
+
             string totalData = state.GetData();
 
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
@@ -139,31 +146,45 @@ namespace SpreadsheetController
                 if (part[part.Length - 1] != '\n')
                     break;
 
-                if (part.Equals("3\n"))
+                if (!finishedHandshake)
                 {
-                    state.OnNetworkAction = OnReceive;                  
-                    break;
-                }
-                else
-                {
-                    //System.Diagnostics.Debug.WriteLine(totalData);
-                    var result = JsonConvert.DeserializeObject<JToken>(part);
-                    System.Diagnostics.Debug.WriteLine(result["messageType"]);
-                    if (result["messageType"].ToString() == "cellUpdated")
-                    {
-                        spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
-                    }
 
-                    else if (result["messageType"].ToString() == "cellSelected")
+                    if (int.TryParse(part.Substring(0, part.Length - 1), out id))
                     {
-                        System.Diagnostics.Debug.WriteLine("CellName: " + result["cellName"].ToString());
-
-                        //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
-                        cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                        finishedHandshake = true;
+                        state.OnNetworkAction = OnReceive;
+                        break;
                     }
                 }
+
+                //System.Diagnostics.Debug.WriteLine(totalData);
+                var result = JsonConvert.DeserializeObject<JToken>(part);
+                System.Diagnostics.Debug.WriteLine(result["messageType"]);
+                if (result["messageType"].ToString() == "cellUpdated")
+                {
+                    spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
+                }
+
+                else if (result["messageType"].ToString() == "cellSelected")
+                {
+                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                    cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                }
+                else if (result["messageType"].ToString() == "disconnected")
+                {
+                    UserDisconnected(Int32.Parse(result["user"].ToString()));
+                }
+                else if (result["messageType"].ToString() == "requestError")
+                {
+                    RequestError(result["cellName"].ToString(), result["message"].ToString());
+                }
+                else if (result["messageType"].ToString() == "serverError")
+                {
+                    ServerError(result["message"].ToString());
+                }
+
             }
-           
+
             Update(spreadsheet); // Update view
             Networking.GetData(state);
         }
@@ -182,7 +203,7 @@ namespace SpreadsheetController
             }
 
             ProcessMessages(state); //convert JSON data to spreadsheet cell objects
-            
+
             Networking.GetData(state);
         }
 
@@ -210,6 +231,48 @@ namespace SpreadsheetController
         public void SendFileSelect(string file, SocketState state)
         {
             Networking.Send(state.TheSocket, file);
+        }
+
+        public void SendCellSelection(string cellName)
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"selectCell\", cellName: \"" + cellName + "\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
+
+        public void RequestCellEdit(string cellName, string contents)
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"editCell\", cellName: \"" + cellName + "\", contents: \"" + contents + "\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
+
+        public void RequestUndo()
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"undo\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
+
+        public void RequestRevert(string cellName)
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"revertCell\", cellName: \"" + cellName + "\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
+
+        public void SendDisconnect()
+        {
+            string message = "{ requestType: \"disconnected\", user: \"" + id + "\" }" + "\n";
+            Networking.Send(theServer.TheSocket, message);
         }
     }
 }

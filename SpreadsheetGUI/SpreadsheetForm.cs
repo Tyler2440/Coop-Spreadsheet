@@ -36,10 +36,9 @@ namespace SpreadsheetGUI
             controller = new Controller();
 
 
-            // Adds two events to SelectionChanged: displaySelection and HighlightCellContentsOnClick. When a cell is
+            // Adds two events to SelectionChanged: HighlightCellContentsOnClick. When a cell is
             // clicked on, these two events are run
-            spreadsheetPanel1.SelectionChanged += displaySelection;
-            spreadsheetPanel1.SelectionChanged += HighlightCellContentsOnClick;
+            spreadsheetPanel1.SelectionChanged += OnCellClick;
 
             // Initially, highlight cell A1 and update CellNameText to display A1
             spreadsheetPanel1.SetSelection(0, 0);
@@ -48,6 +47,10 @@ namespace SpreadsheetGUI
             networkController.FileSelect += JoinServer;
             networkController.Update += UpdateSpreadsheet;
             networkController.cellSelection += SetUserSelectedCell;
+            networkController.UserDisconnected += DisconnectUser;
+            networkController.RequestError += DisplayRequestError;
+            networkController.ServerError += DisplayServerError;
+            networkController.Error += Error;
         }
 
 
@@ -74,8 +77,7 @@ namespace SpreadsheetGUI
 
             // Adds two events to SelectionChanged: displaySelection and HighlightCellContentsOnClick. When a cell is
             // clicked on, these two events are run
-            spreadsheetPanel1.SelectionChanged += displaySelection;
-            spreadsheetPanel1.SelectionChanged += HighlightCellContentsOnClick;
+            spreadsheetPanel1.SelectionChanged += OnCellClick;
 
             // Initially, highlight cell A1 and update CellNameText to display A1
             spreadsheetPanel1.SetSelection(0, 0);
@@ -94,6 +96,10 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Updates the state of spreadsheet when it recieves message from server
+        /// </summary>
+        /// <param name="spreadsheet"></param>
         private void UpdateSpreadsheet(Spreadsheet spreadsheet)
         {          
             controller.SetSpreadsheet(spreadsheet); 
@@ -123,8 +129,13 @@ namespace SpreadsheetGUI
 
             //update list of Users and their selections 
             //tell spreadsheet panel 
-
         }
+
+        private void DisconnectUser(int ID)
+        {
+            controller.RemoveUser(ID);
+        }
+
         /// <summary>
         /// Helper method to update individual displayed cell value after change to spreadsheet
         /// </summary>
@@ -184,18 +195,22 @@ namespace SpreadsheetGUI
         {
             if (e.KeyChar == (char)Keys.Enter) 
             {
-                try
-                {
-                    foreach (string cell in controller.SetCellContent(col, row, CellContentText.Text))
-                    {
-                        UpdateSpreadsheetValue(cell);
-                    }
-                    e.Handled = true;
-                }
-                catch(Exception f)
-                {
-                    MessageBox.Show(f.Message, "Formula at " + controller.GetName(col, row) + " is invalid!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                }
+                int colTemp;
+                int rowTemp;
+                spreadsheetPanel1.GetSelection(out colTemp, out rowTemp);
+                networkController.RequestCellEdit(controller.GetName(colTemp, rowTemp), CellContentText.Text);
+                //try
+                //{
+                //    foreach (string cell in controller.SetCellContent(col, row, CellContentText.Text))
+                //    {
+                //        UpdateSpreadsheetValue(cell);
+                //    }
+                //    e.Handled = true;
+                //}
+                //catch(Exception f)
+                //{
+                //    MessageBox.Show(f.Message, "Formula at " + controller.GetName(col, row) + " is invalid!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                //}
             }
         }
 
@@ -266,10 +281,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (string cell in controller.Undo(out int colTemp, out int rowTemp, out string content))
-            {
-                UpdateSpreadsheetValue(cell);
-            }
+            networkController.RequestUndo();
         }
 
         /// <summary>
@@ -302,8 +314,10 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SpreadsheetForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (controller.Changed() && MessageBox.Show("You have unsaved changes, would you like to close?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (controller.Changed() && MessageBox.Show("Are you sure you want to close?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
+            else
+                networkController.SendDisconnect();
         }
 
         /// <summary>
@@ -311,8 +325,11 @@ namespace SpreadsheetGUI
         /// </summary>
 
         // Debating on whether to keep this feature
-        private void HighlightCellContentsOnClick(SpreadsheetPanel ss)
+        private void OnCellClick(SpreadsheetPanel ss, int col, int row)
         {
+            this.col = col;
+            this.row = row;
+            networkController.SendCellSelection(controller.GetName(col, row));
             displaySelection(spreadsheetPanel1);
             CellContentText.SelectAll();
         }
@@ -369,7 +386,37 @@ namespace SpreadsheetGUI
             {
                 AddressText.Enabled = true;
                 JoinButton.Enabled = true;
+                UsernameBox.Enabled = true;
             }));
+        }
+
+        private void DisplayRequestError(string cellName, string err)
+        {
+            MessageBox.Show("Cell contents invalid at cell" + cellName + "\n" + "Error message: " + err);
+        }
+
+        private void DisplayServerError(string err)
+        {
+            MessageBox.Show("Server shut down message: " + err);
+            this.Invoke(new MethodInvoker(() =>
+            {
+                AddressText.Enabled = true;
+                JoinButton.Enabled = true;
+                UsernameBox.Enabled = true;
+            }));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void revertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int colTemp;
+            int rowTemp;
+            spreadsheetPanel1.GetSelection(out colTemp, out rowTemp);
+            networkController.RequestRevert(controller.GetName(colTemp, rowTemp));
         }
 
         /// <summary>
@@ -379,7 +426,5 @@ namespace SpreadsheetGUI
         {
             this.ActiveControl = CellContentText;
         }
-
-        
     }
 }
