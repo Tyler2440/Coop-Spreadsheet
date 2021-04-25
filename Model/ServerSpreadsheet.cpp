@@ -1,10 +1,7 @@
 #include <map>
 #include "ServerSpreadsheet.h"
-<<<<<<< HEAD
 #include "Formula.h"
-=======
 #include <boost/json.hpp>
->>>>>>> 3f420d5a5e33d5975341635c07537a69bf8c2cb8
 
 Cell::Cell()
 {
@@ -54,7 +51,7 @@ Cell Spreadsheet::get_cell(std::string cell_name)
 	return cells[cell_name];
 }
 
-void Spreadsheet::set_cell(std::string cell_name, std::string contents)
+bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 {
 	if (contents[0] == '=')
 	{
@@ -64,8 +61,9 @@ void Spreadsheet::set_cell(std::string cell_name, std::string contents)
 			Formula::isValid(formula);
 		}
 		catch (std::exception e)
-		{
-			return;
+		{ 
+			// NOTIFY SERVER OF INVALID FORMULA
+			return false;
 		}
 	}
 	
@@ -78,6 +76,8 @@ void Spreadsheet::set_cell(std::string cell_name, std::string contents)
 	{
 		cells.insert(std::pair<std::string, Cell>(cell_name, *(new Cell(contents))));
 	}
+
+	return true;
 }
 
 const std::map<int, User> Spreadsheet::get_users()
@@ -146,8 +146,10 @@ std::string Spreadsheet::get_json()
 	obj["name"] = name;
 	//obj["cells"] = cells;
 	//obj["history"] = history;
+	return "";
 }
 
-boost::json::object Spreadsheet::get_json_history()
-{
-}
+//boost::json::object Spreadsheet::get_json_history()
+//{
+//	
+//}
