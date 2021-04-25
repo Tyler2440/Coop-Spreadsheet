@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <boost/algorithm/string.hpp>
@@ -413,13 +414,8 @@ std::string Server::connection_handler::split_and_delete(std::string& s)
 
 void Server::save_to_file()
 {
-	//for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets->begin(); it != spreadsheets->end(); ++it)
-	//{
-	//	it->second.serialize()
-	//}
-	//boost::json::serialize(boost::json::object());
-	//boost::json::serializer s;
-	//s.reset()
-	//char buffer[1024];
-	//s.read(buffer);
+	std::ofstream file;
+	file.open("example.txt");
+	file << spreadsheets->at("test1").get_json() << std::endl;
+	file.close();
 }

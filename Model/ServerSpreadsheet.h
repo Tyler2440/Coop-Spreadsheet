@@ -60,8 +60,10 @@ class Spreadsheet {
 	std::string name;
 	std::stack<Cell*>* history;
 
-	boost::json::object get_json_cells();
+	boost::json::array get_json_cells();
 	boost::json::array get_json_history();
+	boost::json::object get_json_cell(Cell c);
+	boost::json::array get_json_cell_history(Cell c);
 
 public:
 	Spreadsheet(std::string s);
