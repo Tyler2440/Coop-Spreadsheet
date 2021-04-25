@@ -1,5 +1,6 @@
 #include <map>
 #include "ServerSpreadsheet.h"
+#include "Formula.h"
 
 Cell::Cell()
 {
@@ -51,6 +52,20 @@ Cell Spreadsheet::get_cell(std::string cell_name)
 
 void Spreadsheet::set_cell(std::string cell_name, std::string contents)
 {
+	if (contents[0] == '=')
+	{
+		std::string formula = contents.substr(1, contents.length());
+		try
+		{
+			Formula::isValid(formula);
+		}
+		catch (std::exception e)
+		{
+			return;
+		}
+	}
+	
+	
 	if (cells.find(cell_name) != cells.end())
 	{
 		cells[cell_name].set_contents(contents);
