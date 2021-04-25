@@ -7,7 +7,8 @@ using namespace std::chrono_literals;
 
 boost::asio::io_context io_context;
 tcp::socket sock = tcp::socket(io_context);
-std::string buffer = "";
+std::string r_buffer = "";
+std::string s_buffer = "";
 std::condition_variable cv;
 enum { max_length = 1024 };
 
@@ -18,6 +19,14 @@ bool TestReceiveSpreadsheets(std::string ip, int port);
 bool TestSendSpreadsheetName(std::string ip, int port);
 bool TestSendNewSpreadsheetName(std::string ip, int port);
 bool TestReceiveSpreadsheetCells(std::string ip, int port);
+
+std::string split_and_delete(std::string& s)
+{
+	int loc = s.find("\n");
+	std::string before = s.substr(0, loc);
+	s = s.substr(loc + 1, std::string::npos);
+	return before;
+}
 
 int main(int argc, char** argv)
 {
@@ -32,6 +41,44 @@ int main(int argc, char** argv)
 
 	std::string ip = ipPort.substr(0, i);
 	int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+
+	//std::string ip = "127.0.0.1";
+	//int port = 1100;
+	//int testNum = 5;
+
+	//// Connect to server
+	//sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+	//// Send name
+	//std::string message = "Chad\n";
+	//sock.send(boost::asio::buffer(message, max_length));
+
+	//// Receive and print the names of the spreadsheets
+	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
+
+	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	//buffer.clear();
+
+	//// Send a name of existing spreadsheet
+	//message = "test1\n";
+	//sock.send(boost::asio::buffer(message, max_length));
+
+	//// Receive and print spreadsheet data
+	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), "3\n");
+
+	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	//buffer.clear();
+
+	//// Send select cell request
+	//message = "{ requestType: \"selectCell\", cellName: \"A1\" }\n";
+	//sock.send(boost::asio::buffer(message, max_length));
+
+	//// Recieve and print the cell selected message
+	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
+
+	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	//buffer.clear();
+	///*
 
 	bool test = false;
 
@@ -289,6 +336,7 @@ int main(int argc, char** argv)
 		break;
 	}
 	}
+	//*/
 }
 
 bool TestConnection(std::string ip, int port)
@@ -302,6 +350,8 @@ bool TestConnection(std::string ip, int port)
 		return false;
 	}
 
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
@@ -314,14 +364,17 @@ bool TestSendName(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 	}
 	catch (std::exception e)
 	{
 		return false;
 	}
 
+	//TURN INTO CLEANUP METHOD
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
@@ -334,16 +387,19 @@ bool TestReceiveSpreadsheets(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 	}
 	catch (std::exception e)
 	{
 		return false;
 	}
 
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
@@ -356,19 +412,56 @@ bool TestSendSpreadsheetName(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
+
+		std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
 
 		// Send a name of existing spreadsheet
-		sock.send(boost::asio::buffer("test1\n", max_length));
+		message = "test1\n";
+		sock.send(boost::asio::buffer(message, max_length));
+
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
+		{
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
+
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') != std::string::npos)
+			{
+				std::string command = split_and_delete(r_buffer);
+				std::cout << "command: \"" << command << "\"" << std::endl;
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
+			}
+
+			s_buffer = r_buffer;
+		}
 	}
 	catch (std::exception e)
 	{
 		return false;
 	}
 
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
@@ -381,24 +474,60 @@ bool TestSendNewSpreadsheetName(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
+
+		std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
+
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
+		{
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
+
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
+			{
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
+			}
+
+			s_buffer = r_buffer;
+		}
 	}
 	catch (std::exception e)
 	{
 		return false;
 	}
 
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
 
 // Finish seperating cells the server sends into individual cells (whether that is with regex or some other magic)
+//NOT WORKING
 bool TestReceiveSpreadsheetCells(std::string ip, int port)
 {
 	try
@@ -410,7 +539,7 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		sock.send(boost::asio::buffer("Chad\n", max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(buffer, max_length));
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
 
 		// Send a name of new spreadsheet
 		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
@@ -418,8 +547,8 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		bool done = false;
 		while (done == false)
 		{
-			buffer = "";
-			sock.receive(boost::asio::buffer(buffer, max_length));
+			r_buffer = "";
+			sock.receive(boost::asio::buffer(r_buffer, max_length));
 		}
 	}
 	catch (std::exception e)
@@ -427,6 +556,8 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		return false;
 	}
 
+	s_buffer.clear();
+	r_buffer.clear();
 	sock.close();
 	return true;
 }
