@@ -85,7 +85,8 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetSelection(0, 0);
             CellNameText.Text = "A1";
         }
-        */
+        
+
 
         /// <summary>
         /// After Controller reads through the file and sets up it's Spreadsheet object, this method runs 
@@ -98,6 +99,7 @@ namespace SpreadsheetGUI
                 UpdateSpreadsheetValue(cell);
             }
         }
+        */
 
         /// <summary>
         /// Updates the state of spreadsheet when it recieves message from server
@@ -147,6 +149,10 @@ namespace SpreadsheetGUI
             //tell spreadsheet panel 
         }
 
+        /// <summary>
+        /// Removes other user from model 
+        /// </summary>
+        /// <param name="ID">ID of user disconnecting</param>
         private void DisconnectUser(int ID)
         {
             controller.RemoveUser(ID);
@@ -379,6 +385,7 @@ namespace SpreadsheetGUI
             networkController.Connect(AddressText.Text, UsernameBox.Text); //initate connection network protocol in controller 
         }
 
+        /*
         ///<summary>
         /// Event handler for server updates, updates drawings 
         ///</summary> 
@@ -393,6 +400,7 @@ namespace SpreadsheetGUI
             {
             }
         }
+        */
 
         /// <summary>
         /// Error event handler
@@ -410,11 +418,20 @@ namespace SpreadsheetGUI
             }));
         }
 
+        /// <summary>
+        /// Event handler to display error due to change cell content request 
+        /// </summary>
+        /// <param name="cellName">cell name</param>
+        /// <param name="err">error message from server</param>
         private void DisplayRequestError(string cellName, string err)
         {
             MessageBox.Show("Cell contents invalid at cell" + cellName + "\n" + "Error message: " + err);
         }
 
+        /// <summary>
+        /// Event handler to display server closing message 
+        /// </summary>
+        /// <param name="err"></param>
         private void DisplayServerError(string err)
         {
             MessageBox.Show("Server shut down message: " + err);
@@ -427,7 +444,7 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// 
+        /// tells network controller to rever cell 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
