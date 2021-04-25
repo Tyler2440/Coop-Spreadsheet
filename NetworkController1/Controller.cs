@@ -191,6 +191,7 @@ namespace SpreadsheetController
             Networking.GetData(state);
         }
 
+        /*
         /// <summary>
         /// On Network Action method to be called when message has been receieved. Method calls ProcessMessages and continues GetData event loop. 
         /// If error occured, view is updated. 
@@ -208,7 +209,7 @@ namespace SpreadsheetController
 
             Networking.GetData(state);
         }
-
+        
         /// <summary>
         /// Parses JSON data and updates the spreadsheet and notifies view of changes
         /// </summary>
@@ -224,17 +225,28 @@ namespace SpreadsheetController
 
             //Networking.Send(state.TheSocket, "Test\n");
         }
+        
 
         public List<String> GetSpreadsheets()
         {
             return null;
         }
+        */
 
+        /// <summary>
+        /// Sends clients spreadsheet selection upon joining server 
+        /// </summary>
+        /// <param name="file">spreadsheet name</param>
+        /// <param name="state">socket state</param>
         public void SendFileSelect(string file, SocketState state)
         {
             Networking.Send(state.TheSocket, file);
         }
 
+        /// <summary>
+        /// Sends clients cell selection when they click on cell
+        /// </summary>
+        /// <param name="cellName">selected cell name</param>
         public void SendCellSelection(string cellName)
         {
             if (finishedHandshake)
@@ -244,6 +256,11 @@ namespace SpreadsheetController
             }
         }
 
+        /// <summary>
+        /// sends client request to change contents of cell 
+        /// </summary>
+        /// <param name="cellName">cell name</param>
+        /// <param name="contents">contents</param>
         public void RequestCellEdit(string cellName, string contents)
         {
             if (finishedHandshake)
@@ -253,6 +270,9 @@ namespace SpreadsheetController
             }
         }
 
+        /// <summary>
+        /// sends client request to undo change
+        /// </summary>
         public void RequestUndo()
         {
             if (finishedHandshake)
@@ -262,6 +282,10 @@ namespace SpreadsheetController
             }
         }
 
+        /// <summary>
+        /// sends client request to revert cell change 
+        /// </summary>
+        /// <param name="cellName">cell name to revert</param>
         public void RequestRevert(string cellName)
         {
             if (finishedHandshake)
@@ -271,6 +295,9 @@ namespace SpreadsheetController
             }
         }
 
+        /// <summary>
+        /// sends message that client is disconnecting
+        /// </summary>
         public void SendDisconnect()
         {
             string message = "{ requestType: \"disconnected\", user: \"" + id + "\" }" + "\n";
