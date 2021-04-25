@@ -104,21 +104,6 @@ namespace SpreadsheetGUI
         {
             // Get cell name from col and row 
             string name = GetName(col, row);
-
-            /*
-            // If we are not undoing the previous change, pushes all changes this edit does onto the changes stack
-            if (!undone)
-            {
-                // Pushes cell content then cell row and col onto changes stack 
-                changes.Push(GetCellContent(col, row));
-                changes.Push(row.ToString());
-                changes.Push(col.ToString());
-            }
-
-            // Otherwise, set undone to false
-            else
-                undone = false;
-            */
             
             return spreadsheet.SetContentsOfCell(name, text).ToList();
         }
@@ -164,7 +149,7 @@ namespace SpreadsheetGUI
         //{
         //    return spreadsheet.GetUsers();
         //}
-
+        /*
         /// <summary>
         /// Returns whether the spreadsheet has been changed, True if it has, and false otherwise.
         /// </summary>
@@ -172,7 +157,7 @@ namespace SpreadsheetGUI
         {
             return spreadsheet.Changed;
         }
-
+        */
         /*
         /// <summary>
         /// Set col, row, and content to match that of the last change made on the spreadsheet.
@@ -206,6 +191,13 @@ namespace SpreadsheetGUI
         }
         */
 
+        /// <summary>
+        /// Updates model when other user selects new cell 
+        /// </summary>
+        /// <param name="ID">ID of user selecting new cell </param>
+        /// <param name="username">username of user selecting new cell</param>
+        /// <param name="cellName">selected cell name</param>
+        /// <returns></returns>
         public Dictionary<int, User> UpdateUserCellSelection(int ID, string username, string cellName)
         {
             int col;
@@ -249,6 +241,10 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Removes connected user from model when they disconnect
+        /// </summary>
+        /// <param name="ID">ID of user that disconnected</param>
         public void RemoveUser(int ID)
         {
             users.Remove(ID);
