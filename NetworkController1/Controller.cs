@@ -33,6 +33,8 @@ namespace SpreadsheetController
         public delegate void UserDisconnectedHandler(int ID);
         public delegate void ServerErrorHandler(string message);
         public delegate void RequestErrorHandler(string cellname, string message);
+        public delegate void ChangeContentsHandler(string cellName, string contents);
+        public event ChangeContentsHandler ChangeContents;
         public event ServerErrorHandler ServerError;
         public event RequestErrorHandler RequestError;
         public event UserDisconnectedHandler UserDisconnected;
@@ -132,7 +134,7 @@ namespace SpreadsheetController
                 return;
             }
 
-            Spreadsheet spreadsheet = new Spreadsheet();
+            //Spreadsheet spreadsheet = new Spreadsheet();
 
             string totalData = state.GetData();
 
@@ -162,7 +164,8 @@ namespace SpreadsheetController
                 System.Diagnostics.Debug.WriteLine(result["messageType"]);
                 if (result["messageType"].ToString() == "cellUpdated")
                 {
-                    spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
+                    //spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
+                    ChangeContents(result["cellName"].ToString(), result["contents"].ToString());
                 }
 
                 else if (result["messageType"].ToString() == "cellSelected")

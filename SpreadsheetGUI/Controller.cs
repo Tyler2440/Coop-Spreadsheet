@@ -36,6 +36,7 @@ namespace SpreadsheetGUI
             colorsInUse = new HashSet<Color>();
         }
 
+        /*
         /// <summary>
         /// Creates a new Controller object that instantiates a Spreadsheet object with the given file
         /// and default parameters, with the version "ps6"
@@ -45,6 +46,7 @@ namespace SpreadsheetGUI
             spreadsheet = new Spreadsheet(file, s => true, s => s.ToUpper(), "ps6");
             changes = new Stack<string>();
         }
+        */
 
         public void SetSpreadsheet(Spreadsheet spreadsheet)
         {
@@ -101,6 +103,7 @@ namespace SpreadsheetGUI
             // Get cell name from col and row 
             string name = GetName(col, row);
 
+            /*
             // If we are not undoing the previous change, pushes all changes this edit does onto the changes stack
             if (!undone)
             {
@@ -113,6 +116,7 @@ namespace SpreadsheetGUI
             // Otherwise, set undone to false
             else
                 undone = false;
+            */
             
             return spreadsheet.SetContentsOfCell(name, text).ToList();
         }
@@ -135,6 +139,7 @@ namespace SpreadsheetGUI
             row = int.Parse(cell.Substring(1, cell.Length-1))-1;
         }
 
+        /*
         /// <summary>
         /// Saves the spreadsheet.
         /// </summary>
@@ -143,6 +148,7 @@ namespace SpreadsheetGUI
         {
             spreadsheet.Save(fileName);
         }
+        */
 
         /// <summary>
         /// Gets all non-empty cells inside of the spreadsheet.
@@ -165,6 +171,7 @@ namespace SpreadsheetGUI
             return spreadsheet.Changed;
         }
 
+        /*
         /// <summary>
         /// Set col, row, and content to match that of the last change made on the spreadsheet.
         /// Undoes the last change, then returns the cells that need to be updated. If there were no changes, 
@@ -195,6 +202,7 @@ namespace SpreadsheetGUI
             // cell's previous content
             return SetCellContent(col, row, content).ToList();
         }
+        */
 
         public Dictionary<int, User> UpdateUserCellSelection(int ID, string username, string cellName)
         {
