@@ -18,9 +18,15 @@
     <ClInclude Include="ServerSpreadsheet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FormulaEvaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerSpreadsheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FormulaEvaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
