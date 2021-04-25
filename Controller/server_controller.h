@@ -24,7 +24,10 @@ public:
     // the spreadsheet this connection/client is currently on
     std::string curr_spreadsheet;
     std::string client_name;
-    std::string buffer;
+    // buffer for storing incomplete messages
+    std::string s_buffer;
+    // buffer for storing the recieved string
+    std::string r_buffer;
     int ID;
     enum { max_length = 2048 };
     char data[max_length];
@@ -49,6 +52,8 @@ public:
 
   private:
       static std::string find_request_type(std::string s, std::string& cellName, std::string& contents);
+      // Split the given string by the first \n character, deleting the part before it and returning it
+      static std::string split_and_delete(std::string& s);
   };
 
 private:
@@ -67,6 +72,7 @@ public:
   Server(boost::asio::io_context& io_context);
   std::string get_spreadsheets();
   void stop();
+  void save_to_file();
 };
 
 #endif

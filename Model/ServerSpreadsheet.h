@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <stack>
+#include <boost/json.hpp>
 
 /*
 *
@@ -53,10 +54,15 @@ class Spreadsheet {
 
 	std::map<std::string, Cell> cells;
 	std::map<int, User> users;
-
+	std::string name;
 	std::stack<Cell> history;
 
+	boost::json::object get_json_cells();
+	boost::json::object get_json_history();
+
 public:
+	Spreadsheet(std::string s);
+	Spreadsheet();
 	std::map<std::string, Cell> get_cells();
 	Cell get_cell(std::string cell_name);
 	void set_cell(std::string cell_name, std::string contents);
@@ -65,6 +71,8 @@ public:
 	const std::map<int, User> get_users();
 	void add_user(std::string name, int ID);
 	void delete_user(int ID);
+
+	std::string get_json();
 };
 
 #endif

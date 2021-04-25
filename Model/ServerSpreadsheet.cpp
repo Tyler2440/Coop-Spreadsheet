@@ -1,6 +1,10 @@
 #include <map>
 #include "ServerSpreadsheet.h"
+<<<<<<< HEAD
 #include "Formula.h"
+=======
+#include <boost/json.hpp>
+>>>>>>> 3f420d5a5e33d5975341635c07537a69bf8c2cb8
 
 Cell::Cell()
 {
@@ -125,4 +129,25 @@ void Spreadsheet::select_cell(int ID_of_selector, std::string cell_name)
 void User::select(std::string cell_name)
 {
 	selected = cell_name;
+}
+
+Spreadsheet::Spreadsheet(std::string s)
+{
+	name = s;
+}
+
+Spreadsheet::Spreadsheet()
+{
+}
+
+std::string Spreadsheet::get_json()
+{
+	boost::json::object obj;
+	obj["name"] = name;
+	//obj["cells"] = cells;
+	//obj["history"] = history;
+}
+
+boost::json::object Spreadsheet::get_json_history()
+{
 }
