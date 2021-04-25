@@ -51,6 +51,7 @@ namespace SpreadsheetGUI
             networkController.RequestError += DisplayRequestError;
             networkController.ServerError += DisplayServerError;
             networkController.Error += Error;
+            networkController.ChangeContents += SetCellContents;
         }
 
 
@@ -61,6 +62,7 @@ namespace SpreadsheetGUI
             fileselector.ShowDialog();
         }
 
+        /*
         public SpreadsheetForm(string file)
         {
             InitializeComponent();
@@ -83,6 +85,7 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetSelection(0, 0);
             CellNameText.Text = "A1";
         }
+        */
 
         /// <summary>
         /// After Controller reads through the file and sets up it's Spreadsheet object, this method runs 
@@ -100,9 +103,9 @@ namespace SpreadsheetGUI
         /// Updates the state of spreadsheet when it recieves message from server
         /// </summary>
         /// <param name="spreadsheet"></param>
-        private void UpdateSpreadsheet(Spreadsheet spreadsheet)
+        private void UpdateSpreadsheet()
         {          
-            controller.SetSpreadsheet(spreadsheet); 
+            //controller.SetSpreadsheet(spreadsheet); 
             foreach (string cell in controller.GetNonEmptyCells())
             {    
                 UpdateSpreadsheetValue(cell);
@@ -114,6 +117,19 @@ namespace SpreadsheetGUI
             //    UpdateSpreadsheetUsers(ID);
             //}
 
+        }
+
+        /// <summary>
+        /// Event handler for setting cell contents. Updates model with new contents 
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <param name="contents"></param>
+        private void SetCellContents(string cellName, string contents)
+        {
+            int colTemp;
+            int rowTemp;
+            controller.GetColRow(cellName, out colTemp, out rowTemp);
+            controller.SetCellContent(colTemp, rowTemp, contents);
         }
 
         /// <summary>
@@ -214,7 +230,7 @@ namespace SpreadsheetGUI
             }
         }
 
-
+        /*
         /// <summary>
         /// When the "New" button is clicked under the "File" tab, it runs a new Spreadsheet window.
         /// </summary>
@@ -231,6 +247,7 @@ namespace SpreadsheetGUI
             Close();
         }
 
+        
         /// <summary>
         /// When the "Save" button is clicked under the "File" tab, open a windows explorer window to choose
         /// where the file should be saved, and what it should be called.
@@ -248,6 +265,7 @@ namespace SpreadsheetGUI
                 controller.Save(saveFileDialog1.FileName);
             }
         }
+        
 
         /// <summary>
         /// When the "Open" button is clicked via the "File" tab, opens a windows explorer window to let the user choose which file to 
@@ -274,7 +292,7 @@ namespace SpreadsheetGUI
                 }
             }
         }
-
+        */
         /// <summary>
         /// When the "Undo" button is clicked under the "File" tab, sets the spreadsheet to how it was before the
         /// change was made and updates the display accordingly.
@@ -284,6 +302,7 @@ namespace SpreadsheetGUI
             networkController.RequestUndo();
         }
 
+        /*
         /// <summary>
         /// When the spreadsheet is closing via the "Close" button via the "File" tab, checks to see if there was a change to the spreadsheet. If there 
         /// hasn't been a change, close the spreadsheet. If there was a change, prompts the user if they would like to close without saving.
@@ -307,6 +326,7 @@ namespace SpreadsheetGUI
             filePath = Directory.GetParent(filePath).FullName;
             Process.Start(filePath + "\\Help.txt");
         }
+        */
 
         /// <summary>
         /// When the spreadsheet is closing via the Form's exit button, check to see if there was a change to the spreadsheet. If there was,

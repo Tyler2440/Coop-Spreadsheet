@@ -67,7 +67,7 @@ public:
 	Spreadsheet();
 	std::map<std::string, Cell> get_cells();
 	Cell get_cell(std::string cell_name);
-	void set_cell(std::string cell_name, std::string contents);
+	bool set_cell(std::string cell_name, std::string contents);
 	void select_cell(int ID_of_selector, std::string cell_name);
 
 	const std::map<int, User> get_users();

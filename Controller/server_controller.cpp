@@ -208,21 +208,30 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			else if (request_name == "editCell")
 			{
 				// LOCK HERE
-				server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents);
-
-				// ADD CELL CHANGE TO UNDO STACK
-
-				std::map<int, connection_handler::pointer>* connections = server->connections;
-				for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
+				if (server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents))
 				{
-					//maybe get weird errors with other connection_handlers sending stuff at same time
-					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+
+					// ADD CELL CHANGE TO UNDO STACK
+
+					std::map<int, connection_handler::pointer>* connections = server->connections;
+					for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 					{
-						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"";
-						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+						//maybe get weird errors with other connection_handlers sending stuff at same time
+						if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+						{
+							std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"" + "}\n";
+							std::cout << message << std::endl;
+							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+						}
 					}
+					// END LOCK HERE
 				}
-				// END LOCK HERE
+				else
+				{
+					std::string invalid = "Edit request was invalid!";
+					std::string message = "{ messageType: \"serverError\", message: \"" + invalid + "\"}\n";
+					sock.write_some(boost::asio::buffer(message, max_length));
+				}
 			}
 
 			else if (request_name == "undo")
@@ -241,7 +250,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					//maybe get weird errors with other connection_handlers sending stuff at same time
 					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 					{
-						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"";
+						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"}\n";
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}
@@ -264,7 +273,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					//maybe get weird errors with other connection_handlers sending stuff at same time
 					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 					{
-						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"";
+						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"}\n";
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}

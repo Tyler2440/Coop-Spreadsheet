@@ -28,11 +28,13 @@ namespace SpreadsheetController
 
         // Event to update wiew with new info from server
         public delegate void DataHandler(List<string> spreadsheets, SocketState state);
-        public delegate void DataEvent(Spreadsheet spreadsheet);
+        public delegate void DataEvent();
         public delegate void CellSelectionHandler(string cellName, int ID, string username);
         public delegate void UserDisconnectedHandler(int ID);
         public delegate void ServerErrorHandler(string message);
         public delegate void RequestErrorHandler(string cellname, string message);
+        public delegate void ChangeContentsHandler(string cellName, string contents);
+        public event ChangeContentsHandler ChangeContents;
         public event ServerErrorHandler ServerError;
         public event RequestErrorHandler RequestError;
         public event UserDisconnectedHandler UserDisconnected;
@@ -132,7 +134,7 @@ namespace SpreadsheetController
                 return;
             }
 
-            Spreadsheet spreadsheet = new Spreadsheet();
+            //Spreadsheet spreadsheet = new Spreadsheet();
 
             string totalData = state.GetData();
 
@@ -148,21 +150,21 @@ namespace SpreadsheetController
 
                 if (!finishedHandshake)
                 {
-
                     if (int.TryParse(part.Substring(0, part.Length - 1), out id))
                     {
                         finishedHandshake = true;
-                        state.OnNetworkAction = OnReceive;
+                        //state.OnNetworkAction = OnReceive;
                         break;
                     }
                 }
 
                 //System.Diagnostics.Debug.WriteLine(totalData);
                 var result = JsonConvert.DeserializeObject<JToken>(part);
-                System.Diagnostics.Debug.WriteLine(result["messageType"]);
+                //System.Diagnostics.Debug.WriteLine(result["messageType"]);
                 if (result["messageType"].ToString() == "cellUpdated")
                 {
-                    spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
+                    //spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
+                    ChangeContents(result["cellName"].ToString(), result["contents"].ToString());
                 }
 
                 else if (result["messageType"].ToString() == "cellSelected")
@@ -185,7 +187,7 @@ namespace SpreadsheetController
 
             }
 
-            Update(spreadsheet); // Update view
+            Update(); // Update view
             Networking.GetData(state);
         }
 
@@ -218,9 +220,9 @@ namespace SpreadsheetController
 
             // After connection to server, print whatever we get
             // Debug.WriteLine();
-            Console.WriteLine(parts[0]);
+            //Console.WriteLine(parts[0]);
 
-            Networking.Send(state.TheSocket, "Test\n");
+            //Networking.Send(state.TheSocket, "Test\n");
         }
 
         public List<String> GetSpreadsheets()

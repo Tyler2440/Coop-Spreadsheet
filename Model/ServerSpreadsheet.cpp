@@ -1,5 +1,6 @@
 #include <map>
 #include "ServerSpreadsheet.h"
+#include "Formula.h"
 #include <boost/json.hpp>
 #include <vector>
 #include <boost/property_tree/ptree.hpp>
@@ -52,8 +53,23 @@ Cell Spreadsheet::get_cell(std::string cell_name)
 	return cells[cell_name];
 }
 
-void Spreadsheet::set_cell(std::string cell_name, std::string contents)
+bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 {
+	if (contents[0] == '=')
+	{
+		std::string formula = contents.substr(1, contents.length());
+		try
+		{
+			Formula::isValid(formula);
+		}
+		catch (std::exception e)
+		{ 
+			// NOTIFY SERVER OF INVALID FORMULA
+			return false;
+		}
+	}
+	
+	
 	if (cells.find(cell_name) != cells.end())
 	{
 		cells[cell_name].set_contents(contents);
@@ -62,6 +78,8 @@ void Spreadsheet::set_cell(std::string cell_name, std::string contents)
 	{
 		cells.insert(std::pair<std::string, Cell>(cell_name, *(new Cell(contents))));
 	}
+
+	return true;
 }
 
 const std::map<int, User> Spreadsheet::get_users()
