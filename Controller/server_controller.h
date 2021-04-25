@@ -72,6 +72,7 @@ public:
   Server(boost::asio::io_context& io_context);
   std::string get_spreadsheets();
   void stop();
+  void save_to_file();
 };
 
 #endif

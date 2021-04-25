@@ -2,10 +2,10 @@
 #include <vector>
 #include <stack>
 
-typedef int Lookup(std::string s)
-{
-
-}
+//typedef int Lookup(std::string s)
+//{
+//
+//}
 
 static int is_variable(std::string s)
 {
@@ -19,7 +19,7 @@ static bool is_operator(std::stack<T> stack, std::string c)
 
 }
 
-static int evaluate(std::string formula, Lookup variableEvaluator)
-{
-
-}
+//static int evaluate(std::string formula, Lookup variableEvaluator)
+//{
+//
+//}

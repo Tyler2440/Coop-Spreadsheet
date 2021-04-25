@@ -418,8 +418,6 @@ bool TestSendSpreadsheetName(std::string ip, int port)
 		// Receive the names of the spreadsheets
 		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
-		std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
-
 		// Send a name of existing spreadsheet
 		message = "test1\n";
 		sock.send(boost::asio::buffer(message, max_length));
@@ -432,7 +430,7 @@ bool TestSendSpreadsheetName(std::string ip, int port)
 		{
 			// TURN INTO METHOD
 			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
-			std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
+
 			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
 			r_buffer = s_buffer.append(r_buffer);
 
@@ -440,7 +438,7 @@ bool TestSendSpreadsheetName(std::string ip, int port)
 			while (r_buffer.find('\n') != std::string::npos)
 			{
 				std::string command = split_and_delete(r_buffer);
-				std::cout << "command: \"" << command << "\"" << std::endl;
+
 				try
 				{
 					std::stoi(command);
@@ -479,8 +477,6 @@ bool TestSendNewSpreadsheetName(std::string ip, int port)
 
 		// Receive the names of the spreadsheets
 		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
-
-		std::cout << "Server sent: \"" << r_buffer << "\"" << std::endl;
 
 		// Send a name of new spreadsheet
 		message = "newspreadsheet\n";

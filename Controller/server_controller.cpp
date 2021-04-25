@@ -9,6 +9,7 @@
 #include "server_controller.h"
 #include "../Model/ServerSpreadsheet.h"
 #include <map>
+#include <boost/json.hpp>
 
 using boost::asio::ip::tcp;
 typedef boost::shared_ptr<Server::connection_handler> pointer;
@@ -27,7 +28,7 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	connections = new std::map<int, connection_handler::pointer>();
-	Spreadsheet *test1 = new Spreadsheet();
+	Spreadsheet *test1 = new Spreadsheet("test1");
 	test1->set_cell("A1", "jingle");
 	test1->add_user("chad", 2);
 	test1->select_cell(2, "B1");
@@ -40,8 +41,8 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	test1->set_cell("A4", "jungle");
 	test1->set_cell("A5", "jyngle");
 	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet())) );
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet())) );
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet("test2"))) );
+	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet("test3"))) );
 	next_ID = 0;
 	start_accept();
 }
@@ -147,7 +148,7 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		else
 		{
 			std::cout << "Client created: " << spreadsheet_name << std::endl;
-			spreadsheet = new Spreadsheet();
+			spreadsheet = new Spreadsheet(spreadsheet_name);
 			server->spreadsheets->insert(std::pair<std::string, Spreadsheet>(spreadsheet_name, *(spreadsheet)));
 		}
 
@@ -392,4 +393,17 @@ std::string Server::connection_handler::split_and_delete(std::string& s)
 	std::string before = s.substr(0, loc);
 	s = s.substr(loc + 1, std::string::npos);
 	return before;
+}
+
+void Server::save_to_file()
+{
+	//for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets->begin(); it != spreadsheets->end(); ++it)
+	//{
+	//	it->second.serialize()
+	//}
+	//boost::json::serialize(boost::json::object());
+	//boost::json::serializer s;
+	//s.reset()
+	//char buffer[1024];
+	//s.read(buffer);
 }
