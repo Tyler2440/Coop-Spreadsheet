@@ -15,18 +15,19 @@
 */
 class Cell {
 
-	//std::string cell_name;
+	std::string cell_name;
 	std::string contents;
 	std::stack<std::string> previous_changes;
 
 public:
 	Cell();
-	Cell(std::string content); //constructor 
+	Cell(std::string name, std::string content); //constructor 
 
-	//std::string get_name();
+	std::string get_name();
 
 	std::string get_contents();
 
+	void set_name(std::string name);
 	void set_contents(std::string content);
 
 	std::string get_previous_change();
@@ -54,10 +55,10 @@ class User
 */
 class Spreadsheet {
 
-	std::map<std::string, Cell> cells;
+	std::map<std::string, Cell*>* cells;
 	std::map<int, User> users;
 	std::string name;
-	std::stack<Cell> history;
+	std::stack<Cell*>* history;
 
 	boost::json::object get_json_cells();
 	boost::json::array get_json_history();
@@ -65,10 +66,12 @@ class Spreadsheet {
 public:
 	Spreadsheet(std::string s);
 	Spreadsheet();
-	std::map<std::string, Cell> get_cells();
-	Cell get_cell(std::string cell_name);
+	std::map<std::string, Cell*>* get_cells();
+	Cell* get_cell(std::string cell_name);
 	bool set_cell(std::string cell_name, std::string contents);
 	void select_cell(int ID_of_selector, std::string cell_name);
+	Cell* undo();
+	std::stack<Cell*>* get_history();
 
 	const std::map<int, User> get_users();
 	void add_user(std::string name, int ID);

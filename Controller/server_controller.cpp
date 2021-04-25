@@ -124,13 +124,13 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 		{
 			std::cout << "Client selected: " << spreadsheet_name << std::endl;
 			spreadsheet = &server->spreadsheets->at(spreadsheet_name);
-			std::map<std::string, Cell> cells = spreadsheet->get_cells();
+			std::map<std::string, Cell*>* cells = spreadsheet->get_cells();
 
 			//std::cout << "here" << std::endl;
 			// Send every edited cell
-			for (std::map<std::string, Cell>::iterator it = cells.begin(); it != cells.end(); ++it)
+			for (std::map<std::string, Cell*>::iterator it = cells->begin(); it != cells->end(); ++it)
 			{
-				std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second.get_contents() + "\" }\n";
+				std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second->get_contents() + "\" }\n";
 				//std::cout << "haha" << std::endl;
 				sock.write_some(boost::asio::buffer(message, max_length));
 			}
@@ -236,34 +236,37 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 
 			else if (request_name == "undo")
 			{
-				// GET UNDO CHANGE FROM STACK, UPDATE CELLNAME AND CONTENTS TO CORRECT VALUES
-
-				// LOCK HERE
-				// THIS LINE UTILIZES THE CHANGE FROM THE UNDO STACK TO EDIT THE CELL
-				server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents);
-
-				// REMOVE CHANGE FROM UNDO STACK
-
-				std::map<int, connection_handler::pointer>* connections = server->connections;
-				for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
+				if (!server->spreadsheets->at(curr_spreadsheet).get_history()->empty())
 				{
-					//maybe get weird errors with other connection_handlers sending stuff at same time
-					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+					Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo();
+
+					// LOCK HERE
+					//server->spreadsheets->at(curr_spreadsheet).set_cell(cell->get_name(), cell->get_contents());
+
+					std::map<int, connection_handler::pointer>* connections = server->connections;
+					for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 					{
-						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"}\n";
-						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+						//maybe get weird errors with other connection_handlers sending stuff at same time
+						if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+						{
+							std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cell->get_name() + "\", contents: \"" + cell->get_contents() + "\"" + "}\n";
+							std::cout << message << std::endl;
+							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+						}
 					}
+					// END LOCK HERE
 				}
-				// END LOCK HERE
 			}
 
 			else if (request_name == "revertCell")
 			{
-				// GET REVERT CHANGE FROM THE GIVEN CELL, UPDATE CONTENTS TO CORRECT VALUE (THIS FUNCTION CALL SHOULD REMOVE THE CHANGE FROM
+				// GET REVERT CHANGE FROM THE GIVEN CELL, UPDATE CONTENTS TO CORRECT VALUE (THIS FUNCTION CALL SHOULD REMOVE THE CHANGE)
+				Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo();
+				std::string new_contents = cell->get_previous_change();
 
 				// LOCK HERE
 				// THIS LINE UTILIZES THE CHANGE FROM THE REVERT STACK TO EDIT THE CELL
-				server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents);
+				server->spreadsheets->at(curr_spreadsheet).set_cell(cell->get_name(), new_contents);
 
 				// REMOVE CHANGE FROM UNDO STACK
 
@@ -273,7 +276,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					//maybe get weird errors with other connection_handlers sending stuff at same time
 					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 					{
-						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"}\n";
+						std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cell->get_name() + "\", contents: \"" + new_contents + "\"}\n";
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}

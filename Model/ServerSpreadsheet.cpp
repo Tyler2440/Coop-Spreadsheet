@@ -9,9 +9,15 @@ Cell::Cell()
 {
 }
 
-Cell::Cell(std::string content)
+Cell::Cell(std::string name, std::string content)
 {
+	this->set_name(name);
 	this->set_contents(content);
+}
+
+void Cell::set_name(std::string name)
+{
+	this->cell_name = name;
 }
 
 void Cell::set_contents(std::string content)
@@ -24,12 +30,11 @@ std::string Cell::get_contents()
 	return this->contents;
 }
 
-/*
 std::string Cell::get_name()
 {
 	return this->cell_name;
 }
-*/
+
 
 std::string Cell::get_previous_change()
 {
@@ -43,14 +48,14 @@ std::string Cell::get_previous_change()
 	return "";
 }
 
-std::map<std::string, Cell> Spreadsheet::get_cells()
+std::map<std::string, Cell*>* Spreadsheet::get_cells()
 {
 	return cells;
 }
 
-Cell Spreadsheet::get_cell(std::string cell_name)
+Cell* Spreadsheet::get_cell(std::string cell_name)
 {
-	return cells[cell_name];
+	return cells->at(cell_name);
 }
 
 bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
@@ -69,15 +74,18 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		}
 	}
 	
-	
-	if (cells.find(cell_name) != cells.end())
+	if (cells->find(cell_name) != cells->end())
 	{
-		cells[cell_name].set_contents(contents);
+		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents());
+		history->push(cell);
+		cells->at(cell_name)->set_contents(contents);
 	}
 	else
 	{
-		cells.insert(std::pair<std::string, Cell>(cell_name, *(new Cell(contents))));
-	}
+		Cell* cell = new Cell(cell_name, "");
+		history->push(cell);
+		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
+	}	
 
 	return true;
 }
@@ -133,13 +141,33 @@ void User::select(std::string cell_name)
 	selected = cell_name;
 }
 
+Cell* Spreadsheet::undo()
+{
+	Cell* cell = history->top();
+	history->pop();
+
+	if (cells->find(cell->get_name()) != cells->end())
+	{
+		cells->at(cell->get_name())->set_contents(cell->get_contents());
+	}
+
+	return cell;
+}
+
 Spreadsheet::Spreadsheet(std::string s)
 {
 	name = s;
+	cells = new std::map<std::string, Cell*>();
+	history = new std::stack<Cell*>();
 }
 
 Spreadsheet::Spreadsheet()
 {
+}
+
+std::stack<Cell*>* Spreadsheet::get_history()
+{
+	return history;
 }
 
 std::string Spreadsheet::get_json()
@@ -163,13 +191,13 @@ boost::json::object Spreadsheet::get_json_cells()
 
 boost::json::array Spreadsheet::get_json_history()
 {
-	std::stack<Cell> copy = history;
+	std::stack<Cell*>* copy = history;
 	boost::json::array arr;
 
-	for (int i = 0; i < copy.size(); i++)
+	for (int i = 0; i < copy->size(); i++)
 	{
-		arr[i] = copy.top().get_contents();
-		copy.pop();
+		arr[i] = copy->top()->get_contents();
+		copy->pop();
 	}
 
 	return arr;
