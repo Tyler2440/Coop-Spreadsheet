@@ -21,12 +21,18 @@
     <ClInclude Include="Formula.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DependencyGraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerSpreadsheet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Formula.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DependencyGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
