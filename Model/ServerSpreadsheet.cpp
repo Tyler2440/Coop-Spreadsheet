@@ -11,6 +11,7 @@ Cell::Cell()
 
 Cell::Cell(std::string name, std::string content)
 {
+	history = new std::stack<std::string>();
 	this->set_name(name);
 	this->set_contents(content);
 }
@@ -22,6 +23,7 @@ void Cell::set_name(std::string name)
 
 void Cell::set_contents(std::string content)
 {
+	history->push(contents);
 	this->contents = content;
 }
 
@@ -35,17 +37,16 @@ std::string Cell::get_name()
 	return this->cell_name;
 }
 
+std::stack<std::string>* Cell::get_history()
+{
+	return history;
+}
 
 std::string Cell::get_previous_change()
 {
-	if (!previous_changes.empty())
-	{
-		std::string change = previous_changes.top();
-		previous_changes.pop();
-		return change;
-	}
-
-	return "";
+	std::string change = history->top();
+	history->pop();
+	return change;
 }
 
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
@@ -55,6 +56,12 @@ std::map<std::string, Cell*>* Spreadsheet::get_cells()
 
 Cell* Spreadsheet::get_cell(std::string cell_name)
 {
+	if (cells->find(cell_name) == cells->end())
+	{
+		Cell* cell = new Cell(cell_name, "");
+		cells->insert(std::pair<std::string, Cell*>(cell_name, cell));
+		return cell;
+	}
 	return cells->at(cell_name);
 }
 
@@ -67,11 +74,12 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		{
 			Formula::isValid(formula);
 		}
-		catch (std::exception e)
+		catch (const char* msg)
 		{ 
 			// NOTIFY SERVER OF INVALID FORMULA
 			return false;
 		}
+		return true;
 	}
 	
 	if (cells->find(cell_name) != cells->end())

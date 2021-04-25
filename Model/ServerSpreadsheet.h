@@ -17,15 +17,15 @@ class Cell {
 
 	std::string cell_name;
 	std::string contents;
-	std::stack<std::string> previous_changes;
+	std::stack<std::string>* history;
 
 public:
 	Cell();
 	Cell(std::string name, std::string content); //constructor 
 
 	std::string get_name();
-
 	std::string get_contents();
+	std::stack<std::string>* get_history();
 
 	void set_name(std::string name);
 	void set_contents(std::string content);
