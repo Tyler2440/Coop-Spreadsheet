@@ -79,9 +79,9 @@ bool Formula::isValid(std::string formula)
 
 		if (previous_token.compare("+") == 0 || previous_token.compare("-") == 0 || previous_token.compare("*") == 0 || previous_token.compare("/") == 0 || previous_token.compare("(") == 0)
 		{
-			if (strtod(token.c_str(), NULL) == 0 || Formula::is_variable(token) || token.compare("(") == 0)
+			if (!(strtod(token.c_str(), NULL) == 0 || Formula::is_variable(token) || token.compare("(") == 0))
 			{
-				throw "Formula is invalid! Invalid character following number, variable, or closing parentheses.";
+				throw "Formula is invalid! Invalid character following an open parentheses or operator.";
 			}
 		}
 
@@ -161,11 +161,11 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 	return tokens;
 }
 
-bool Formula::is_variable(std::string s)
+bool Formula::is_variable(std::string& s)
 {
 	int i = 0;
 	
-	//s.erase(std::remove(s.begin(), s.end(), '\0'), s.end());
+	s.erase(std::find(s.begin(), s.end(), '\0'), s.end());
 	while (std::isalpha(s[i]))
 	{
 		if (i != s.length())

@@ -11,5 +11,5 @@ public:
 	static bool isValid(std::string s);
 	static std::vector<std::string> get_tokens(std::string formula);
 	static std::string normalize(std::string variable);
-	static bool is_variable(std::string s);
+	static bool is_variable(std::string& s);
 };
