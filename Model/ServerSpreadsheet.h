@@ -5,6 +5,8 @@
 #include <map>
 #include <stack>
 #include <boost/json.hpp>
+#include <vector>
+#include <boost/property_tree/ptree.hpp>
 
 /*
 *
@@ -58,7 +60,7 @@ class Spreadsheet {
 	std::stack<Cell> history;
 
 	boost::json::object get_json_cells();
-	boost::json::object get_json_history();
+	boost::json::array get_json_history();
 
 public:
 	Spreadsheet(std::string s);

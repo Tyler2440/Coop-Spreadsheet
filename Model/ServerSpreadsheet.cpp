@@ -1,6 +1,8 @@
 #include <map>
 #include "ServerSpreadsheet.h"
 #include <boost/json.hpp>
+#include <vector>
+#include <boost/property_tree/ptree.hpp>
 
 Cell::Cell()
 {
@@ -126,10 +128,31 @@ std::string Spreadsheet::get_json()
 {
 	boost::json::object obj;
 	obj["name"] = name;
-	//obj["cells"] = cells;
-	//obj["history"] = history;
+	obj["cells"] = get_json_cells();
+	obj["history"] = get_json_history();
+
+	return boost::json::serialize(obj);
 }
 
-boost::json::object Spreadsheet::get_json_history()
+boost::json::object Spreadsheet::get_json_cells()
 {
+	boost::json::object obj;
+
+
+
+	return obj;
+}
+
+boost::json::array Spreadsheet::get_json_history()
+{
+	std::stack<Cell> copy = history;
+	boost::json::array arr;
+
+	for (int i = 0; i < copy.size(); i++)
+	{
+		arr[i] = copy.top().get_contents();
+		copy.pop();
+	}
+
+	return arr;
 }

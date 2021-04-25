@@ -278,18 +278,18 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			boost::bind(&connection_handler::handle_read, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
-	// client has disconnected
-	else if ((boost::asio::error::eof == err) ||
-		(boost::asio::error::connection_reset == err))
-	{
-		//check if all connections are gone, if they are stop the server
-		if (server->connections->size() == 1)
-			server->io_context_.stop();
+	//// client has disconnected
+	//else if ((boost::asio::error::eof == err) ||
+	//	(boost::asio::error::connection_reset == err))
+	//{
+	//	//check if all connections are gone, if they are stop the server
+	//	if (server->connections->size() == 1)
+	//		server->io_context_.stop();
 
-		sock.close();
+	//	sock.close();
 
-		server->io_context_.stop();
-	}
+	//	server->io_context_.stop();
+	//}
 	else
 	{
 		std::cerr << "error: " << err.message() << std::endl;
