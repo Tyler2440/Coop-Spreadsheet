@@ -125,12 +125,14 @@ std::string User::get_selected()
 
 User::User()
 {
+	selected = "A1";
 }
 
 User::User(int ID, std::string name) 
 {
 	this->ID = ID;
 	this->name = name;
+	selected = "A1";
 }
 
 std::string User::get_name()

@@ -316,6 +316,7 @@ namespace SS
             public void SetUserSelection(Dictionary<int, User> users)
             {
                 this.users = users;
+                Invalidate();
             }
 
             public void GetSelection(out int col, out int row)
@@ -359,6 +360,7 @@ namespace SS
                 Font regularFont = Font;
                 Font boldFont = new Font(regularFont, FontStyle.Bold);
 
+                
                 // Draw the column lines
                 int bottom = LABEL_ROW_HEIGHT + (ROW_COUNT - _firstRow) * DATA_ROW_HEIGHT;
                 e.Graphics.DrawLine(pen, new Point(0, 0), new Point(0, bottom));
@@ -369,6 +371,8 @@ namespace SS
                         new Point(LABEL_COL_WIDTH + x * DATA_COL_WIDTH, 0),
                         new Point(LABEL_COL_WIDTH + x * DATA_COL_WIDTH, bottom));
                 }
+
+              
 
                 // Draw the column labels
                 for (int x = 0; x < COL_COUNT - _firstColumn; x++)
@@ -395,22 +399,6 @@ namespace SS
                     DrawRowLabel(e.Graphics, y, f);
                 }
 
-                foreach (User u in users.Values)
-                {
-                    // Highlight the selection of all users                 
-                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
-                    {
-                        
-                        Pen userPen = new Pen(u.getColor());
-
-                        e.Graphics.DrawRectangle(
-                            userPen,
-                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
-                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                          DATA_COL_WIDTH - 2,
-                                          DATA_ROW_HEIGHT - 2));
-                    }
-                }
 
                 // Highlight the client sselection, if it is visible
                 if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
@@ -422,7 +410,34 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-               
+
+                foreach (User u in users.Values)
+                {
+                    //float height = e.Graphics.MeasureString(u.getName(), regularFont).Height;
+                    //float width = e.Graphics.MeasureString(u.getName(), regularFont).Width;
+                    // Highlight the selection of all users                 
+                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
+                    {
+
+                        Pen userPen = new Pen(u.getColor());
+
+                        e.Graphics.DrawRectangle(
+                            userPen,
+                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                        //Brush b = new SolidBrush(u.getColor());
+                        //e.Graphics.DrawString(
+                        //   u.getName(),
+                        //   boldFont,
+                        //   b,
+                        //   LABEL_COL_WIDTH + u.getCol() * DATA_COL_WIDTH + ((3 * LABEL_COL_WIDTH) - 10),
+                        //   LABEL_ROW_HEIGHT + u.getRow() * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - 20) / 2);
+                    }
+                }
+
+
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {

@@ -10,7 +10,7 @@
 
 /*
 *
-* Holds the value of a cell
+* Holds the value of a cells 
 *
 */
 class Cell {

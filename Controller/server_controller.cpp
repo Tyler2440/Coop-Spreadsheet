@@ -152,10 +152,10 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 			server->spreadsheets->insert(std::pair<std::string, Spreadsheet>(spreadsheet_name, *(spreadsheet)));
 		}
 
+		spreadsheet->add_user(client_name, ID);
+
 		std::string message = std::to_string(ID) + "\n";
 		sock.write_some(boost::asio::buffer(message, max_length));
-
-		spreadsheet->add_user(client_name, ID);
 
 		// END OF LOCK
 
