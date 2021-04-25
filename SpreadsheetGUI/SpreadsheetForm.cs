@@ -51,6 +51,7 @@ namespace SpreadsheetGUI
             networkController.RequestError += DisplayRequestError;
             networkController.ServerError += DisplayServerError;
             networkController.Error += Error;
+            networkController.ChangeContents += SetCellContents;
         }
 
 

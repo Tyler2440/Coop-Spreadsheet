@@ -153,7 +153,7 @@ namespace SpreadsheetController
                     if (int.TryParse(part.Substring(0, part.Length - 1), out id))
                     {
                         finishedHandshake = true;
-                        state.OnNetworkAction = OnReceive;
+                        //state.OnNetworkAction = OnReceive;
                         break;
                     }
                 }
@@ -220,9 +220,9 @@ namespace SpreadsheetController
 
             // After connection to server, print whatever we get
             // Debug.WriteLine();
-            Console.WriteLine(parts[0]);
+            //Console.WriteLine(parts[0]);
 
-            Networking.Send(state.TheSocket, "Test\n");
+            //Networking.Send(state.TheSocket, "Test\n");
         }
 
         public List<String> GetSpreadsheets()
