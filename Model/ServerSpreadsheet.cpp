@@ -11,6 +11,7 @@ Cell::Cell()
 
 Cell::Cell(std::string name, std::string content)
 {
+	history = new std::stack<std::string>();
 	this->set_name(name);
 	this->set_contents(content);
 }
@@ -22,6 +23,7 @@ void Cell::set_name(std::string name)
 
 void Cell::set_contents(std::string content)
 {
+	history->push(contents);
 	this->contents = content;
 }
 
@@ -35,17 +37,16 @@ std::string Cell::get_name()
 	return this->cell_name;
 }
 
+std::stack<std::string>* Cell::get_history()
+{
+	return history;
+}
 
 std::string Cell::get_previous_change()
 {
-	if (!previous_changes.empty())
-	{
-		std::string change = previous_changes.top();
-		previous_changes.pop();
-		return change;
-	}
-
-	return "";
+	std::string change = history->top();
+	history->pop();
+	return change;
 }
 
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
@@ -55,6 +56,12 @@ std::map<std::string, Cell*>* Spreadsheet::get_cells()
 
 Cell* Spreadsheet::get_cell(std::string cell_name)
 {
+	if (cells->find(cell_name) == cells->end())
+	{
+		Cell* cell = new Cell(cell_name, "");
+		cells->insert(std::pair<std::string, Cell*>(cell_name, cell));
+		return cell;
+	}
 	return cells->at(cell_name);
 }
 
@@ -67,11 +74,12 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		{
 			Formula::isValid(formula);
 		}
-		catch (std::exception e)
+		catch (const char* msg)
 		{ 
 			// NOTIFY SERVER OF INVALID FORMULA
 			return false;
 		}
+		return true;
 	}
 	
 	if (cells->find(cell_name) != cells->end())
@@ -182,24 +190,56 @@ std::string Spreadsheet::get_json()
 	return boost::json::serialize(obj);
 }
 
-boost::json::object Spreadsheet::get_json_cells()
+boost::json::array Spreadsheet::get_json_cells()
+{
+	boost::json::array arr(cells->size());
+
+	int i = 0;
+	for (std::map<std::string, Cell*>::iterator it = cells->begin(); it != cells->end(); ++it)
+	{
+		boost::json::object cell = get_json_cell(*it->second);
+		arr[i] = cell;
+		i++;
+	}
+
+	return arr;
+}
+
+boost::json::object Spreadsheet::get_json_cell(Cell c)
 {
 	boost::json::object obj;
-
-
-
+	obj["name"] = c.get_name();
+	obj["contents"] = c.get_contents();
+	obj["history"] = get_json_cell_history(c);
 	return obj;
+}
+
+boost::json::array Spreadsheet::get_json_cell_history(Cell c)
+{
+	std::stack<std::string> copy(*c.get_history());
+	boost::json::array arr(copy.size());
+
+	int loop_for = copy.size();
+	for (int i = 0; i < loop_for; i++)
+	{
+		arr[i] = copy.top();
+		copy.pop();
+	}
+
+	return arr;
 }
 
 boost::json::array Spreadsheet::get_json_history()
 {
-	std::stack<Cell*>* copy = history;
-	boost::json::array arr;
+	std::stack<Cell*> copy(*history);
+	boost::json::array arr(copy.size());
 
-	for (int i = 0; i < copy->size(); i++)
+	int loop_for = copy.size();
+	for (int i = 0; i < loop_for; i++)
 	{
-		arr[i] = copy->top()->get_contents();
-		copy->pop();
+		boost::json::object obj = get_json_cell(*copy.top());
+		arr[i] = obj;
+		copy.pop();
 	}
 
 	return arr;

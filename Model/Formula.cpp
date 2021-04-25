@@ -26,15 +26,15 @@ bool Formula::isValid(std::string formula)
 	auto tokens_front = tokens.begin();
 	std::advance(tokens_front, tokens.size() - 1);
 
-	std::string last_token = *tokens_front;
+	std::string last_token = tokens.back();
 
 	std::string::size_type parse_double1;
 	std::string::size_type parse_double2;
 
-	if (!((tokens.front().compare("(") == 0) || Formula::is_variable(tokens.front())) || !(strtod(tokens.front().c_str(), NULL) == 0))
+	if (!(tokens.front().compare("(") == 0 || Formula::is_variable(tokens.front()) || strtod(tokens.front().c_str(), NULL) != 0))
 		throw "Formula is invalid! The formula does not begin with a number, variable, or opening parenthesis.";
 
-	if (!((last_token.compare(")") == 0) || !(strtod(last_token.c_str(),NULL))==0) || Formula::is_variable(last_token))
+	if (!(last_token.compare(")") == 0 || strtod(last_token.c_str(), NULL) != 0 || Formula::is_variable(last_token)))
 		throw "Formula is invalid! The formula does not end with a number, variable, or opening parenthesis.";
 
 	//Keeps track of the previous string in the loop. Used for following rule checks
@@ -79,9 +79,9 @@ bool Formula::isValid(std::string formula)
 
 		if (previous_token.compare("+") == 0 || previous_token.compare("-") == 0 || previous_token.compare("*") == 0 || previous_token.compare("/") == 0 || previous_token.compare("(") == 0)
 		{
-			if (strtod(token.c_str(), NULL) == 0 || Formula::is_variable(token) || token.compare("(") == 0)
+			if (!(strtod(token.c_str(), NULL) == 0 || Formula::is_variable(token) || token.compare("(") == 0))
 			{
-				throw "Formula is invalid! Invalid character following number, variable, or closing parentheses.";
+				throw "Formula is invalid! Invalid character following an open parentheses or operator.";
 			}
 		}
 
@@ -110,6 +110,8 @@ bool Formula::isValid(std::string formula)
 			normalized_formula += s;
 		}
 	}
+
+	return true;
 }
 
 std::vector<std::string> Formula::get_tokens(std::string formula)
@@ -118,6 +120,7 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 
 	// Delete any whitespace
 	formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
+	//formula.erase(std::remove(formula.begin(), formula.end(), '\0'), formula.end());
 
 	for (int i = 0; i < formula.length(); ++i)
 	{
@@ -158,9 +161,11 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 	return tokens;
 }
 
-bool Formula::is_variable(std::string s)
+bool Formula::is_variable(std::string& s)
 {
 	int i = 0;
+	
+	s.erase(std::find(s.begin(), s.end(), '\0'), s.end());
 	while (std::isalpha(s[i]))
 	{
 		if (i != s.length())
@@ -173,9 +178,11 @@ bool Formula::is_variable(std::string s)
 	{
 		if (i != s.length())
 			++i;
-		else
-			return true;
 	}
+
+	if (i == s.length())
+		return true;
+
 	return false;
 }
 
