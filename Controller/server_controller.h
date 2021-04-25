@@ -49,8 +49,10 @@ public:
     void on_name(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred);
     void handle_write(const boost::system::error_code& err, size_t bytes_transferred);
-
-  private:
+    void client_disconnected();
+    
+  private:     
+     
       static std::string find_request_type(std::string s, std::string& cellName, std::string& contents);
       // Split the given string by the first \n character, deleting the part before it and returning it
       static std::string split_and_delete(std::string& s);
@@ -64,7 +66,6 @@ private:
   void start_accept();
   void handle_accept(connection_handler::pointer connection_handler, const boost::system::error_code& err);
   
-
 public:
   static int next_ID;
 
@@ -73,6 +74,7 @@ public:
   std::string get_spreadsheets();
   void stop();
   void save_to_file();
+  
 };
 
 #endif

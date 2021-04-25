@@ -95,7 +95,7 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;
-		sock.close();
+		client_disconnected();
 	}
 }
 
@@ -165,7 +165,7 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;
-		sock.close();
+		client_disconnected();
 	}
 }
 
@@ -294,22 +294,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			boost::bind(&connection_handler::handle_read, shared_from_this(),
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
-	//// client has disconnected
-	//else if ((boost::asio::error::eof == err) ||
-	//	(boost::asio::error::connection_reset == err))
-	//{
-	//	//check if all connections are gone, if they are stop the server
-	//	if (server->connections->size() == 1)
-	//		server->io_context_.stop();
-
-	//	sock.close();
-
-	//	server->io_context_.stop();
-	//}
 	else
 	{
 		std::cerr << "error: " << err.message() << std::endl;
-		sock.close();
+		client_disconnected();
 	}
 }
 
@@ -320,7 +308,7 @@ void Server::connection_handler::handle_write(const boost::system::error_code& e
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;
-		sock.close();
+		client_disconnected();
 	}
 }
 
@@ -422,4 +410,21 @@ void Server::save_to_file()
 	//s.reset()
 	//char buffer[1024];
 	//s.read(buffer);
+}
+
+void Server::connection_handler::client_disconnected()
+{
+	std::map<int, connection_handler::pointer>* connections = server->connections;
+	for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
+	{
+		//maybe get weird errors with other connection_handlers sending stuff at same time
+		if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
+		{
+			std::string message = "{ messageType: \"disconnected\", user: \"" + std::to_string(ID) + "\"" + "}\n";
+			std::cout << message << std::endl;
+			it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
+		}
+	}
+
+	sock.close();
 }
