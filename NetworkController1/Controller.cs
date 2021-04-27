@@ -32,6 +32,8 @@ namespace SpreadsheetController
         public delegate void ServerErrorHandler(string message);
         public delegate void RequestErrorHandler(string cellname, string message);
         public delegate void ChangeContentsHandler(string cellName, string contents);
+        public delegate void UserDisconnectedHandler(int ID);
+        public event UserDisconnectedHandler UserDisconnected;
         public event ChangeContentsHandler ChangeContents;
         public event ServerErrorHandler ServerError;
         public event RequestErrorHandler RequestError;
@@ -176,6 +178,11 @@ namespace SpreadsheetController
                 else if (result["messageType"].ToString() == "serverError")
                 {
                     ServerError(result["message"].ToString());
+                }
+
+                else if (result["messageType"].ToString() == "disconnected")
+                {
+                    UserDisconnected(Int32.Parse(result["user"].ToString()));
                 }
 
             }
