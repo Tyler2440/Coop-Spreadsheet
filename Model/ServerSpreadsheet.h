@@ -7,6 +7,8 @@
 #include <boost/json.hpp>
 #include <vector>
 #include <boost/property_tree/ptree.hpp>
+#include "DependencyGraph.h"
+#include "Formula.h"
 
 /*
 *
@@ -18,6 +20,7 @@ class Cell {
 	std::string cell_name;
 	std::string contents;
 	std::stack<std::string>* history;
+	
 
 public:
 	Cell();
@@ -59,19 +62,21 @@ class Spreadsheet {
 	std::map<int, User> users;
 	std::string name;
 	std::stack<Cell*>* history;
+	DependencyGraph* graph;
 
 	boost::json::array get_json_cells();
 	boost::json::array get_json_history();
 	boost::json::object get_json_cell(Cell c);
 	boost::json::array get_json_cell_history(Cell c);
+	void Visit(std::string start, std::string name, std::unordered_set<std::string> visited);
 
 public:
 	Spreadsheet(std::string s);
-	Spreadsheet();
 	std::map<std::string, Cell*>* get_cells();
 	Cell* get_cell(std::string cell_name);
 	bool set_cell(std::string cell_name, std::string contents);
 	void select_cell(int ID_of_selector, std::string cell_name);
+	void check_circular_dependency(Formula formula);
 	Cell* undo();
 	std::stack<Cell*>* get_history();
 

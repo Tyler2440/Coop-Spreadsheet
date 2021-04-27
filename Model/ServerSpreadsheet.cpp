@@ -4,6 +4,7 @@
 #include <boost/json.hpp>
 #include <vector>
 #include <boost/property_tree/ptree.hpp>
+#include "DependencyGraph.h"
 
 Cell::Cell()
 {
@@ -69,17 +70,25 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 {
 	if (contents[0] == '=')
 	{
+		std::unordered_set<std::string> oldDependees = graph->get_dependees(cell_name);
 		std::string formula = contents.substr(1, contents.length());
 		try
 		{
-			Formula::isValid(formula);
+			Formula formula(formula);
+			graph->replace_dependees(cell_name, *formula.get_variables());
+			check_circular_dependency(formula);
 		}
 		catch (const char* msg)
 		{ 
+			std::vector<std::string> vector;
+			for (std::string dependee : oldDependees)
+			{
+				vector.push_back(dependee);
+			}
 			// NOTIFY SERVER OF INVALID FORMULA
+			graph->replace_dependees(cell_name, vector);
 			return false;
 		}
-		return true;
 	}
 	
 	if (cells->find(cell_name) != cells->end())
@@ -95,7 +104,42 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
 	}	
 
+	std::vector<std::string> dummy;
+
+	graph->replace_dependees(cell_name, dummy);
+
 	return true;
+}
+
+void Spreadsheet::check_circular_dependency(Formula formula)
+{
+	std::unordered_set<std::string> visited;
+	std::vector<std::string>* variables = formula.get_variables();
+	for (int i = 0; i < variables->size(); ++i)
+	{
+		if (visited.count(variables->at(i)) == 0)
+		{
+			Visit(variables->at(i), variables->at(i), visited);
+		}
+	}
+}
+
+void Spreadsheet::Visit(std::string start, std::string name, std::unordered_set<std::string> visited)
+{
+	visited.insert(name);
+	std::unordered_set<std::string> dependents = graph->get_dependents(name);
+
+	for (const std::string& n : dependents)
+	{
+		if (n == start)
+		{
+			throw "Error: Circular Dependency!";
+		}
+		else if (visited.count(n) == 0)
+		{
+			Visit(start, n, visited);
+		}
+	}
 }
 
 const std::map<int, User> Spreadsheet::get_users()
@@ -169,10 +213,7 @@ Spreadsheet::Spreadsheet(std::string s)
 	name = s;
 	cells = new std::map<std::string, Cell*>();
 	history = new std::stack<Cell*>();
-}
-
-Spreadsheet::Spreadsheet()
-{
+	graph = new DependencyGraph();
 }
 
 std::stack<Cell*>* Spreadsheet::get_history()
