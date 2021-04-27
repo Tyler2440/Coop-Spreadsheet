@@ -412,7 +412,9 @@ void Server::save_to_file(Spreadsheet s)
 }
 
 void Server::connection_handler::client_disconnected()
-{
+{	
+	sock.close();
+
 	std::map<int, connection_handler::pointer>* connections = server->connections;
 	for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 	{
@@ -423,12 +425,5 @@ void Server::connection_handler::client_disconnected()
 			std::cout << message << std::endl;
 			it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 		}
-	}
-
-	sock.close();
-}
-
-void Server::test_save()
-{
-	save_to_file(spreadsheets->at("test1"));
+	}	
 }
