@@ -59,7 +59,7 @@ void DependencyGraph::add_dependency(std::string s, std::string t) {
 
 	// If s already exists in dependentsGraph, add t to its dependees map.
 	if (DependencyGraph::dependents_graph.find(s) != DependencyGraph::dependents_graph.end())
-		DependencyGraph::dependents_graph[s].insert(t);
+		DependencyGraph::dependees_graph[s].insert(t);
 	// If s does not exist in dependeesGraph, create a new set of dependees with t, add it to its dependent, s.
 	else 
 	{

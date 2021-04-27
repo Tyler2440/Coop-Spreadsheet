@@ -19,16 +19,17 @@ class Cell {
 
 	std::string cell_name;
 	std::string contents;
-	std::stack<std::string>* history;
+	std::stack<Cell*>* history;
 	
 
 public:
 	Cell();
 	Cell(std::string name, std::string content); //constructor 
+	Cell(std::string name, std::string content, std::stack<Cell*>* history); // constructor for load from file
 
 	std::string get_name();
 	std::string get_contents();
-	std::stack<std::string>* get_history();
+	std::stack<Cell*>* get_history();
 
 	void set_name(std::string name);
 	void set_contents(std::string content);
@@ -68,16 +69,19 @@ class Spreadsheet {
 	boost::json::array get_json_history();
 	boost::json::object get_json_cell(Cell c);
 	boost::json::array get_json_cell_history(Cell c);
+	boost::json::array get_json_graph();
 	void Visit(std::string start, std::string name, std::unordered_set<std::string> visited);
 
 public:
 	Spreadsheet(std::string s);
+	Spreadsheet(std::string s, std::map<std::string, Cell*>* cells, std::stack<Cell*>* history, DependencyGraph* graph);
 	std::map<std::string, Cell*>* get_cells();
 	Cell* get_cell(std::string cell_name);
 	bool set_cell(std::string cell_name, std::string contents);
 	void select_cell(int ID_of_selector, std::string cell_name);
 	void check_circular_dependency(Formula formula);
 	Cell* undo();
+	Cell* revert(std::string s, bool& success);
 	std::stack<Cell*>* get_history();
 	std::string get_name();
 

@@ -12,7 +12,7 @@ Cell::Cell()
 
 Cell::Cell(std::string name, std::string content)
 {
-	history = new std::stack<std::string>();
+	history = new std::stack<Cell*>();
 	this->set_name(name);
 	this->set_contents(content);
 }
@@ -24,7 +24,8 @@ void Cell::set_name(std::string name)
 
 void Cell::set_contents(std::string content)
 {
-	history->push(contents);
+	std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*history);
+	history->push(new Cell(cell_name, contents, h_cpy));
 	this->contents = content;
 }
 
@@ -38,16 +39,18 @@ std::string Cell::get_name()
 	return this->cell_name;
 }
 
-std::stack<std::string>* Cell::get_history()
+std::stack<Cell*>* Cell::get_history()
 {
 	return history;
 }
 
+//DELETE
 std::string Cell::get_previous_change()
 {
-	std::string change = history->top();
-	history->pop();
-	return change;
+	//std::string change = history->top();
+	//history->pop();
+	//return change;
+	return "";
 }
 
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
@@ -93,7 +96,7 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 	
 	if (cells->find(cell_name) != cells->end())
 	{
-		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents());
+		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents(), cells->at(cell_name)->get_history());
 		history->push(cell);
 		cells->at(cell_name)->set_contents(contents);
 	}
@@ -200,10 +203,7 @@ Cell* Spreadsheet::undo()
 	Cell* cell = history->top();
 	history->pop();
 
-	if (cells->find(cell->get_name()) != cells->end())
-	{
-		cells->at(cell->get_name())->set_contents(cell->get_contents());
-	}
+	cells->insert_or_assign(cell->get_name(), cell);
 
 	return cell;
 }
@@ -216,6 +216,14 @@ Spreadsheet::Spreadsheet(std::string s)
 	graph = new DependencyGraph();
 }
 
+Spreadsheet::Spreadsheet(std::string s, std::map<std::string, Cell*>* cells, std::stack<Cell*>* history, DependencyGraph* graph)
+{
+	name = s;
+	this->cells = cells;
+	this->history = history;
+	this->graph = graph;
+}
+
 std::stack<Cell*>* Spreadsheet::get_history()
 {
 	return history;
@@ -223,12 +231,45 @@ std::stack<Cell*>* Spreadsheet::get_history()
 
 std::string Spreadsheet::get_json()
 {
-boost::json::object obj;
+	boost::json::object obj;
 	obj["name"] = name;
 	obj["cells"] = get_json_cells();
 	obj["history"] = get_json_history();
+	obj["graph"] = get_json_graph();
 
 	return boost::json::serialize(obj);
+}
+
+boost::json::array Spreadsheet::get_json_graph()
+{
+	boost::json::array arr(cells->size());
+	
+	int i = 0;
+	for (std::pair<std::string, Cell*> cell : *cells)
+	{
+		boost::json::object obj;
+		obj["name"] = cell.first;
+		boost::json::array dependents(graph->get_dependents(cell.first).size());
+		int j = 0;
+		for (std::string dependent : graph->get_dependents(cell.first))
+		{
+			dependents[j] = dependent;
+			j++;
+		}
+		obj["dependents"] = dependents;
+		boost::json::array dependees(graph->get_dependees(cell.first).size());
+		j = 0;
+		for (std::string dependee : graph->get_dependees(cell.first))
+		{
+			dependees[j] = dependee;
+			j++;
+		}
+		obj["dependees"] = dependees;
+		arr[i] = obj;
+		i++;
+	}
+
+	return arr;
 }
 
 boost::json::array Spreadsheet::get_json_cells()
@@ -257,13 +298,14 @@ boost::json::object Spreadsheet::get_json_cell(Cell c)
 
 boost::json::array Spreadsheet::get_json_cell_history(Cell c)
 {
-	std::stack<std::string> copy(*c.get_history());
+	std::stack<Cell*> copy(*c.get_history());
 	boost::json::array arr(copy.size());
 
 	int loop_for = copy.size();
 	for (int i = 0; i < loop_for; i++)
 	{
-		arr[i] = copy.top();
+		boost::json::object obj = get_json_cell(*copy.top());
+		arr[i] = obj;
 		copy.pop();
 	}
 
@@ -289,4 +331,27 @@ boost::json::array Spreadsheet::get_json_history()
 std::string Spreadsheet::get_name()
 {
 	return name;
+}
+
+Cell::Cell(std::string name, std::string content, std::stack<Cell*>* history)
+{
+	cell_name = name;
+	contents = content;
+	this->history = history;
+}
+
+Cell* Spreadsheet::revert(std::string s, bool& success)
+{
+	Cell* cell = get_cell(s);
+	if (!cell->get_history()->empty())
+	{
+		success = true;
+		std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*cell->get_history());
+		Cell* prev = new Cell(cell->get_name(), cell->get_contents(), h_cpy);
+		cells->insert_or_assign(s, cell->get_history()->top());
+		cell->get_history()->pop();
+
+		history->push(prev);
+	}
+	return cells->at(s);
 }

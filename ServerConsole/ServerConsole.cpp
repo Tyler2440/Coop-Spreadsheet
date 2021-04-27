@@ -29,12 +29,10 @@ int main(int argc, char **argv)
   //// Let's parse and serialize JSON
   //std::cout << obj << std::endl;
 
-  
+  //
   //boost::asio::io_context io_context;
 
   //Server server(io_context);
-
-  //server.save_to_file();
     try
     {
         boost::asio::io_context io_context;      
