@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <cstring>
+#include <algorithm>
 #include "Formula.h"
 
 
@@ -119,7 +120,7 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 	std::vector<std::string> tokens;
 
 	// Delete any whitespace
-	formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
+	formula.erase(std::remove_if(formula.begin(), formula.end(), isspace), formula.end());
 	//formula.erase(std::remove(formula.begin(), formula.end(), '\0'), formula.end());
 
 	for (int i = 0; i < formula.length(); ++i)

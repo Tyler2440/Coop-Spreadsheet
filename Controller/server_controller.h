@@ -5,8 +5,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "../Model/ServerSpreadsheet.h"
 #include <map>
+#include "../Model/ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 

@@ -1,9 +1,9 @@
 #include <map>
-#include "ServerSpreadsheet.h"
-#include "Formula.h"
 #include <boost/json.hpp>
 #include <vector>
 #include <boost/property_tree/ptree.hpp>
+#include "ServerSpreadsheet.h"
+#include "Formula.h"
 
 Cell::Cell()
 {
@@ -182,12 +182,15 @@ std::stack<Cell*>* Spreadsheet::get_history()
 
 std::string Spreadsheet::get_json()
 {
-	boost::json::object obj;
-	obj["name"] = name;
-	obj["cells"] = get_json_cells();
-	obj["history"] = get_json_history();
+	boost::property_tree::ptree pt;
 
-	return boost::json::serialize(obj);
+
+	//boost::json::object obj;
+	//obj["name"] = name;
+	//obj["cells"] = get_json_cells();
+	//obj["history"] = get_json_history();
+
+	//return boost::json::serialize(obj);
 }
 
 boost::json::array Spreadsheet::get_json_cells()
