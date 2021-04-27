@@ -400,29 +400,32 @@ namespace SS
                 }
 
                 //Highlight all other users selections
-                foreach (User u in users.Values)
+                lock (users)
                 {
-                    //float height = e.Graphics.MeasureString(u.getName(), regularFont).Height;
-                    //float width = e.Graphics.MeasureString(u.getName(), regularFont).Width;
-                    // Highlight the selection of all users                 
-                    if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
+                    foreach (User u in users.Values)
                     {
+                        //float height = e.Graphics.MeasureString(u.getName(), regularFont).Height;
+                        //float width = e.Graphics.MeasureString(u.getName(), regularFont).Width;
+                        // Highlight the selection of all users                 
+                        if ((u.getCol() - _firstColumn >= 0) && (u.getRow() - _firstRow >= 0))
+                        {
 
-                        Pen userPen = new Pen(u.getColor());
+                            Pen userPen = new Pen(u.getColor());
 
-                        e.Graphics.DrawRectangle(
-                            userPen,
-                            new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
-                                          LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                          DATA_COL_WIDTH - 2,
-                                          DATA_ROW_HEIGHT - 2));
-                        //Brush b = new SolidBrush(u.getColor());
-                        //e.Graphics.DrawString(
-                        //   u.getName(),
-                        //   boldFont,
-                        //   b,
-                        //   LABEL_COL_WIDTH + u.getCol() * DATA_COL_WIDTH + ((3 * LABEL_COL_WIDTH) - 10),
-                        //   LABEL_ROW_HEIGHT + u.getRow() * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - 20) / 2);
+                            e.Graphics.DrawRectangle(
+                                userPen,
+                                new Rectangle(LABEL_COL_WIDTH + (u.getCol() - _firstColumn) * DATA_COL_WIDTH + 1,
+                                              LABEL_ROW_HEIGHT + (u.getRow() - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                              DATA_COL_WIDTH - 2,
+                                              DATA_ROW_HEIGHT - 2));
+                            //Brush b = new SolidBrush(u.getColor());
+                            //e.Graphics.DrawString(
+                            //   u.getName(),
+                            //   boldFont,
+                            //   b,
+                            //   LABEL_COL_WIDTH + u.getCol() * DATA_COL_WIDTH + ((3 * LABEL_COL_WIDTH) - 10),
+                            //   LABEL_ROW_HEIGHT + u.getRow() * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - 20) / 2);
+                        }
                     }
                 }
 
