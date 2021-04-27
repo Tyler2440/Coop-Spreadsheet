@@ -4,7 +4,6 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <algorithm>
 #include "Formula.h"
 
 Formula::Formula(std::string formula)
@@ -13,10 +12,10 @@ Formula::Formula(std::string formula)
 	isValid(formula);
 }
 
-bool Formula::isValid(std::string formula) 
+bool Formula::isValid(std::string formula)
 {
 	if (formula.empty()) {
-		throw "Formula is invalid! Formula is empty add at least on expression";
+		throw "Formula is invalid! Formula is empty add at least one expression";
 	}
 
 	// Keeps a list of tokens as for loop enumerates 'tokens'. This is list will replace all 'tokens' after 
@@ -100,11 +99,11 @@ bool Formula::isValid(std::string formula)
 
 	// At the end of the loop, checks whether total number of open parentheses equals total number of closed parentheses. If not, formula is invalid
 	// and throws a FormulaFormatException()
-	if(open_parenthesis != closed_parenthesis){
+	if (open_parenthesis != closed_parenthesis) {
 		throw "Formula is invalid! Number of open/closed parentheses do not match.";
 
-	// Puts all normalized/parsed tokens into normalizedFormula. This list now only contains the formula with 
-	// normalized and parsed doubles
+		// Puts all normalized/parsed tokens into normalizedFormula. This list now only contains the formula with 
+		// normalized and parsed doubles
 		for (std::string s : parsed_tokens)
 		{
 			if (Formula::is_variable(s))
@@ -124,7 +123,7 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 	std::vector<std::string> tokens;
 
 	// Delete any whitespace
-	formula.erase(std::remove_if(formula.begin(), formula.end(), isspace), formula.end());
+	formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
 	//formula.erase(std::remove(formula.begin(), formula.end(), '\0'), formula.end());
 
 	for (int i = 0; i < formula.length(); ++i)
@@ -169,7 +168,8 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 bool Formula::is_variable(std::string& s)
 {
 	int i = 0;
-	
+	bool contains_num = false;
+
 	s.erase(std::find(s.begin(), s.end(), '\0'), s.end());
 	while (std::isalpha(s[i]))
 	{
@@ -181,11 +181,12 @@ bool Formula::is_variable(std::string& s)
 
 	while (std::isalnum(s[i]))
 	{
+		contains_num = true;
 		if (i != s.length())
 			++i;
 	}
 
-	if (i == s.length())
+	if (i == s.length() && contains_num)
 		return true;
 
 	return false;
@@ -194,9 +195,9 @@ bool Formula::is_variable(std::string& s)
 std::string Formula::normalize(std::string variable) {
 	std::string s;
 
-	for (int i = 0; i < variable.size(); i++) 
-		s += std::toupper(variable[i]);	
-	
+	for (int i = 0; i < variable.size(); i++)
+		s += std::toupper(variable[i]);
+
 	return s;
 }
 
