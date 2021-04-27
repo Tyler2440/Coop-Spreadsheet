@@ -59,7 +59,7 @@ void DependencyGraph::add_dependency(std::string s, std::string t) {
 
 	// If s already exists in dependentsGraph, add t to its dependees map.
 	if (DependencyGraph::dependents_graph.find(s) != DependencyGraph::dependents_graph.end())
-		DependencyGraph::dependees_graph[s].insert(t);
+		DependencyGraph::dependents_graph[s].insert(t);
 	// If s does not exist in dependeesGraph, create a new set of dependees with t, add it to its dependent, s.
 	else 
 	{
@@ -75,8 +75,8 @@ void DependencyGraph::add_dependency(std::string s, std::string t) {
 	else 
 	{
 		std::unordered_set < std::string> dependents = std::unordered_set<std::string>();
-		dependents.insert(t);
-		DependencyGraph::dependees_graph.insert(std::pair<std::string, std::unordered_set<std::string>>(s, dependents));
+		dependents.insert(s);
+		DependencyGraph::dependees_graph.insert(std::pair<std::string, std::unordered_set<std::string>>(t, dependents));
 	}
 }
 
