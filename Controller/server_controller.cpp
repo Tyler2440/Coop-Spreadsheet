@@ -41,9 +41,15 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	for (const auto& file : boost::filesystem::directory_iterator(path))
 	{
 		std::string file_path = file.path().string();
-		Spreadsheet s = load_from_file(file_path);
+		try {
+			Spreadsheet s = load_from_file(file_path);
+		
 		std::string name = file_path.substr(15, file_path.size() - 15 - 4);
 		spreadsheets->insert_or_assign(name, s);
+		}
+		catch (std::exception& e) {
+			std::cout << "Incomplete spreadsheet file" << std::endl;
+		}
 	}
 	next_ID = 0;
 	start_accept();
