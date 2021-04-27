@@ -107,10 +107,6 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
 	}	
 
-	std::vector<std::string> dummy;
-
-	graph->replace_dependees(cell_name, dummy);
-
 	return true;
 }
 
