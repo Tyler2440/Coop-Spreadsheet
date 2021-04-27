@@ -46,7 +46,6 @@ namespace SpreadsheetGUI
 
             networkController.FileSelect += JoinServer;
             networkController.cellSelection += SetUserSelectedCell;
-            networkController.UserDisconnected += DisconnectUser;
             networkController.RequestError += DisplayRequestError;
             networkController.ServerError += DisplayServerError;
             networkController.Error += Error;
