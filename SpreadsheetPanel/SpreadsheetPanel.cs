@@ -399,18 +399,7 @@ namespace SS
                     DrawRowLabel(e.Graphics, y, f);
                 }
 
-
-                // Highlight the client sselection, if it is visible
-                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
-                {
-                    e.Graphics.DrawRectangle(
-                        pen,
-                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
-                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                      DATA_COL_WIDTH - 2,
-                                      DATA_ROW_HEIGHT - 2));
-                }
-
+                //Highlight all other users selections
                 foreach (User u in users.Values)
                 {
                     //float height = e.Graphics.MeasureString(u.getName(), regularFont).Height;
@@ -437,6 +426,16 @@ namespace SS
                     }
                 }
 
+                // Highlight the client sselection, if it is visible
+                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                {
+                    e.Graphics.DrawRectangle(
+                        pen,
+                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
+                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                      DATA_COL_WIDTH - 2,
+                                      DATA_ROW_HEIGHT - 2));
+                }
 
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)

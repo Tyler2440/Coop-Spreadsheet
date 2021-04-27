@@ -162,7 +162,7 @@ namespace SpreadsheetController
 
                 else if (result["messageType"].ToString() == "cellSelected")
                 {
-                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());                    
                     cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                 }
 
