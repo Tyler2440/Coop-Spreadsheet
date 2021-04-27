@@ -79,6 +79,7 @@ public:
 	void check_circular_dependency(Formula formula);
 	Cell* undo();
 	std::stack<Cell*>* get_history();
+	std::string get_name();
 
 	const std::map<int, User> get_users();
 	void add_user(std::string name, int ID);

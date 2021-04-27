@@ -5,14 +5,15 @@
 #include <iterator>
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "server_controller.h"
-#include "../Model/ServerSpreadsheet.h"
 #include <map>
 #include <boost/json.hpp>
+#include "server_controller.h"
+#include "../Model/ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
+using namespace boost::placeholders;
 typedef boost::shared_ptr<Server::connection_handler> pointer;
 
 int Server::next_ID;
@@ -400,17 +401,14 @@ std::string Server::connection_handler::split_and_delete(std::string& s)
 	return before;
 }
 
-void Server::save_to_file()
+void Server::save_to_file(Spreadsheet s)
 {
-	//for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets->begin(); it != spreadsheets->end(); ++it)
-	//{
-	//	it->second.serialize()
-	//}
-	//boost::json::serialize(boost::json::object());
-	//boost::json::serializer s;
-	//s.reset()
-	//char buffer[1024];
-	//s.read(buffer);
+	std::string file_path = "./spreadsheets/" + s.get_name() + ".txt";
+	std::ofstream file(file_path);
+	file << s.get_json();
+	file.close();
+
+	spreadsheets->erase(spreadsheets->find(s.get_name()));
 }
 
 void Server::connection_handler::client_disconnected()
