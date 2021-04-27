@@ -5,8 +5,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "../Model/ServerSpreadsheet.h"
 #include <map>
+#include "../Model/ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 
@@ -73,7 +73,7 @@ public:
   Server(boost::asio::io_context& io_context);
   std::string get_spreadsheets();
   void stop();
-  void save_to_file();
+  void save_to_file(Spreadsheet s);
   
 };
 
