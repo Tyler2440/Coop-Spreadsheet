@@ -7,6 +7,7 @@ using namespace std::chrono_literals;
 
 boost::asio::io_context io_context;
 tcp::socket sock = tcp::socket(io_context);
+std::string buffer = "";
 std::string r_buffer = "";
 std::string s_buffer = "";
 std::condition_variable cv;
@@ -19,6 +20,11 @@ bool TestReceiveSpreadsheets(std::string ip, int port);
 bool TestSendSpreadsheetName(std::string ip, int port);
 bool TestSendNewSpreadsheetName(std::string ip, int port);
 bool TestReceiveSpreadsheetCells(std::string ip, int port);
+bool TestSelectCell(std::string ip, int port);
+bool TestUndoSameCell(std::string ip, int port);
+bool TestUndoDifferentCell(std::string ip, int port);
+bool TestRevertCell(std::string ip, int port);
+
 
 std::string split_and_delete(std::string& s)
 {
@@ -30,55 +36,59 @@ std::string split_and_delete(std::string& s)
 
 int main(int argc, char** argv)
 {
-	if (argc == 1)
+	if (argc == 0)
 	{
+		// AS MORE TESTS ARE ADDED, CHANGE THIS NUMBER TO PRINT CORRECT NUMBER OF TESTS
 		std::cout << "6" << std::endl;
 		return 0;
 	}
-	std::string ipPort = argv[2];
+
+	/*std::string ipPort = argv[2];
 	int testNum = std::stoi(argv[1]);
 	int i = ipPort.find(":");
 
 	std::string ip = ipPort.substr(0, i);
 	int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+	*/
 
-	//std::string ip = "127.0.0.1";
-	//int port = 1100;
-	//int testNum = 5;
+	std::string ip = "127.0.0.1";
+	int port = 1100;
+	int testNum = 5;
 
-	//// Connect to server
-	//sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+	// Connect to server
+	sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
-	//// Send name
-	//std::string message = "Chad\n";
-	//sock.send(boost::asio::buffer(message, max_length));
+	// Send name
+	std::string message = "Chad\n";
+	sock.send(boost::asio::buffer(message, max_length));
 
-	//// Receive and print the names of the spreadsheets
-	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
+	// Receive and print the names of the spreadsheets
+	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
 
-	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	//buffer.clear();
+	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	buffer.clear();
 
-	//// Send a name of existing spreadsheet
-	//message = "test1\n";
-	//sock.send(boost::asio::buffer(message, max_length));
+	// Send a name of existing spreadsheet
+	message = "test1\n";
+	sock.send(boost::asio::buffer(message, max_length));
 
-	//// Receive and print spreadsheet data
-	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), "3\n");
+	// Receive and print spreadsheet data
+	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), "3\n");
 
-	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	//buffer.clear();
+	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	buffer.clear();
 
-	//// Send select cell request
-	//message = "{ requestType: \"selectCell\", cellName: \"A1\" }\n";
-	//sock.send(boost::asio::buffer(message, max_length));
+	// Send select cell request
+	message = "{ requestType: \"selectCell\", cellName: \"A1\" }\n";
+	sock.send(boost::asio::buffer(message, max_length));
 
-	//// Recieve and print the cell selected message
-	//boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
+	// Recieve and print the cell selected message
+	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
+	
+	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
+	buffer.clear();
 
-	//std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	//buffer.clear();
-	///*
+	/*
 
 	bool test = false;
 
@@ -545,6 +555,11 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 		{
 			r_buffer = "";
 			sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			{
+				done = true;
+			}
 		}
 	}
 	catch (std::exception e)
@@ -557,24 +572,288 @@ bool TestReceiveSpreadsheetCells(std::string ip, int port)
 	sock.close();
 	return true;
 }
-/*
-		public static bool TestReceiveSpreadsheetCells()
-		{
-						bool done = false;
-						while (done == false)
-						{
-								socket.Receive(bytes);
-								//Console.WriteLine(Encoding.UTF8.GetString(bytes));
-								string names = Encoding.UTF8.GetString(bytes);
-								string[] parts = Regex.Split(names, @"(?<=[\n])");
 
-								foreach (string part in parts)
-								{
-										if (part == "3\n")
-										{
-												done = true;
-										}
-								}
-						}
+bool TestSelectCell(std::string ip, int port)
+{
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
+
+		// Receive the names of the spreadsheets
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+
+		bool done = false;
+		while (done == false)
+		{
+			r_buffer = "";
+			sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			{
+				done = true;
+			}
 		}
-}*/
+
+		std::string cell = "A3";
+
+		// Select a new cell
+		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
+
+		// Receive server's "cell was selected" message
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	s_buffer.clear();
+	r_buffer.clear();
+	sock.close();
+	return true;
+}
+
+bool TestChangeString(std::string ip, int port)
+{
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
+
+		// Receive the names of the spreadsheets
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+
+		bool done = false;
+		while (done == false)
+		{
+			r_buffer = "";
+			sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			{
+				done = true;
+			}
+		}
+
+		std::string cell = "A3";
+
+		// Select a new cell
+		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
+
+		// Receive server's "cell was selected" message
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+
+		// Send a change request to the server
+		std::string new_contents = "testing!";
+		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
+
+		// Receive the change message from server
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	s_buffer.clear();
+	r_buffer.clear();
+	sock.close();
+	return true;
+}
+
+bool TestChangeFormula(std::string ip, int port)
+{
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
+
+		// Receive the names of the spreadsheets
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+
+		bool done = false;
+		while (done == false)
+		{
+			r_buffer = "";
+			sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			{
+				done = true;
+			}
+		}
+
+		std::string cell = "A3";
+
+		// Select a new cell
+		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
+
+		// Receive server's "cell was selected" message
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+
+		// Send a change request to the server
+		std::string new_contents = "= 3*2+ (1/1) +                      20";
+		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
+
+		// Receive the change message from server
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + "27" + "\"" + "}\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	s_buffer.clear();
+	r_buffer.clear();
+	sock.close();
+	return true;
+}
+
+bool TestUndoSameCell(std::string ip, int port)
+{
+	try
+	{
+		// Connect to server
+		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+
+		// Send name
+		sock.send(boost::asio::buffer("Chad\n", max_length));
+
+		// Receive the names of the spreadsheets
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		// Send a name of new spreadsheet
+		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+
+		bool done = false;
+		while (done == false)
+		{
+			r_buffer = "";
+			sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			{
+				done = true;
+			}
+		}
+
+		std::string cell = "A3";
+
+		// Select a new cell
+		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
+
+		// Receive server's "cell was selected" message
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+
+		// Send a change request to the server
+		std::string new_contents = "testing!";
+		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
+
+		// Receive the change message from server
+		sock.receive(boost::asio::buffer(r_buffer, max_length));
+
+		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
+
+		// If the message we receive does not match the required json string, test has failed
+		if (r_buffer != check_message)
+		{
+			throw new std::exception;
+		}
+
+		r_buffer = "";
+
+		// Send an undo request to server
+		std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cell->get_name() + "\", contents: \"" + cell->get_contents() + "\"" + "}\n";
+		sock.send(boost::asio::buffer("{"))
+
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	s_buffer.clear();
+	r_buffer.clear();
+	sock.close();
+	return true;
+}
+
+bool TestUndoDifferentCell(std::string ip, int port)
+{
+
+}
+
+bool TestRevertCell(std::string ip, int port)
+{
+
+}
