@@ -156,13 +156,11 @@ namespace SpreadsheetController
 
                 if (result["messageType"].ToString() == "cellUpdated")
                 {
-                    //spreadsheet.SetContentsOfCell(result["cellName"].ToString(), result["contents"].ToString());
                     ChangeContents(result["cellName"].ToString(), result["contents"].ToString());
                 }
 
                 else if (result["messageType"].ToString() == "cellSelected")
                 {
-                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                     if (Int32.Parse(result["selector"].ToString()) != id)
                     {
                         cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
