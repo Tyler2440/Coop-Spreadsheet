@@ -285,3 +285,8 @@ boost::json::array Spreadsheet::get_json_history()
 
 	return arr;
 }
+
+std::string Spreadsheet::get_name()
+{
+	return name;
+}
