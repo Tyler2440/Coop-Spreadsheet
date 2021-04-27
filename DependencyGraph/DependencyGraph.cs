@@ -1,4 +1,5 @@
-﻿// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
+﻿
+// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
 // Version 1.1 (Fixed error in comment for RemoveDependency.)
 // Version 1.2 - Daniel Kopta 
 //               (Clarified meaning of dependent and dependee.)

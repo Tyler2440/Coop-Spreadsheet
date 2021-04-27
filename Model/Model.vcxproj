@@ -140,11 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Formula.h" />
+    <ClInclude Include="DependencyGraph.h" />
     <ClInclude Include="ServerSpreadsheet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Formula.cpp" />
     <ClCompile Include="ServerSpreadsheet.cpp" />
+    <ClCompile Include="DependencyGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
