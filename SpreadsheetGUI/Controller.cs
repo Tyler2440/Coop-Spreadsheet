@@ -116,17 +116,19 @@ namespace SpreadsheetGUI
             int row;
 
             GetColRow(cellName, out col, out row);
-
-            if (users.ContainsKey(ID))
+            lock (users)
             {
-                users[ID].setCol(col);
-                users[ID].setRow(row);
-            }
-            else
-            {
-                Color newColor = GetNewUserColor();
-                colorsInUse.Add(newColor);
-                users.Add(ID, new User(ID, username, col, row, newColor));
+                if (users.ContainsKey(ID))
+                {
+                    users[ID].setCol(col);
+                    users[ID].setRow(row);
+                }
+                else
+                {
+                    Color newColor = GetNewUserColor();
+                    colorsInUse.Add(newColor);
+                    users.Add(ID, new User(ID, username, col, row, newColor));
+                }
             }
 
             return users;
@@ -159,7 +161,10 @@ namespace SpreadsheetGUI
         /// <param name="ID">ID of user that disconnected</param>
         public void RemoveUser(int ID)
         {
-            users.Remove(ID);
+            lock (users)
+            {
+                users.Remove(ID);
+            }
         }
     }
 }

@@ -29,14 +29,14 @@ namespace SpreadsheetController
         // Event to update wiew with new info from server
         public delegate void DataHandler(List<string> spreadsheets);
         public delegate void CellSelectionHandler(string cellName, int ID, string username);
-        public delegate void UserDisconnectedHandler(int ID);
         public delegate void ServerErrorHandler(string message);
         public delegate void RequestErrorHandler(string cellname, string message);
         public delegate void ChangeContentsHandler(string cellName, string contents);
+        public delegate void UserDisconnectedHandler(int ID);
+        public event UserDisconnectedHandler UserDisconnected;
         public event ChangeContentsHandler ChangeContents;
         public event ServerErrorHandler ServerError;
         public event RequestErrorHandler RequestError;
-        public event UserDisconnectedHandler UserDisconnected;
         public event DataHandler FileSelect;
         public event CellSelectionHandler cellSelection;
 
@@ -162,8 +162,12 @@ namespace SpreadsheetController
 
                 else if (result["messageType"].ToString() == "cellSelected")
                 {
-                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());                    
-                    cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                    //spreadsheet.SetSelected(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                    if (Int32.Parse(result["selector"].ToString()) != id)
+                    {
+                        cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
+                    }
+                    
                 }
 
                 else if (result["messageType"].ToString() == "requestError")
@@ -174,6 +178,11 @@ namespace SpreadsheetController
                 else if (result["messageType"].ToString() == "serverError")
                 {
                     ServerError(result["message"].ToString());
+                }
+
+                else if (result["messageType"].ToString() == "disconnected")
+                {
+                    UserDisconnected(Int32.Parse(result["user"].ToString()));
                 }
 
             }
