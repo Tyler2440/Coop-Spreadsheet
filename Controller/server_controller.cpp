@@ -10,6 +10,7 @@
 #include <map>
 #include <boost/json.hpp>
 #include <mutex>
+#include <boost/filesystem.hpp>
 #include "server_controller.h"
 #include "../Model/ServerSpreadsheet.h"
 
@@ -36,23 +37,14 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	connections = std::map<int, connection_handler::pointer>();
-	Spreadsheet *test1 = new Spreadsheet("test1");
-	test1->set_cell("A1", "jingle");
-	test1->add_user("chad", 2);
-	test1->select_cell(2, "B1");
-	test1->add_user("abracadabra", 3);
-	test1->select_cell(3, "B2");
-	test1->add_user("d", 4);
-	test1->select_cell(4, "B3");
-	test1->set_cell("A2", "jangle");
-	test1->set_cell("A3", "jongle");
-	test1->set_cell("A4", "jungle");
-	test1->set_cell("A5", "jyngle");
-	test1->set_cell("A1", "kringle");
-	test1->set_cell("A1", "pringle");
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test1", *test1 ));
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test2", *(new Spreadsheet("test2"))) );
-	spreadsheets->insert( std::pair<std::string, Spreadsheet>("test3", *(new Spreadsheet("test3"))) );
+	std::string path = "./spreadsheets";
+	for (const auto& file : boost::filesystem::directory_iterator(path))
+	{
+		std::string file_path = file.path().string();
+		Spreadsheet s = load_from_file(file_path);
+		std::string name = file_path.substr(15, file_path.size() - 15 - 4);
+		spreadsheets->insert_or_assign(name, s);
+	}
 	next_ID = 0;
 	start_accept();
 }
@@ -468,7 +460,7 @@ Spreadsheet Server::load_from_file(std::string filename)
 {
 	std::string json;
 	std::ifstream file(filename);
-	file >> json;
+	std::getline(file, json);
 	file.close();
 	boost::json::value parsed = boost::json::parse(json);
 	boost::json::object obj = parsed.as_object();
@@ -482,28 +474,57 @@ Spreadsheet Server::load_from_file(std::string filename)
 	boost::json::object cell;
 	std::string cell_name;
 	std::string contents;
-	//for (boost::json::value val : cell_array)
-	//{
-	//	cell = val.as_object();
-	//	cell_name = boost::json::value_to<std::string>(cell.at("name"));
-	//	contents = boost::json::value_to<std::string>(cell.at("contents"));
-	//	boost::json::array h_arr = cell.at("history").as_array();
-	//	std::stack<Cell*>* h_stack = new std::stack<Cell*>();
-	//	for (int i = h_arr.size() - 1; i >= 0; i--)
-	//	{
-	//		h_stack->push(boost::json::value_to<std::string>(h_arr[i]));
-	//	}
-	//	cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents, h_stack)));
-	//}
+	for (boost::json::value val : cell_array)
+	{
+		cells->insert(std::pair<std::string, Cell*>(boost::json::value_to<std::string>(val.as_object().at("name")), parse_json_cell(val)));
+	}
 
 	// get history
-	std::stack<Cell*>* history = new std::stack<Cell*>();
-	
+	std::stack<Cell*>* history = parse_json_cell_history(obj.at("history").as_array());
 
 	// get graph
 	DependencyGraph* graph = new DependencyGraph();
+	boost::json::array g_arr = obj.at("graph").as_array();
+	for (int i = 0; i < g_arr.size(); i++)
+	{
+		boost::json::object g_obj = g_arr[i].as_object();
+		std::string name = boost::json::value_to<std::string>(g_obj.at("name"));
+		boost::json::array dpdee_arr = g_obj.at("dependees").as_array();
+		std::vector<std::string> dpdees;
+		for (int j = 0; j < dpdee_arr.size(); j++)
+		{
+			dpdees.push_back(boost::json::value_to<std::string>(dpdee_arr[j]));
+		}
+		graph->replace_dependees(name, dpdees);
 
+		boost::json::array dpdnt_arr = g_obj.at("dependents").as_array();
+		std::vector<std::string> dpdnts;
+		for (int j = 0; j < dpdnt_arr.size(); j++)
+		{
+			dpdnts.push_back(boost::json::value_to<std::string>(dpdnt_arr[j]));
+		}
+		graph->replace_dependents(name, dpdnts);
+	}
 
 	Spreadsheet s(name, cells, history, graph);
 	return s;
+}
+
+Cell* Server::parse_json_cell(boost::json::value c)
+{
+	boost::json::object cell = c.as_object();
+	std::string cell_name = boost::json::value_to<std::string>(cell.at("name"));
+	std::string contents = boost::json::value_to<std::string>(cell.at("contents"));
+	std::stack<Cell*>* h_arr = parse_json_cell_history(cell.at("history").as_array());
+	return new Cell(cell_name, contents, h_arr);
+}
+
+std::stack<Cell*>* Server::parse_json_cell_history(boost::json::array c)
+{
+	std::stack<Cell*>* stack = new std::stack<Cell*>();
+	for (int i = c.size() - 1; i >= 0; i--)
+	{
+		stack->push(parse_json_cell(c[i]));
+	}
+	return stack;
 }
