@@ -55,9 +55,9 @@ namespace SpreadsheetGUI
 
 
 
-        private void JoinServer(List<string> spreadsheets, SocketState state)
+        private void JoinServer(List<string> spreadsheets)
         {
-            FileSelector fileselector = new FileSelector(spreadsheets, state, networkController);
+            FileSelector fileselector = new FileSelector(spreadsheets, networkController);
             fileselector.ShowDialog();
         }
 
@@ -292,15 +292,11 @@ namespace SpreadsheetGUI
         {
             if (MessageBox.Show("Are you sure you want to close?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
-            else
-                networkController.SendDisconnect();
         }
 
         /// <summary>
         /// When the cell is clicked, highlights the contents of CellContentText for easier editability.
         /// </summary>
-
-        // Debating on whether to keep this feature
         private void OnCellClick(SpreadsheetPanel ss, int col, int row)
         {
             this.col = col;
@@ -313,7 +309,6 @@ namespace SpreadsheetGUI
         private void JoinButton_Click(object sender, EventArgs e)
         {
             Connect(sender, e);
-            //networkController.Connect("localhost", "Chad\n");
         }
 
         /// <summary>

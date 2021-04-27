@@ -27,7 +27,7 @@ namespace SpreadsheetController
         private bool finishedHandshake = false;
 
         // Event to update wiew with new info from server
-        public delegate void DataHandler(List<string> spreadsheets, SocketState state);
+        public delegate void DataHandler(List<string> spreadsheets);
         public delegate void CellSelectionHandler(string cellName, int ID, string username);
         public delegate void UserDisconnectedHandler(int ID);
         public delegate void ServerErrorHandler(string message);
@@ -107,7 +107,7 @@ namespace SpreadsheetController
                 state.RemoveData(0, parts[i].Length); // remove already handled lines from server string builder 
             //}
 
-            FileSelect(spreadsheets, state);
+            FileSelect(spreadsheets);
 
             foreach (string name in parts)
             {
@@ -166,11 +166,6 @@ namespace SpreadsheetController
                     cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                 }
 
-                else if (result["messageType"].ToString() == "disconnected")
-                {
-                    UserDisconnected(Int32.Parse(result["user"].ToString()));
-                }
-
                 else if (result["messageType"].ToString() == "requestError")
                 {
                     RequestError(result["cellName"].ToString(), result["message"].ToString());
@@ -190,9 +185,9 @@ namespace SpreadsheetController
         /// </summary>
         /// <param name="file">spreadsheet name</param>
         /// <param name="state">socket state</param>
-        public void SendFileSelect(string file, SocketState state)
+        public void SendFileSelect(string file)
         {
-            Networking.Send(state.TheSocket, file);
+            Networking.Send(theServer.TheSocket, file);
         }
 
         /// <summary>
@@ -247,13 +242,5 @@ namespace SpreadsheetController
             }
         }
 
-        /// <summary>
-        /// sends message that client is disconnecting
-        /// </summary>
-        public void SendDisconnect()
-        {
-            string message = "{ requestType: \"disconnected\", user: \"" + id + "\" }" + "\n";
-            Networking.Send(theServer.TheSocket, message);
-        }
     }
 }
