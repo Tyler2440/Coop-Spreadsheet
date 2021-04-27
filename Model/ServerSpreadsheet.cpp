@@ -182,15 +182,12 @@ std::stack<Cell*>* Spreadsheet::get_history()
 
 std::string Spreadsheet::get_json()
 {
-	boost::property_tree::ptree pt;
+boost::json::object obj;
+	obj["name"] = name;
+	obj["cells"] = get_json_cells();
+	obj["history"] = get_json_history();
 
-
-	//boost::json::object obj;
-	//obj["name"] = name;
-	//obj["cells"] = get_json_cells();
-	//obj["history"] = get_json_history();
-
-	//return boost::json::serialize(obj);
+	return boost::json::serialize(obj);
 }
 
 boost::json::array Spreadsheet::get_json_cells()

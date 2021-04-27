@@ -401,17 +401,14 @@ std::string Server::connection_handler::split_and_delete(std::string& s)
 	return before;
 }
 
-void Server::save_to_file()
+void Server::save_to_file(Spreadsheet s)
 {
-	//for (std::map<std::string, Spreadsheet>::iterator it = spreadsheets->begin(); it != spreadsheets->end(); ++it)
-	//{
-	//	it->second.serialize()
-	//}
-	//boost::json::serialize(boost::json::object());
-	//boost::json::serializer s;
-	//s.reset()
-	//char buffer[1024];
-	//s.read(buffer);
+	std::string file_path = "./spreadsheets/" + s.get_name() + ".txt";
+	std::ofstream file(file_path);
+	file << s.get_json();
+	file.close();
+
+	spreadsheets->erase(spreadsheets->find(s.get_name()));
 }
 
 void Server::connection_handler::client_disconnected()
@@ -429,4 +426,9 @@ void Server::connection_handler::client_disconnected()
 	}
 
 	sock.close();
+}
+
+void Server::test_save()
+{
+	save_to_file(spreadsheets->at("test1"));
 }
