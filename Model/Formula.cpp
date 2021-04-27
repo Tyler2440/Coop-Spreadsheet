@@ -16,7 +16,7 @@ Formula::Formula(std::string formula)
 bool Formula::isValid(std::string formula) 
 {
 	if (formula.empty()) {
-		throw "Formula is invalid! Formula is empty add at least one expression";
+		throw "Formula is invalid! Formula is empty add at least on expression";
 	}
 
 	// Keeps a list of tokens as for loop enumerates 'tokens'. This is list will replace all 'tokens' after 
@@ -169,8 +169,7 @@ std::vector<std::string> Formula::get_tokens(std::string formula)
 bool Formula::is_variable(std::string& s)
 {
 	int i = 0;
-	bool contains_num = false;
-
+	
 	s.erase(std::find(s.begin(), s.end(), '\0'), s.end());
 	while (std::isalpha(s[i]))
 	{
@@ -182,12 +181,11 @@ bool Formula::is_variable(std::string& s)
 
 	while (std::isalnum(s[i]))
 	{
-		contains_num = true;
 		if (i != s.length())
 			++i;
 	}
 
-	if (i == s.length() && contains_num)
+	if (i == s.length())
 		return true;
 
 	return false;
