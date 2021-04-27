@@ -230,7 +230,7 @@ namespace SpreadsheetGUI
         /// <param name="err">error message from server</param>
         private void DisplayRequestError(string cellName, string err)
         {
-            MessageBox.Show("Invalid change request" + cellName + "\n" + "Error message: " + err);
+            MessageBox.Show("Invalid change request at " + cellName + "\n" + "Error message: " + err);
         }
 
         /// <summary>
