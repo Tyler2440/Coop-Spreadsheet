@@ -287,13 +287,19 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					connections_lock.unlock();
 					// END LOCK HERE
 				}
+				else 
+				{
+					std::string invalid = "Edit request was invalid!";
+					std::string message = "{ messageType: \"requestError\", cellName: \" " + cellName + "\", message: \"" + invalid + "\"" + "}\n";
+					sock.write_some(boost::asio::buffer(message, max_length));
+				}
 				spreadsheets_lock.unlock();
 			}
 
 			else if (request_name == "revertCell")
 			{
 				spreadsheets_lock.lock();
-				bool success;
+				bool success = false;
 				Cell* cell = server->spreadsheets->at(curr_spreadsheet).revert(cellName, success);
 				if (success)
 				{
@@ -311,6 +317,12 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					}
 					connections_lock.unlock();
 					// END LOCK HERE
+				}
+				else
+				{
+					std::string invalid = "Edit request was invalid!";
+					std::string message = "{ messageType: \"requestError\", cellName: \" " + cellName + "\", message: \"" + invalid + "\"" + "}\n";
+					sock.write_some(boost::asio::buffer(message, max_length));
 				}
 				spreadsheets_lock.unlock();
 			}
