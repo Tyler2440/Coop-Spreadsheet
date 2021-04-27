@@ -9,6 +9,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <map>
 #include <boost/json.hpp>
+#include <mutex>
 #include "server_controller.h"
 #include "../Model/ServerSpreadsheet.h"
 
@@ -17,6 +18,7 @@ using namespace boost::placeholders;
 typedef boost::shared_ptr<Server::connection_handler> pointer;
 
 int Server::next_ID;
+std::mutex connections_lock, next_ID_lock, spreadsheets_lock;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
 Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server * s)
@@ -80,10 +82,13 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 
 		r_buffer.clear();
 
-		// LOCK next_ID
+		connections_lock.lock();
+		next_ID_lock.lock();
 		server->connections->insert(std::pair<int, connection_handler::pointer>(next_ID, this));
+		connections_lock.unlock();
 		ID = next_ID;
 		next_ID++;
+		next_ID_lock.unlock();
 
 		std::cout << "New client connected with ID: " << ID << " and Name: " << client_name << std::endl;
 
@@ -120,6 +125,8 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 
 		// Send data of chosen spreadsheet
 		Spreadsheet* spreadsheet;
+
+		spreadsheets_lock.lock();
 		std::map<std::string, Spreadsheet>::iterator it = server->spreadsheets->find(spreadsheet_name);
 
 		if (it != server->spreadsheets->end())
@@ -156,6 +163,8 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 
 		spreadsheet->add_user(client_name, ID);
 
+		spreadsheets_lock.unlock();
+
 		std::string message = std::to_string(ID) + "\n";
 		sock.write_some(boost::asio::buffer(message, max_length));
 
@@ -190,9 +199,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 
 			if (request_name == "selectCell")
 			{
-				// LOCK HERE
+				spreadsheets_lock.lock();
 				server->spreadsheets->at(curr_spreadsheet).select_cell(ID, cellName);
 
+				connections_lock.lock();
 				std::map<int, connection_handler::pointer>* connections = server->connections;
 				for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 				{
@@ -204,16 +214,18 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}
-				// END LOCK HERE
+				connections_lock.unlock();
+				spreadsheets_lock.unlock();
 			}
 
 			else if (request_name == "editCell")
 			{
-				// LOCK HERE
+				spreadsheets_lock.lock();
 				if (server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents))
 				{
 					// ADD CELL CHANGE TO UNDO STACK
 
+					connections_lock.lock();
 					std::map<int, connection_handler::pointer>* connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 					{
@@ -225,7 +237,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
-					// END LOCK HERE
+					connections_lock.unlock();
 				}
 				else
 				{
@@ -233,17 +245,19 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					std::string message = "{ messageType: \"requestError\", cellName: \" " + cellName + "\", message: \"" + invalid + "\"" + "}\n";
 					sock.write_some(boost::asio::buffer(message, max_length));
 				}
+				spreadsheets_lock.unlock();
 			}
 
 			else if (request_name == "undo")
 			{
+				spreadsheets_lock.lock();
 				if (!server->spreadsheets->at(curr_spreadsheet).get_history()->empty())
 				{
 					Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo();
 
 					// LOCK HERE
 					//server->spreadsheets->at(curr_spreadsheet).set_cell(cell->get_name(), cell->get_contents());
-
+					connections_lock.lock();
 					std::map<int, connection_handler::pointer>* connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 					{
@@ -255,12 +269,15 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
+					connections_lock.unlock();
 					// END LOCK HERE
 				}
+				spreadsheets_lock.unlock();
 			}
 
 			else if (request_name == "revertCell")
 			{
+				spreadsheets_lock.lock();
 				// GET REVERT CHANGE FROM THE GIVEN CELL, UPDATE CONTENTS TO CORRECT VALUE (THIS FUNCTION CALL SHOULD REMOVE THE CHANGE)
 				Cell* cell = server->spreadsheets->at(curr_spreadsheet).get_cell(cellName);
 
@@ -274,6 +291,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 
 					// REMOVE CHANGE FROM UNDO STACK
 
+					connections_lock.lock();
 					std::map<int, connection_handler::pointer>* connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 					{
@@ -285,8 +303,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
+					connections_lock.unlock();
 					// END LOCK HERE
 				}
+				spreadsheets_lock.unlock();
 			}
 		}
 
@@ -337,10 +357,12 @@ std::string Server::get_spreadsheets()
 {
 	// LOCK HERE
 	std::string spreadsheets = "";
+	spreadsheets_lock.lock();
 	for (std::map<std::string, Spreadsheet>::iterator it = Server::spreadsheets->begin(); it != Server::spreadsheets->end(); ++it)
 	{
 		spreadsheets.append(it->first + "\n");
 	}
+	spreadsheets_lock.unlock();
 	// END LOCK HERE
 	return spreadsheets + "\n";
 }
@@ -407,14 +429,17 @@ void Server::save_to_file(Spreadsheet s)
 	std::ofstream file(file_path);
 	file << s.get_json();
 	file.close();
-
+	spreadsheets_lock.lock();
 	spreadsheets->erase(spreadsheets->find(s.get_name()));
+	spreadsheets_lock.unlock();
 }
 
 void Server::connection_handler::client_disconnected()
 {	
 	sock.close();
 
+	connections_lock.lock();
+	server->connections->erase(ID);
 	std::map<int, connection_handler::pointer>* connections = server->connections;
 	for (std::map<int, connection_handler::pointer>::iterator it = connections->begin(); it != connections->end(); ++it)
 	{
@@ -426,4 +451,5 @@ void Server::connection_handler::client_disconnected()
 			it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 		}
 	}	
+	connections_lock.unlock();
 }

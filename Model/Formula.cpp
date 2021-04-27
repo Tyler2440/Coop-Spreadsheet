@@ -179,13 +179,15 @@ bool Formula::is_variable(std::string& s)
 			return false;
 	}
 
+	bool hasNum = false;
 	while (std::isalnum(s[i]))
 	{
+		hasNum = true;
 		if (i != s.length())
 			++i;
 	}
 
-	if (i == s.length())
+	if (i == s.length() && hasNum)
 		return true;
 
 	return false;
