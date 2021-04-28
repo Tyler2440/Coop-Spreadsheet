@@ -41,21 +41,15 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	for (const auto& file : boost::filesystem::directory_iterator(path))
 	{
 		std::string file_path = file.path().string();
-		//try {
+		try {
 			Spreadsheet s = load_from_file(file_path);
 
 			std::string name = file_path.substr(15, file_path.size() - 15 - 4);
 			spreadsheets->insert_or_assign(name, s);
-		//}
-		//catch (std::exception& e) {
-		//}
+		}
+		catch (std::exception& e) {
+		}
 	}
-	//Spreadsheet s("test1");
-	//s.edit_cell(new Cell("A2", "Table"));
-	//s.edit_cell(new Cell("A3", "=A2"));
-	//s.edit_cell(new Cell("A2", "Text"));
-	//s.revert(s.get_cells()->at("A3"));
-	//spreadsheets->insert_or_assign("test1", s);
 	next_ID = 0;
 	start_accept();
 }
@@ -224,8 +218,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			else if (request_name == "editCell")
 			{
 				spreadsheets_lock.lock();
-				Cell* edit = new Cell(cellName, contents);
-				if (server->spreadsheets->at(curr_spreadsheet).edit_cell(edit))
+				if (server->spreadsheets->at(curr_spreadsheet).set_cell(cellName, contents))
 				{
 					// ADD CELL CHANGE TO UNDO STACK
 
@@ -254,10 +247,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			else if (request_name == "undo")
 			{
 				spreadsheets_lock.lock();
-				bool success = false;
-				Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo(success);
-				if (success)
+				if (!server->spreadsheets->at(curr_spreadsheet).get_history()->empty())
 				{
+					Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo();
+
 					connections_lock.lock();
 					std::map<int, connection_handler::pointer> connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections.begin(); it != connections.end(); ++it)
@@ -283,14 +276,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 			else if (request_name == "revertCell")
 			{
 				spreadsheets_lock.lock();
-				Cell* edit;
-				if (server->spreadsheets->at(curr_spreadsheet).get_cells()->find(cellName) == server->spreadsheets->at(curr_spreadsheet).get_cells()->end())
-					edit = new Cell(cellName, contents);
-				else
-					edit = new Cell(server->spreadsheets->at(curr_spreadsheet).get_cells()->at(cellName));
-				if (server->spreadsheets->at(curr_spreadsheet).revert(edit))
+				bool success = false;
+				Cell* cell = server->spreadsheets->at(curr_spreadsheet).revert(cellName, success);
+				if (success)
 				{
-					Cell* cell = server->spreadsheets->at(curr_spreadsheet).get_cells()->at(cellName);
 					connections_lock.lock();
 					std::map<int, connection_handler::pointer> connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections.begin(); it != connections.end(); ++it)
@@ -478,11 +467,11 @@ Spreadsheet Server::load_from_file(std::string filename)
 	std::string contents;
 	for (boost::json::value val : cell_array)
 	{
-		cells->insert_or_assign(boost::json::value_to<std::string>(val.as_object().at("name")), parse_json_cell(val));
+		cells->insert(std::pair<std::string, Cell*>(boost::json::value_to<std::string>(val.as_object().at("name")), parse_json_cell(val)));
 	}
 
 	// get history
-	std::stack<Cell*>* history = parse_json_history(obj.at("history").as_array());
+	std::stack<Cell*>* history = parse_json_cell_history(obj.at("history").as_array());
 
 	// get graph
 	DependencyGraph* graph = new DependencyGraph();
@@ -517,19 +506,11 @@ Cell* Server::parse_json_cell(boost::json::value c)
 	boost::json::object cell = c.as_object();
 	std::string cell_name = boost::json::value_to<std::string>(cell.at("name"));
 	std::string contents = boost::json::value_to<std::string>(cell.at("contents"));
-
-	Cell* prev = new Cell();
-	try {
-		cell.at("previous").as_object().at("previous");
-		prev = parse_json_cell(cell.at("previous"));
-	}
-	catch (std::exception e) {
-	}
-
-	return new Cell(cell_name, contents, prev);
+	std::stack<Cell*>* h_arr = parse_json_cell_history(cell.at("history").as_array());
+	return new Cell(cell_name, contents, h_arr);
 }
 
-std::stack<Cell*>* Server::parse_json_history(boost::json::array c)
+std::stack<Cell*>* Server::parse_json_cell_history(boost::json::array c)
 {
 	std::stack<Cell*>* stack = new std::stack<Cell*>();
 	for (int i = c.size() - 1; i >= 0; i--)
