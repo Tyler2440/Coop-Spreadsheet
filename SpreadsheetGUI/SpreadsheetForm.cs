@@ -145,7 +145,6 @@ namespace SpreadsheetGUI
         {
             if (e.KeyChar == (char)Keys.Enter) 
             {
-                e.Handled = true;
                 int colTemp;
                 int rowTemp;
                 spreadsheetPanel1.GetSelection(out colTemp, out rowTemp);
