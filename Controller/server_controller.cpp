@@ -37,7 +37,7 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 {
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	connections = std::map<int, connection_handler::pointer>();
-	std::string path = "./spreadsheets";
+	std::string path = "./spreadsheet_data";
 	for (const auto& file : boost::filesystem::directory_iterator(path))
 	{
 		std::string file_path = file.path().string();
