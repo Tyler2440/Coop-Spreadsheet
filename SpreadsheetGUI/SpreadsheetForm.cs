@@ -57,8 +57,6 @@ namespace SpreadsheetGUI
         {
             FileSelector fileselector = new FileSelector(spreadsheets, networkController);
             fileselector.ShowDialog();
-            spreadsheetPanel1.SetSelection(0, 0);
-            CellNameText.Text = "A1";
         }
 
 
