@@ -44,15 +44,6 @@ std::stack<Cell*>* Cell::get_history()
 	return history;
 }
 
-//DELETE
-std::string Cell::get_previous_change()
-{
-	//std::string change = history->top();
-	//history->pop();
-	//return change;
-	return "";
-}
-
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
 {
 	return cells;
@@ -106,10 +97,6 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		history->push(cell);
 		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
 	}	
-
-	std::vector<std::string> dummy;
-
-	graph->replace_dependees(cell_name, dummy);
 
 	return true;
 }
@@ -202,10 +189,22 @@ Cell* Spreadsheet::undo()
 {
 	Cell* cell = history->top();
 	history->pop();
-
 	cells->insert_or_assign(cell->get_name(), cell);
+	cell->pop_history();
+
+	if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
+	{
+		Cell* new_cell = new Cell(cell->get_name(), "");
+		cells->at(new_cell->get_name())->add_history(new_cell);
+	}
 
 	return cell;
+}
+
+void Cell::pop_history()
+{
+	if (!history->empty())
+		history->pop();
 }
 
 Spreadsheet::Spreadsheet(std::string s)
@@ -352,6 +351,17 @@ Cell* Spreadsheet::revert(std::string s, bool& success)
 		cell->get_history()->pop();
 
 		history->push(prev);
+		if (cell->get_history()->empty())
+		{
+			Cell* new_cell = new Cell(cell->get_name(), "");
+			cell->add_history(new_cell);
+		}
 	}
+
 	return cells->at(s);
+}
+
+void Cell::add_history(Cell* cell)
+{
+	history->push(cell);
 }

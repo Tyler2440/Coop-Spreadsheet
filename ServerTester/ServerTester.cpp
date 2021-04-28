@@ -19,7 +19,6 @@ bool TestSendName(std::string ip, int port);
 bool TestReceiveSpreadsheets(std::string ip, int port);
 bool TestSendSpreadsheetName(std::string ip, int port);
 bool TestSendNewSpreadsheetName(std::string ip, int port);
-bool TestReceiveSpreadsheetCells(std::string ip, int port);
 bool TestSelectCell(std::string ip, int port);
 bool TestChangeString(std::string ip, int port);
 bool TestChangeFormula(std::string ip, int port);
@@ -40,7 +39,7 @@ int main(int argc, char** argv)
 	if (argc == 0)
 	{
 		// AS MORE TESTS ARE ADDED, CHANGE THIS NUMBER TO PRINT CORRECT NUMBER OF TESTS
-		std::cout << "11" << std::endl;
+		std::cout << "10" << std::endl;
 		return 0;
 	}
 
@@ -50,505 +49,442 @@ int main(int argc, char** argv)
 
 	std::string ip = ipPort.substr(0, i);
 	int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
-	//
+
+	// For local testing
 	//std::string ip = "127.0.0.1";
 	//int port = 1100;
-	//int testNum = 5;
-
-	// Connect to server
-	sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
-
-	// Send name
-	std::string message = "Chad\n";
-	sock.send(boost::asio::buffer(message, max_length));
-
-	// Receive and print the names of the spreadsheets
-	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
-
-	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	buffer.clear();
-
-	// Send a name of existing spreadsheet
-	message = "test1\n";
-	sock.send(boost::asio::buffer(message, max_length));
-
-	// Receive and print spreadsheet data
-	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), "3\n");
-
-	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	buffer.clear();
-
-	// Send select cell request
-	message = "{ requestType: \"selectCell\", cellName: \"A1\" }\n";
-	sock.send(boost::asio::buffer(message, max_length));
-
-	// Recieve and print the cell selected message
-	boost::asio::read_until(sock, boost::asio::dynamic_buffer(buffer), '\n');
-
-	std::cout << "Server sent: \"" << buffer << "\"" << std::endl;
-	buffer.clear();
-
-	bool test = false;
-
-	//switch (testNum)
-	//{
-	//case 1:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 1" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestConnection(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-
-	//case 2:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 2" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestSendName(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-
-	//case 3:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 3" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestReceiveSpreadsheets(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-
-	//case 4:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 4" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestSendSpreadsheetName(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-
-	//case 5:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 5" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestSendNewSpreadsheetName(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-
-	//case 6:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestReceiveSpreadsheetCells(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//case 7:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestSelectCell(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//case 8:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestChangeString(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//case 9:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestChangeFormula(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//case 10:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestUndo(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//case 11:
-	//{
-	//	try
-	//	{
-	//		std::cout << "Test 6" << std::endl;
-
-	//		std::mutex m;
-	//		std::condition_variable cv;
-	//		int retValue;
-
-	//		std::thread t([&cv, &retValue, &ip, &port]()
-	//			{
-	//				retValue = TestRevertCell(ip, port);
-	//				cv.notify_one();
-	//			});
-
-	//		t.detach();
-
-	//		{
-	//			std::unique_lock<std::mutex> l(m);
-	//			if (cv.wait_for(l, 5s) == std::cv_status::timeout)
-	//				throw std::runtime_error("False");
-	//		}
-
-	//		if (retValue == 1)
-	//			std::cout << "Passed" << std::endl << std::endl;
-	//		else
-	//			std::cout << "Failed" << std::endl << std::endl;
-
-	//		return retValue;
-	//	}
-	//	catch (std::runtime_error e)
-	//	{
-	//		std::cout << "Ran out of Time" << std::endl << std::endl;
-	//		return false;
-	//	}
-
-	//	// auto task = std::async(TestConnection);
-
-	//	break;
-	//}
-	//}
+	//int testNum = 10;
+
+	switch (testNum)
+	{
+	case 1:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestConnection" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestConnection(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+
+	case 2:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestSendName" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendName(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+
+	case 3:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestReceiveSpreadsheets" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestReceiveSpreadsheets(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+
+	case 4:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestSendSpreadsheetName" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendSpreadsheetName(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+
+	case 5:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestSendSpreadsheetName" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSendNewSpreadsheetName(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+
+	case 6:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestSelectCell" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestSelectCell(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+	case 7:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestChangeString" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestChangeString(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+	case 8:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestChangeFormula" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestChangeFormula(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+	case 9:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestUndo" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestUndo(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+	case 10:
+	{
+		try
+		{
+			std::cout << "5" << std::endl;
+			std::cout << "TestRevertCell" << std::endl;
+
+			std::mutex m;
+			std::condition_variable cv;
+			int retValue;
+
+			std::thread t([&cv, &retValue, &ip, &port]()
+				{
+					retValue = TestRevertCell(ip, port);
+					cv.notify_one();
+				});
+
+			t.detach();
+
+			{
+				std::unique_lock<std::mutex> l(m);
+				if (cv.wait_for(l, 5s) == std::cv_status::timeout)
+					throw std::runtime_error("False");
+			}
+
+			if (retValue == 1)
+				std::cout << "Pass" << std::endl << std::endl;
+			else
+				std::cout << "Fail" << std::endl << std::endl;
+
+			return retValue;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Fail" << std::endl << std::endl;
+			return false;
+		}
+
+		// auto task = std::async(TestConnection);
+
+		break;
+	}
+	}
+
+
 }
 
 bool TestConnection(std::string ip, int port)
@@ -736,44 +672,59 @@ bool TestSendNewSpreadsheetName(std::string ip, int port)
 
 // Finish seperating cells the server sends into individual cells (whether that is with regex or some other magic)
 //NOT WORKING (MIGHT BE FIXED)
-bool TestReceiveSpreadsheetCells(std::string ip, int port)
-{
-	try
-	{
-		// Connect to server
-		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
-
-		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
-
-		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
-
-		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
-
-		bool done = false;
-		while (done == false)
-		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
-
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
-			{
-				done = true;
-			}
-		}
-	}
-	catch (std::exception e)
-	{
-		return false;
-	}
-
-	s_buffer.clear();
-	r_buffer.clear();
-	sock.close();
-	return true;
-}
+//bool TestReceiveSpreadsheetCells(std::string ip, int port)
+//{
+//	try
+//	{
+//		// Connect to server
+//		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
+//
+//		// Send name
+//		sock.send(boost::asio::buffer("Chad\n", max_length));
+//
+//		// Receive the names of the spreadsheets
+//		sock.receive(boost::asio::buffer(r_buffer, max_length));
+//
+//		// Send a name of new spreadsheet
+//		sock.send(boost::asio::buffer("test1\n", max_length));
+//
+//		// Make sure we recieve ID back
+//		bool foundInt = false;
+//		while (!foundInt)
+//		{
+//			// TURN INTO METHOD
+//			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+//			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+//			r_buffer = s_buffer.append(r_buffer);
+//
+//			// split by newline every time there is one, then store the leftover into s_buffer
+//			while (r_buffer.find('\n') >= 0)
+//			{
+//				std::string command = split_and_delete(r_buffer);
+//				try
+//				{
+//					std::stoi(command);
+//					foundInt = true;
+//					break;
+//				}
+//				catch (std::invalid_argument e)
+//				{
+//				}
+//			}
+//
+//			s_buffer = r_buffer;
+//		}
+//	}
+//	catch (std::exception e)
+//	{
+//		return false;
+//	}
+//
+//	s_buffer.clear();
+//	r_buffer.clear();
+//	sock.close();
+//	return true;
+//}
 
 bool TestSelectCell(std::string ip, int port)
 {
@@ -783,40 +734,65 @@ bool TestSelectCell(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
-		bool done = false;
-		while (done == false)
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
 		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
 
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
 			{
-				done = true;
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
 			}
+
+			s_buffer = r_buffer;
 		}
 
+		r_buffer = "";
 		std::string cell = "A3";
 
 		// Select a new cell
 		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive server's "cell was selected" message
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
+		if (r_buffer != "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + std::to_string(0) + "\", selectorName: \"" + "Chad" + "\" }\n")
+		{
+			std::string msg = "Fail";
+			throw msg;
+		}
 	}
-	catch (std::exception e)
+	catch (std::string& msg)
 	{
 		return false;
 	}
-
+	
 	s_buffer.clear();
 	r_buffer.clear();
 	sock.close();
@@ -831,40 +807,58 @@ bool TestChangeString(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
-		bool done = false;
-		while (done == false)
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
 		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
 
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
 			{
-				done = true;
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
 			}
+
+			s_buffer = r_buffer;
 		}
 
+		r_buffer = "";
 		std::string cell = "A3";
 
 		// Select a new cell
 		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive server's "cell was selected" message
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
-
-		// If the message we receive does not match the required json string, test has failed
-		if (r_buffer != check_message)
+		if (r_buffer != "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + std::to_string(0) + "\", selectorName: \"" + "Chad" + "\" }\n")
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
@@ -874,19 +868,20 @@ bool TestChangeString(std::string ip, int port)
 		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
 
 		// Receive the change message from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
+		std::string check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
 
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 	}
-	catch (std::exception e)
+	catch (std::string& msg)
 	{
 		return false;
 	}
@@ -905,62 +900,81 @@ bool TestChangeFormula(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
-		bool done = false;
-		while (done == false)
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
 		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
 
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
 			{
-				done = true;
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
 			}
+
+			s_buffer = r_buffer;
 		}
 
+		r_buffer = "";
 		std::string cell = "A3";
 
 		// Select a new cell
 		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive server's "cell was selected" message
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
-
-		// If the message we receive does not match the required json string, test has failed
-		if (r_buffer != check_message)
+		if (r_buffer != "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + std::to_string(0) + "\", selectorName: \"" + "Chad" + "\" }\n")
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 
 		// Send a change request to the server
-		std::string new_contents = "= 3*2+ (1/1) +                      20";
+		std::string new_contents = "= 3*2+ (1/1) + 20";
 		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
 
 		// Receive the change message from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + "27" + "\"" + "}\n";
+		std::string check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + "= 3*2+ (1/1) + 20" + "\"" + "}\n";
 
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 	}
-	catch (std::exception e)
+	catch (std::string& msg)
 	{
 		return false;
 	}
@@ -979,57 +993,76 @@ bool TestUndo(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
-		bool done = false;
-		while (done == false)
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
 		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
 
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
 			{
-				done = true;
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
 			}
+
+			s_buffer = r_buffer;
 		}
 
+		r_buffer = "";
 		std::string cell = "A3";
 
 		// Select a new cell
 		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive server's "cell was selected" message
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
-
-		// If the message we receive does not match the required json string, test has failed
-		if (r_buffer != check_message)
+		if (r_buffer != "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + std::to_string(0) + "\", selectorName: \"" + "Chad" + "\" }\n")
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 
 		// Send a change request to the server
-		std::string new_contents = "testing!";
+		std::string new_contents = "= 3*2+ (1/1) + 20";
 		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
 
 		// Receive the change message from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
+		std::string check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + "= 3*2+ (1/1) + 20" + "\"" + "}\n";
 
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
@@ -1038,7 +1071,7 @@ bool TestUndo(std::string ip, int port)
 		sock.send(boost::asio::buffer("{ requestType: \"undo\" }\n"));
 
 		// Receive the undo contents from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
 		new_contents = "";
 		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
@@ -1046,12 +1079,13 @@ bool TestUndo(std::string ip, int port)
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 	}
-	catch (std::exception e)
+	catch (std::string& msg)
 	{
 		return false;
 	}
@@ -1070,66 +1104,85 @@ bool TestRevertCell(std::string ip, int port)
 		sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
 
 		// Send name
-		sock.send(boost::asio::buffer("Chad\n", max_length));
+		std::string message = "Chad\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
 		// Receive the names of the spreadsheets
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), "\n\n");
 
 		// Send a name of new spreadsheet
-		sock.send(boost::asio::buffer("newspreadsheet\n", max_length));
+		message = "newspreadsheet\n";
+		sock.send(boost::asio::buffer(message, max_length));
 
-		bool done = false;
-		while (done == false)
+		r_buffer.clear();
+
+		// Make sure we recieve ID back
+		bool foundInt = false;
+		while (!foundInt)
 		{
-			r_buffer = "";
-			sock.receive(boost::asio::buffer(r_buffer, max_length));
+			// TURN INTO METHOD
+			boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
+			// add s_buffer (the storage buffer) to the beginning of the recieved buffer
+			r_buffer = s_buffer.append(r_buffer);
 
-			if (isalnum(r_buffer[0]) && r_buffer[1] == '\'' && r_buffer[2] == 'n')
+			// split by newline every time there is one, then store the leftover into s_buffer
+			while (r_buffer.find('\n') >= 0)
 			{
-				done = true;
+				std::string command = split_and_delete(r_buffer);
+				try
+				{
+					std::stoi(command);
+					foundInt = true;
+					break;
+				}
+				catch (std::invalid_argument e)
+				{
+				}
 			}
+
+			s_buffer = r_buffer;
 		}
 
+		r_buffer = "";
 		std::string cell = "A3";
 
 		// Select a new cell
 		sock.send(boost::asio::buffer("{ messageType: \"selectCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive server's "cell was selected" message
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		std::string check_message = "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + "0" + "\", selectorName:  \"" + "Chad" + "\" }\n";
-
-		// If the message we receive does not match the required json string, test has failed
-		if (r_buffer != check_message)
+		if (r_buffer != "{ messageType: \"cellSelected\", cellName: \"" + cell + "\", selector: \"" + std::to_string(0) + "\", selectorName: \"" + "Chad" + "\" }\n")
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 
 		// Send a change request to the server
-		std::string new_contents = "testing!";
+		std::string new_contents = "= 3*2+ (1/1) + 20";
 		sock.send(boost::asio::buffer("{ messageType: \"editCell\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n"));
 
 		// Receive the change message from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
-		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
+		std::string check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + "= 3*2+ (1/1) + 20" + "\"" + "}\n";
 
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 
 		// Send an undo request to server
-		sock.send(boost::asio::buffer("{ requestType: \"revertCell\", cellName: " + cell + " }\n"));
+		sock.send(boost::asio::buffer("{ requestType: \"revertCell\", cellName: \"" + cell + "\" }\n"));
 
 		// Receive the undo contents from server
-		sock.receive(boost::asio::buffer(r_buffer, max_length));
+		boost::asio::read_until(sock, boost::asio::dynamic_buffer(r_buffer, max_length), '\n');
 
 		new_contents = "";
 		check_message = "{ messageType: \"cellUpdated\", cellName: \"" + cell + "\", contents: \"" + new_contents + "\"" + "}\n";
@@ -1137,12 +1190,13 @@ bool TestRevertCell(std::string ip, int port)
 		// If the message we receive does not match the required json string, test has failed
 		if (r_buffer != check_message)
 		{
-			throw new std::exception;
+			std::string msg = "Fail";
+			throw msg;
 		}
 
 		r_buffer = "";
 	}
-	catch (std::exception e)
+	catch (std::string msg)
 	{
 		return false;
 	}

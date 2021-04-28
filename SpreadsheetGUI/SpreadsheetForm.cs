@@ -26,8 +26,6 @@ namespace SpreadsheetGUI
         // Col/row hold the current cell's place in the spreadsheet
         int col, row;
 
-        
-
         public SpreadsheetForm()
         {
             InitializeComponent();
@@ -48,6 +46,7 @@ namespace SpreadsheetGUI
             networkController.cellSelection += SetUserSelectedCell;
             networkController.RequestError += DisplayRequestError;
             networkController.ServerError += DisplayServerError;
+            networkController.UserDisconnected += DisconnectUser;
             networkController.Error += Error;
             networkController.ChangeContents += SetCellContents;
         }
@@ -60,27 +59,6 @@ namespace SpreadsheetGUI
             fileselector.ShowDialog();
         }
 
-        /*
-        /// <summary>
-        /// Updates the state of spreadsheet when it recieves message from server
-        /// </summary>
-        /// <param name="spreadsheet"></param>
-        private void UpdateSpreadsheet()
-        {          
-            //controller.SetSpreadsheet(spreadsheet); 
-            //foreach (string cell in controller.GetNonEmptyCells())
-            //{    
-            //    UpdateSpreadsheetValue(cell);
-            //}
-            //Application.DoEvents();
-
-            //foreach (int ID in controller.GetUsers())
-            //{
-            //    UpdateSpreadsheetUsers(ID);
-            //}
-
-        }
-        */
 
         /// <summary>
         /// Event handler for setting cell contents. Updates model with new contents 
@@ -115,6 +93,7 @@ namespace SpreadsheetGUI
         private void DisconnectUser(int ID)
         {
             controller.RemoveUser(ID);
+            spreadsheetPanel1.Refresh();
         }
 
         /// <summary>
@@ -166,88 +145,14 @@ namespace SpreadsheetGUI
         {
             if (e.KeyChar == (char)Keys.Enter) 
             {
+                e.Handled = true;
                 int colTemp;
                 int rowTemp;
                 spreadsheetPanel1.GetSelection(out colTemp, out rowTemp);
                 networkController.RequestCellEdit(controller.GetName(colTemp, rowTemp), CellContentText.Text);
-                //try
-                //{
-                //    foreach (string cell in controller.SetCellContent(col, row, CellContentText.Text))
-                //    {
-                //        UpdateSpreadsheetValue(cell);
-                //    }
-                //    e.Handled = true;
-                //}
-                //catch(Exception f)
-                //{
-                //    MessageBox.Show(f.Message, "Formula at " + controller.GetName(col, row) + " is invalid!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                //}
             }
         }
 
-        /*
-        /// <summary>
-        /// When the "New" button is clicked under the "File" tab, it runs a new Spreadsheet window.
-        /// </summary>
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SpreadsheetGUIContext.getAppContext().RunForm(new SpreadsheetForm());
-        }
-
-        /// <summary>
-        /// When the "Close" button is clicked under the "File" tab, it should close the window.
-        /// </summary>
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        
-        /// <summary>
-        /// When the "Save" button is clicked under the "File" tab, open a windows explorer window to choose
-        /// where the file should be saved, and what it should be called.
-        /// </summary>
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-            saveFileDialog1.Filter = "Spreadsheet files (*.sprd)|*.sprd";
-            saveFileDialog1.FileName = "Spreadsheet";
-            saveFileDialog1.Title = "Save a Spreadsheet File";
-
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                controller.Save(saveFileDialog1.FileName);
-            }
-        }
-        
-
-        /// <summary>
-        /// When the "Open" button is clicked via the "File" tab, opens a windows explorer window to let the user choose which file to 
-        /// open.
-        /// </summary>
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.DefaultExt = "sprd";
-            openFileDialog1.FileName = "Select a Spreadsheet File";
-            openFileDialog1.Title = "Open a Spreadsheet File";
-            openFileDialog1.Filter = "Spreadsheet files (*.sprd)|*.sprd|All Files (*.*)|*.*";
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    SpreadsheetGUIContext.getAppContext().RunForm(new SpreadsheetForm(openFileDialog1.FileName));
-                }
-                catch (SpreadsheetReadWriteException)
-                {
-                    MessageBox.Show("There was a problem opening the file! Either it was incomplete or incorrectly formatted!", "There was a problem opening the file!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                }
-            }
-        }
-        */
         /// <summary>
         /// When the "Undo" button is clicked under the "File" tab, sets the spreadsheet to how it was before the
         /// change was made and updates the display accordingly.
@@ -256,32 +161,6 @@ namespace SpreadsheetGUI
         {
             networkController.RequestUndo();
         }
-
-        /*
-        /// <summary>
-        /// When the spreadsheet is closing via the "Close" button via the "File" tab, checks to see if there was a change to the spreadsheet. If there 
-        /// hasn't been a change, close the spreadsheet. If there was a change, prompts the user if they would like to close without saving.
-        /// </summary>
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!controller.Changed())
-                Close();
-            if (MessageBox.Show("You have unsaved changes, would you like to close?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                Close();
-        }
-
-        /// <summary>
-        /// If the "Help" button is clicked, opens the "Help.txt" file.
-        /// </summary>
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string filePath = Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory);
-            filePath = Directory.GetParent(filePath).FullName;
-            filePath = Directory.GetParent(filePath).FullName;
-            filePath = Directory.GetParent(filePath).FullName;
-            Process.Start(filePath + "\\Help.txt");
-        }
-        */
 
         /// <summary>
         /// When the spreadsheet is closing via the Form's exit button, check to see if there was a change to the spreadsheet. If there was,
@@ -329,23 +208,6 @@ namespace SpreadsheetGUI
             networkController.Connect(AddressText.Text, UsernameBox.Text); //initate connection network protocol in controller 
         }
 
-        /*
-        ///<summary>
-        /// Event handler for server updates, updates drawings 
-        ///</summary> 
-        private void ProcessData()
-        {
-            try
-            {
-                MethodInvoker invalidator = new MethodInvoker(() => this.Invalidate(true));
-                this.Invoke(invalidator);
-            }
-            catch (Exception)
-            {
-            }
-        }
-        */
-
         /// <summary>
         /// Error event handler
         /// Displays error message with given err string 
@@ -369,7 +231,7 @@ namespace SpreadsheetGUI
         /// <param name="err">error message from server</param>
         private void DisplayRequestError(string cellName, string err)
         {
-            MessageBox.Show("Cell contents invalid at cell " + cellName + "\n" + "Error message: " + err);
+            MessageBox.Show("Invalid change request at " + cellName + "\n" + "Error message: " + err);
         }
 
         /// <summary>

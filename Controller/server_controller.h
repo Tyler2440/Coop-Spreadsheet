@@ -67,6 +67,8 @@ private:
   void start_accept();
   void handle_accept(connection_handler::pointer connection_handler, const boost::system::error_code& err);
   Spreadsheet load_from_file(std::string filename);
+  Cell* parse_json_cell(boost::json::value c);
+  std::stack<Cell*>* parse_json_cell_history(boost::json::array c);
   
 public:
   static int next_ID;
