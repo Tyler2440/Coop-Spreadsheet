@@ -28,7 +28,7 @@ public:
 	std::string get_name(); // Get the name of this cell
 	std::string get_contents(); // Get the contents of this cell
 	Cell* get_previous(); // Get the previous state of this cell
-	void set_previous(Cell* c);
+	void set_previous(Cell* c); // Set this cells previous cell state
 	//void add_history(Cell cell); // Add to history of this cell
 
 	void set_name(std::string name); // Set the name of this cell
