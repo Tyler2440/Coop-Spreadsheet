@@ -8,12 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpreadsheetController;
+using SS;
+
 namespace SpreadsheetGUI
 {
     public partial class FileSelector : Form
     {
         ComboBox box;
         SpreadsheetController.Controller controller;
+        SpreadsheetPanel sp; 
 
         public FileSelector(List<string> spreadsheets, SpreadsheetController.Controller controller)
         {          

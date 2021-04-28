@@ -57,6 +57,8 @@ namespace SpreadsheetGUI
         {
             FileSelector fileselector = new FileSelector(spreadsheets, networkController);
             fileselector.ShowDialog();
+            spreadsheetPanel1.SetSelection(0, 0);
+            CellNameText.Text = "A1";
         }
 
 
@@ -84,6 +86,11 @@ namespace SpreadsheetGUI
         {
             Dictionary<int, User> users = controller.UpdateUserCellSelection(ID, userName, cellName);
             spreadsheetPanel1.SetUserSelection(users);
+            this.BeginInvoke((MethodInvoker)delegate ()
+            {
+                spreadsheetPanel1.Refresh();
+            });
+            
         }
 
         /// <summary>
@@ -93,7 +100,10 @@ namespace SpreadsheetGUI
         private void DisconnectUser(int ID)
         {
             controller.RemoveUser(ID);
-            spreadsheetPanel1.Refresh();
+            this.BeginInvoke((MethodInvoker)delegate ()
+            {
+                spreadsheetPanel1.Refresh();
+            });
         }
 
         /// <summary>
@@ -107,7 +117,14 @@ namespace SpreadsheetGUI
                 int rowTemp = row;
                 controller.GetColRow(cell, out colTemp, out rowTemp);
                 spreadsheetPanel1.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp)); //updates cell value displayed in cell
-                displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
+
+                int clientCol = 0;
+                int clientRow = 0;
+                spreadsheetPanel1.GetSelection(out clientCol, out clientRow);
+                if (colTemp == clientCol && rowTemp == clientRow)
+                {
+                    displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
+                }
             });
         }
 

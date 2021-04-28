@@ -129,7 +129,7 @@ namespace SpreadsheetController
         {
             if (state.ErrorOccured)
             {
-                Error("Error while retrieving Client ID"); //update view of error 
+                Error("Error while retrieving data from server"); //update view of error 
                 return;
             }
 
@@ -150,6 +150,7 @@ namespace SpreadsheetController
                     if (int.TryParse(part.Substring(0, part.Length - 1), out id))
                     {
                         finishedHandshake = true;
+                        InitialSelection();
                         break;
                     }
                 }
@@ -167,7 +168,7 @@ namespace SpreadsheetController
                     {
                         cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                     }
-                    
+
                 }
 
                 else if (result["messageType"].ToString() == "requestError")
@@ -178,13 +179,13 @@ namespace SpreadsheetController
                 else if (result["messageType"].ToString() == "serverError")
                 {
                     ServerError(result["message"].ToString());
+                    theServer.TheSocket.Close();
+                    ServerShutDown = true;
                 }
 
                 else if (result["messageType"].ToString() == "disconnected")
                 {
                     UserDisconnected(Int32.Parse(result["user"].ToString()));
-                    theServer.TheSocket.Close();
-                    ServerShutDown = true;
                 }
 
             }
@@ -257,5 +258,13 @@ namespace SpreadsheetController
             }
         }
 
+        public void InitialSelection()
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"selectCell\", cellName: \"" + "A1" + "\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
     }
 }
