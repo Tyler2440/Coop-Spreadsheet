@@ -205,7 +205,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					//maybe get weird errors with other connection_handlers sending stuff at same time
 					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 					{
-						std::string message = "{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName:  \"" + client_name + "\" }\n";
+						std::string message = "{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName: \"" + client_name + "\" }\n";
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}
