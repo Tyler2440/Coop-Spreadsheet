@@ -420,7 +420,7 @@ std::string Server::connection_handler::split_and_delete(std::string& s)
 
 void Server::save_to_file(Spreadsheet s)
 {
-	std::string file_path = "./spreadsheets/" + s.get_name() + ".txt";
+	std::string file_path = "./spreadsheet_data/" + s.get_name() + ".txt";
 	std::ofstream file(file_path);
 	file << s.get_json();
 	file.close();
