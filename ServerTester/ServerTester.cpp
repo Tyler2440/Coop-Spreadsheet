@@ -43,17 +43,17 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	std::string ipPort = argv[2];
-	int testNum = std::stoi(argv[1]);
-	int i = ipPort.find(":");
+	//std::string ipPort = argv[2];
+	//int testNum = std::stoi(argv[1]);
+	//int i = ipPort.find(":");
 
-	std::string ip = ipPort.substr(0, i);
-	int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
+	//std::string ip = ipPort.substr(0, i);
+	//int port = std::stoi(ipPort.substr(i + 1, ipPort.size()));
 
 	// For local testing
-	//std::string ip = "127.0.0.1";
-	//int port = 1100;
-	//int testNum = 10;
+	std::string ip = "127.0.0.1";
+	int port = 1100;
+	int testNum = 10;
 
 	switch (testNum)
 	{

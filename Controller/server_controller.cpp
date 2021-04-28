@@ -10,7 +10,9 @@
 #include <map>
 #include <boost/json.hpp>
 #include <mutex>
+#include <filesystem>
 #include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
 #include "server_controller.h"
 #include "../Model/ServerSpreadsheet.h"
 
@@ -38,13 +40,13 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	spreadsheets = new std::map<std::string, Spreadsheet>();
 	connections = std::map<int, connection_handler::pointer>();
 	std::string path = "./spreadsheet_data";
-	for (const auto& file : boost::filesystem::directory_iterator(path))
+	for (auto& p : std::filesystem::directory_iterator(path))
 	{
-		std::string file_path = file.path().string();
+		std::string file_path = p.path().string();
 		try {
 			Spreadsheet s = load_from_file(file_path);
 
-			std::string name = file_path.substr(15, file_path.size() - 15 - 4);
+			std::string name = file_path.substr(path.size() + 1, file_path.size() - path.size() - 5);
 			spreadsheets->insert_or_assign(name, s);
 		}
 		catch (std::exception& e) {
