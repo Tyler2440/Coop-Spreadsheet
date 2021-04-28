@@ -250,11 +250,9 @@ std::string Spreadsheet::get_name()
 
 Cell::Cell(std::string name, std::string content, Cell* prev)
 {
-	std::cout << "->Cell" << std::endl;
 	cell_name = name;
 	contents = content;
 	prev_state = prev;
-	std::cout << "Cell<-" << std::endl;
 }
 
 bool Spreadsheet::insert_cell(Cell* c)
