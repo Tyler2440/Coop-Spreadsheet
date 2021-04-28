@@ -150,6 +150,7 @@ namespace SpreadsheetController
                     if (int.TryParse(part.Substring(0, part.Length - 1), out id))
                     {
                         finishedHandshake = true;
+                        InitialSelection();
                         break;
                     }
                 }
@@ -167,7 +168,7 @@ namespace SpreadsheetController
                     {
                         cellSelection(result["cellName"].ToString(), int.Parse(result["selector"].ToString()), result["selectorName"].ToString());
                     }
-                    
+
                 }
 
                 else if (result["messageType"].ToString() == "requestError")
@@ -184,7 +185,7 @@ namespace SpreadsheetController
 
                 else if (result["messageType"].ToString() == "disconnected")
                 {
-                    UserDisconnected(Int32.Parse(result["user"].ToString()));                    
+                    UserDisconnected(Int32.Parse(result["user"].ToString()));
                 }
 
             }
@@ -257,5 +258,13 @@ namespace SpreadsheetController
             }
         }
 
+        public void InitialSelection()
+        {
+            if (finishedHandshake)
+            {
+                string message = "{ requestType: \"selectCell\", cellName: \"" + "A1" + "\" }" + "\n";
+                Networking.Send(theServer.TheSocket, message);
+            }
+        }
     }
 }
