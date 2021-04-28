@@ -25,7 +25,7 @@ void Cell::set_name(std::string name)
 void Cell::set_contents(std::string content)
 {
 	std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*history);
-	history->push(new Cell(cell_name, contents, h_cpy));
+	//history->push(new Cell(cell_name, contents, h_cpy));
 	this->contents = content;
 }
 
@@ -90,12 +90,14 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents(), cells->at(cell_name)->get_history());
 		history->push(cell);
 		cells->at(cell_name)->set_contents(contents);
+		cells->at(cell_name)->add_history(cell);
 	}
 	else
 	{
 		Cell* cell = new Cell(cell_name, "");
 		history->push(cell);
 		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
+		cells->at(cell_name)->add_history(cell);
 	}	
 
 	return true;
