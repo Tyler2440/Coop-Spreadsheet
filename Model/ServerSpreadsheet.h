@@ -41,8 +41,8 @@ class User
 {	
 	private:
 		int ID; // This user's ID
-		std::string selected;				// This user's selected cell
-		std::string name;					// This user's name
+		std::string selected;				// This user's selected cell 
+		std::string name;					// This user's name 
 
 	public:
 		int get_ID();						// Get the user ID
