@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <map>
-#include "../Model/ServerSpreadsheet.h"
+#include "ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 

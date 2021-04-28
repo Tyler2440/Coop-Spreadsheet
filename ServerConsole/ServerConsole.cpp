@@ -4,8 +4,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/json/src.hpp>
-#include "../Controller/server_controller.h"
-#include "../Model/ServerSpreadsheet.h"
+#include "server_controller.h"
+#include "ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 

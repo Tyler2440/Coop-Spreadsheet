@@ -14,7 +14,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include "server_controller.h"
-#include "../Model/ServerSpreadsheet.h"
+#include "ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 using namespace boost::placeholders;

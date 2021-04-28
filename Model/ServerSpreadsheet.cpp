@@ -8,6 +8,7 @@
 
 Cell::Cell()
 {
+	prev_state = NULL;
 }
 
 Cell::Cell(std::string name, std::string content)
@@ -56,12 +57,12 @@ Cell* Spreadsheet::get_cell(std::string cell_name)
 void Spreadsheet::check_circular_dependency(Formula formula)
 {
 	std::unordered_set<std::string> visited;
-	std::vector<std::string>* variables = formula.get_variables();
-	for (int i = 0; i < variables->size(); ++i)
+	std::vector<std::string> variables = formula.get_variables();
+	for (int i = 0; i < variables.size(); ++i)
 	{
-		if (visited.count(variables->at(i)) == 0)
+		if (visited.count(variables.at(i)) == 0)
 		{
-			Visit(variables->at(i), variables->at(i), visited);
+			Visit(variables.at(i), variables.at(i), visited);
 		}
 	}
 }
@@ -249,10 +250,11 @@ std::string Spreadsheet::get_name()
 
 Cell::Cell(std::string name, std::string content, Cell* prev)
 {
+	std::cout << "->Cell" << std::endl;
 	cell_name = name;
 	contents = content;
-	if (prev != NULL)
-		prev_state = new Cell(name, prev->get_contents(), prev->get_previous());
+	prev_state = prev;
+	std::cout << "Cell<-" << std::endl;
 }
 
 bool Spreadsheet::insert_cell(Cell* c)
@@ -265,9 +267,9 @@ bool Spreadsheet::insert_cell(Cell* c)
 		std::string formula = contents.substr(1, contents.length());
 		try
 		{
-			Formula formula(formula);
-			graph->replace_dependees(cell_name, *formula.get_variables());
-			check_circular_dependency(formula);
+			Formula f(formula);
+			graph->replace_dependees(cell_name, f.get_variables());
+			check_circular_dependency(f);
 		}
 		catch (const char* msg)
 		{

@@ -9,7 +9,7 @@
 class Formula
 {
 	//keeps a list of normalized varialbes
-	std::vector<std::string>* normalized_variables;
+	std::vector<std::string> normalized_variables;
 
 public:
 	// Creates a Formula from a string 
@@ -23,5 +23,5 @@ public:
 	//checks if the passed in string is a variable
 	static bool is_variable(std::string& s);
 	//returns the normalized_varialbes for the formula
-	std::vector<std::string>* get_variables();
+	std::vector<std::string> get_variables();
 };

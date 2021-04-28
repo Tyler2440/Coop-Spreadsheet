@@ -9,7 +9,7 @@
 
 Formula::Formula(std::string formula)
 {
-	normalized_variables = new std::vector<std::string>();
+	normalized_variables = std::vector<std::string>();
 	isValid(formula);
 }
 
@@ -75,7 +75,7 @@ bool Formula::isValid(std::string formula)
 		// If the token is a variable, check whether the variable is valid, and if so, add it to the list of normalized variables to be used later
 		else if (Formula::is_variable(token)) {
 			std::string variable = Formula::normalize(token);
-			normalized_variables->push_back(variable);
+			normalized_variables.push_back(variable);
 		}
 
 		// If the token is none of the valid tokens, throw a FormulaFormatException()
@@ -202,7 +202,7 @@ std::string Formula::normalize(std::string variable) {
 	return s;
 }
 
-std::vector<std::string>* Formula::get_variables()
+std::vector<std::string> Formula::get_variables()
 {
 	return normalized_variables;
 }
