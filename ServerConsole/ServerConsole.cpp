@@ -5,7 +5,7 @@
 #include <boost/thread.hpp>
 #include <boost/json/src.hpp>
 #include "server_controller.h"
-#include "ServerSpreadsheet.h"
+#include "../Model/ServerSpreadsheet.h"
 
 using boost::asio::ip::tcp;
 
