@@ -48,7 +48,6 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 		spreadsheets->insert_or_assign(name, s);
 		}
 		catch (std::exception& e) {
-			std::cout << "Incomplete spreadsheet file" << std::endl;
 		}
 	}
 	next_ID = 0;
@@ -90,10 +89,7 @@ void Server::stop()
 void Server::connection_handler::on_name(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::cout << "Client sent: \"" << r_buffer << "\"" << std::endl;
-		//std::cout << "Enter spreadsheet name" << std::endl;
 		client_name = r_buffer.substr(0, r_buffer.size() - 1);
-		//std::cout << client_name << std::endl;
 
 		r_buffer.clear();
 
@@ -104,8 +100,6 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 		ID = next_ID;
 		next_ID++;
 		next_ID_lock.unlock();
-
-		std::cout << "New client connected with ID: " << ID << " and Name: " << client_name << std::endl;
 
 		// Send list of spreadsheet names to client
 		sock.write_some(boost::asio::buffer(server->get_spreadsheets(), max_length));
@@ -124,17 +118,11 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 void Server::connection_handler::on_spreadsheet(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::cout << "Client sent: \"" << r_buffer << "\"" << std::endl;
 		std::string spreadsheet_name = r_buffer.substr(0, r_buffer.size() - 1);
 
 		r_buffer.clear();
 
 		curr_spreadsheet = spreadsheet_name;
-
-		//std::cout << spreadsheet_name << std::endl;
-
-		//std::cout << server->spreadsheets->size() << std::endl;
-
 
 		// LOCK THE SPREADSHEET
 
@@ -146,16 +134,13 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 
 		if (it != server->spreadsheets->end())
 		{
-			std::cout << "Client selected: " << spreadsheet_name << std::endl;
 			spreadsheet = &server->spreadsheets->at(spreadsheet_name);
 			std::map<std::string, Cell*>* cells = spreadsheet->get_cells();
 
-			//std::cout << "here" << std::endl;
 			// Send every edited cell
 			for (std::map<std::string, Cell*>::iterator it = cells->begin(); it != cells->end(); ++it)
 			{
 				std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + it->first + "\", contents: \"" + it->second->get_contents() + "\" }\n";
-				//std::cout << "haha" << std::endl;
 				sock.write_some(boost::asio::buffer(message, max_length));
 			}
 
@@ -164,14 +149,12 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 			for (std::map<int, User>::iterator it = users.begin(); it != users.end(); ++it)
 			{
 				std::string message = "{ messageType: \"cellSelected\", cellName: \"" + it->second.get_selected() + "\", selector: " + std::to_string(it->first) + ", selectorName: \"" + it->second.get_name() + "\"}\n";
-				//std::cout << "haha 2 electric bugaloo" << std::endl;
 				sock.write_some(boost::asio::buffer(message, max_length));
 			}
 		}
 
 		else
 		{
-			std::cout << "Client created: " << spreadsheet_name << std::endl;
 			spreadsheet = new Spreadsheet(spreadsheet_name);
 			server->spreadsheets->insert(std::pair<std::string, Spreadsheet>(spreadsheet_name, *(spreadsheet)));
 		}
@@ -206,8 +189,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 		{
 			std::string request = split_and_delete(r_buffer);
 
-			std::cout << "Client request: \"" << request << "\"" << std::endl;
-
 			std::string cellName;
 			std::string contents;
 			std::string request_name = find_request_type(request, cellName, contents);
@@ -225,7 +206,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 					{
 						std::string message = "{ messageType: \"cellSelected\", cellName: \"" + cellName + "\", selector: \"" + std::to_string(ID) + "\", selectorName:  \"" + client_name + "\" }\n";
-						std::cout << "Sending: \"" << message << "\"" << std::endl;
 						it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 					}
 				}
@@ -248,7 +228,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 						if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 						{
 							std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cellName + "\", contents: \"" + contents + "\"" + "}\n";
-							std::cout << message << std::endl;
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
@@ -270,8 +249,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 				{
 					Cell* cell = server->spreadsheets->at(curr_spreadsheet).undo();
 
-					// LOCK HERE
-					//server->spreadsheets->at(curr_spreadsheet).set_cell(cell->get_name(), cell->get_contents());
 					connections_lock.lock();
 					std::map<int, connection_handler::pointer> connections = server->connections;
 					for (std::map<int, connection_handler::pointer>::iterator it = connections.begin(); it != connections.end(); ++it)
@@ -280,12 +257,10 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 						if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 						{
 							std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cell->get_name() + "\", contents: \"" + cell->get_contents() + "\"" + "}\n";
-							std::cout << message << std::endl;
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
 					connections_lock.unlock();
-					// END LOCK HERE
 				}
 				else 
 				{
@@ -311,7 +286,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 						if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 						{
 							std::string message = "{ messageType: \"cellUpdated\", cellName: \"" + cell->get_name() + "\", contents: \"" + cell->get_contents() + "\"" + "}\n";
-							std::cout << message << std::endl;
 							it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 						}
 					}
@@ -344,7 +318,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 void Server::connection_handler::handle_write(const boost::system::error_code& err, size_t bytes_transferred)
 {
 	if (!err) {
-		std::cout << "Server sent Hello message!" << std::endl;
 	}
 	else {
 		std::cerr << "error: " << err.message() << std::endl;
@@ -391,7 +364,6 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 	std::string temp = s.substr(first + 1, s.size());
 	int second = temp.find("\"");
 	std::string val = s.substr(first + 1, second);
-	std::cout << val << std::endl;
 	s = s.substr(first + second + 2, s.size());
 
 	if (val == "selectCell")
@@ -400,7 +372,6 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 		temp = s.substr(first + 1, s.size());
 		second = temp.find("\"");
 		cellName = s.substr(first + 1, second);
-		std::cout << cellName << std::endl;
 	}
 	
 	else if (val == "editCell")
@@ -462,13 +433,13 @@ void Server::connection_handler::client_disconnected()
 		if (it->second.get()->curr_spreadsheet == curr_spreadsheet && it->second.get()->sock.is_open())
 		{
 			std::string message = "{ messageType: \"disconnected\", user: \"" + std::to_string(ID) + "\"" + "}\n";
-			std::cout << message << std::endl;
 			it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 		}
 	}
 	
 	spreadsheets_lock.lock();
-	server->spreadsheets->at(curr_spreadsheet).delete_user(ID);
+	if (server->spreadsheets->find(curr_spreadsheet) != server->spreadsheets->end())
+		server->spreadsheets->at(curr_spreadsheet).delete_user(ID);
 	spreadsheets_lock.unlock();
 	server->connections.erase(ID);
 	connections_lock.unlock();
