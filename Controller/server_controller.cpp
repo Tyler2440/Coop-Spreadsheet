@@ -438,7 +438,8 @@ void Server::connection_handler::client_disconnected()
 	}
 	
 	spreadsheets_lock.lock();
-	server->spreadsheets->at(curr_spreadsheet).delete_user(ID);
+	if (server->spreadsheets->find(curr_spreadsheet) != server->spreadsheets->end())
+		server->spreadsheets->at(curr_spreadsheet).delete_user(ID);
 	spreadsheets_lock.unlock();
 	server->connections.erase(ID);
 	connections_lock.unlock();
