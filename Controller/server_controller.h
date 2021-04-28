@@ -29,14 +29,14 @@ public:
     // buffer for storing the recieved string
     std::string r_buffer;
     int ID;
-    enum { max_length = 2048 };
-    char data[max_length];
 
   public:
     typedef boost::shared_ptr<connection_handler> pointer;
     //connection_handler(boost::asio::io_context& io_context);
     connection_handler(boost::asio::io_context& io_context, Server * s);
     ~connection_handler();
+
+    enum { max_length = 2048 };
 
     // creating the pointer
     static pointer create(boost::asio::io_context& io_context);

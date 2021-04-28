@@ -72,6 +72,8 @@ void Server::stop()
 	connections_lock.lock();
 	for (std::pair<int, connection_handler::pointer> connection : connections)
 	{
+		std::string message = "{ messageType:\"serverError\", message: \"server shutdown\" }\n";
+		connection.second.get()->socket().write_some(boost::asio::buffer(message, connection_handler::max_length));
 		connection.second.get()->socket().close();
 	}
 	connections_lock.unlock();
