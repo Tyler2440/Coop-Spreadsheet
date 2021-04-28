@@ -12,7 +12,7 @@ Cell::Cell()
 
 Cell::Cell(std::string name, std::string content)
 {
-	history = new std::stack<Cell*>();
+	prev_state = new Cell();
 	this->set_name(name);
 	this->set_contents(content);
 }
@@ -24,8 +24,6 @@ void Cell::set_name(std::string name)
 
 void Cell::set_contents(std::string content)
 {
-	std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*history);
-	//history->push(new Cell(cell_name, contents, h_cpy));
 	this->contents = content;
 }
 
@@ -37,11 +35,6 @@ std::string Cell::get_contents()
 std::string Cell::get_name()
 {
 	return this->cell_name;
-}
-
-std::stack<Cell*>* Cell::get_history()
-{
-	return history;
 }
 
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
@@ -58,52 +51,6 @@ Cell* Spreadsheet::get_cell(std::string cell_name)
 		return cell;
 	}
 	return cells->at(cell_name);
-}
-
-bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
-{
-	if (contents[0] == '=')
-	{
-		std::unordered_set<std::string> oldDependees = graph->get_dependees(cell_name);
-		std::string formula = contents.substr(1, contents.length());
-		try
-		{
-			Formula formula(formula);
-			graph->replace_dependees(cell_name, *formula.get_variables());
-			check_circular_dependency(formula);
-		}
-		catch (const char* msg)
-		{
-			std::vector<std::string> vector;
-			for (std::string dependee : oldDependees)
-			{
-				vector.push_back(dependee);
-			}
-			// NOTIFY SERVER OF INVALID FORMULA
-			graph->replace_dependees(cell_name, vector);
-			return false;
-		}
-	}
-
-	else
-		graph->replace_dependees(cell_name, std::vector<std::string>());
-
-	if (cells->find(cell_name) != cells->end())
-	{
-		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents(), cells->at(cell_name)->get_history());
-		history->push(cell);
-		cells->at(cell_name)->set_contents(contents);
-		cells->at(cell_name)->add_history(cell);
-	}
-	else
-	{
-		Cell* cell = new Cell(cell_name, "");
-		history->push(cell);
-		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
-		cells->at(cell_name)->add_history(cell);
-	}
-
-	return true;
 }
 
 void Spreadsheet::check_circular_dependency(Formula formula)
@@ -190,47 +137,6 @@ void User::select(std::string cell_name)
 	selected = cell_name;
 }
 
-Cell* Spreadsheet::undo()
-{
-	while (true)
-	{
-		// IF WE DETECT HISTORY IS EMPTY, RETURN OUT
-		if (history->empty())
-		{
-			return new Cell()
-		}
-
-		Cell* cell = history->top();
-		history->pop();
-		cells->insert_or_assign(cell->get_name(), cell);
-		cell->pop_history();
-
-		if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
-		{
-			Cell* new_cell = new Cell(cell->get_name(), "");
-			cells->at(new_cell->get_name())->add_history(new_cell);
-		}
-
-		try
-		{
-			Formula formula(cell->get_contents());
-			check_circular_dependency(formula);
-			return cell;
-		}
-		catch (const char* msg)
-		{
-			continue;
-		}
-	}
-	
-}
-
-void Cell::pop_history()
-{
-	if (!history->empty())
-		history->pop();
-}
-
 Spreadsheet::Spreadsheet(std::string s)
 {
 	name = s;
@@ -315,24 +221,9 @@ boost::json::object Spreadsheet::get_json_cell(Cell c)
 	boost::json::object obj;
 	obj["name"] = c.get_name();
 	obj["contents"] = c.get_contents();
-	obj["history"] = get_json_cell_history(c);
+	if (c.get_previous() != NULL)
+		obj["previous"] = get_json_cell(c.get_previous());
 	return obj;
-}
-
-boost::json::array Spreadsheet::get_json_cell_history(Cell c)
-{
-	std::stack<Cell*> copy(*c.get_history());
-	boost::json::array arr(copy.size());
-
-	int loop_for = copy.size();
-	for (int i = 0; i < loop_for; i++)
-	{
-		boost::json::object obj = get_json_cell(*copy.top());
-		arr[i] = obj;
-		copy.pop();
-	}
-
-	return arr;
 }
 
 boost::json::array Spreadsheet::get_json_history()
@@ -356,50 +247,131 @@ std::string Spreadsheet::get_name()
 	return name;
 }
 
-Cell::Cell(std::string name, std::string content, std::stack<Cell*>* history)
+Cell::Cell(std::string name, std::string content, Cell* prev)
 {
 	cell_name = name;
 	contents = content;
-	this->history = history;
+	if (prev != NULL)
+		prev_state = new Cell(name, prev->get_contents(), prev->get_previous());
 }
 
-Cell* Spreadsheet::revert(std::string s, bool& success)
+bool Spreadsheet::insert_cell(Cell* c)
 {
-	while (true)
+	std::string cell_name = c->get_name();
+	std::string contents = c->get_contents();
+	if (contents[0] == '=')
 	{
-		Cell* cell = get_cell(s);
-		if (!cell->get_history()->empty())
-		{
-			success = true;
-			std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*cell->get_history());
-			Cell* prev = new Cell(cell->get_name(), cell->get_contents(), h_cpy);
-			cells->insert_or_assign(s, cell->get_history()->top());
-			cell->get_history()->pop();
-
-			history->push(prev);
-			if (cell->get_history()->empty())
-			{
-				Cell* new_cell = new Cell(cell->get_name(), "");
-				cell->add_history(new_cell);
-			}
-		}
-		else
-			return cell;
-
+		std::unordered_set<std::string> oldDependees = graph->get_dependees(cell_name);
+		std::string formula = contents.substr(1, contents.length());
 		try
 		{
-			Formula formula(cell->get_contents());
+			Formula formula(formula);
+			graph->replace_dependees(cell_name, *formula.get_variables());
 			check_circular_dependency(formula);
-			return cells->at(s);
 		}
 		catch (const char* msg)
 		{
-			continue;
-		}		
+			std::vector<std::string> vector;
+			for (std::string dependee : oldDependees)
+			{
+				vector.push_back(dependee);
+			}
+			// NOTIFY SERVER OF INVALID FORMULA
+			graph->replace_dependees(cell_name, vector);
+			return false;
+		}
 	}
+	else
+		graph->replace_dependees(cell_name, std::vector<std::string>());
+
+	cells->insert_or_assign(cell_name, c);
+
+	return true;
 }
 
-void Cell::add_history(Cell* cell)
+bool Spreadsheet::edit_cell(Cell* c)
 {
-	history->push(cell);
+	Cell* prev;
+	if (cells->find(c->get_name()) != cells->end())
+	{
+		prev = cells->at(c->get_name());
+	}
+	else
+	{
+		prev = new Cell(c->get_name(), "");
+	}
+
+	c->set_previous(prev);
+
+	// insert current into cells
+	if (!this->insert_cell(c))
+	{
+		return false;
+	}
+
+	// Push a copy to spreadsheet history
+	Cell* cpy = new Cell(prev->get_name(), prev->get_contents(), prev->get_previous());
+	history->push(cpy);
+
+	return true;
+}
+
+Cell* Spreadsheet::undo(bool& success)
+{
+	if (history->empty())
+	{
+		return new Cell();
+	}
+
+	Cell* to_insert = new Cell(history->top());
+
+	if (!this->insert_cell(to_insert))
+	{
+		history->pop();
+		return undo(success);
+	}
+
+	// Remove from spreadsheet history
+	history->pop();
+
+	success = true;
+	return cells->at(to_insert->get_name());
+}
+
+bool Spreadsheet::revert(Cell* c)
+{
+	// get the previous state and insert a copy
+	Cell* to_insert = new Cell(c->get_previous());
+
+	if (to_insert->get_previous() == NULL)
+	{
+		return false;
+	}
+
+	if (!this->insert_cell(to_insert))
+	{
+		revert(c->get_previous());
+	}
+
+	// push onto spreadsheet history stack
+	history->push(c);
+
+	return true;
+}
+
+void Cell::set_previous(Cell* c)
+{
+	prev_state = c;
+}
+
+Cell::Cell(Cell* c)
+{
+	this->cell_name = c->get_name();
+	this->contents = c->get_contents();
+	this->prev_state = c->get_previous();
+}
+
+Cell* Cell::get_previous()
+{
+	return prev_state;
 }
