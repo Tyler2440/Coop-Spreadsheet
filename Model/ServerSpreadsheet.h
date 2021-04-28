@@ -30,6 +30,8 @@ public:
 	std::string get_name();
 	std::string get_contents();
 	std::stack<Cell*>* get_history();
+	void pop_history();
+	void add_history(Cell* cell);
 
 	void set_name(std::string name);
 	void set_contents(std::string content);
