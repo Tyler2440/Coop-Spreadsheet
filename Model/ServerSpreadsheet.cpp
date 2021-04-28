@@ -44,15 +44,6 @@ std::stack<Cell*>* Cell::get_history()
 	return history;
 }
 
-//DELETE
-std::string Cell::get_previous_change()
-{
-	//std::string change = history->top();
-	//history->pop();
-	//return change;
-	return "";
-}
-
 std::map<std::string, Cell*>* Spreadsheet::get_cells()
 {
 	return cells;
@@ -365,14 +356,6 @@ Cell* Spreadsheet::revert(std::string s, bool& success)
 			Cell* new_cell = new Cell(cell->get_name(), "");
 			cell->add_history(new_cell);
 		}
-	}
-	else
-	{
-		/*Cell* prev = new Cell(cell->get_name(), cell->get_contents());
-		history->push(prev);
-		Cell* new_cell = new Cell(cell->get_name(), "");
-		cell->add_history(new_cell);
-		cells->insert_or_assign(s, new_cell);*/
 	}
 
 	return cells->at(s);
