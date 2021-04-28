@@ -20,6 +20,10 @@ namespace SpreadsheetGUI
             InitializeComponent();
 
             box = new ComboBox();
+
+            box.SelectionChangeCommitted += SelectionChange_Committed;
+            SelectButton.Enabled = false;
+
             this.controller = controller;
             box.Location = new Point(67,90);
             box.Size = new Size(123, 21);
@@ -45,9 +49,11 @@ namespace SpreadsheetGUI
             this.Close();
         }
 
-        private void label2_Click(object sender, EventArgs e)
+        private void SelectionChange_Committed(object sender, EventArgs e)
         {
-
+           SelectButton.Enabled = true;
         }
+
+
     }
 }
