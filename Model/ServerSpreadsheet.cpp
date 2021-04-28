@@ -85,6 +85,9 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 		}
 	}
 
+	else
+		graph->replace_dependees(cell_name, std::vector<std::string>());
+
 	if (cells->find(cell_name) != cells->end())
 	{
 		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents(), cells->at(cell_name)->get_history());
@@ -189,18 +192,37 @@ void User::select(std::string cell_name)
 
 Cell* Spreadsheet::undo()
 {
-	Cell* cell = history->top();
-	history->pop();
-	cells->insert_or_assign(cell->get_name(), cell);
-	cell->pop_history();
-
-	if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
+	while (true)
 	{
-		Cell* new_cell = new Cell(cell->get_name(), "");
-		cells->at(new_cell->get_name())->add_history(new_cell);
-	}
+		// IF WE DETECT HISTORY IS EMPTY, RETURN OUT
+		if (history->empty())
+		{
+			return new Cell()
+		}
 
-	return cell;
+		Cell* cell = history->top();
+		history->pop();
+		cells->insert_or_assign(cell->get_name(), cell);
+		cell->pop_history();
+
+		if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
+		{
+			Cell* new_cell = new Cell(cell->get_name(), "");
+			cells->at(new_cell->get_name())->add_history(new_cell);
+		}
+
+		try
+		{
+			Formula formula(cell->get_contents());
+			check_circular_dependency(formula);
+			return cell;
+		}
+		catch (const char* msg)
+		{
+			continue;
+		}
+	}
+	
 }
 
 void Cell::pop_history()
@@ -343,24 +365,38 @@ Cell::Cell(std::string name, std::string content, std::stack<Cell*>* history)
 
 Cell* Spreadsheet::revert(std::string s, bool& success)
 {
-	Cell* cell = get_cell(s);
-	if (!cell->get_history()->empty())
+	while (true)
 	{
-		success = true;
-		std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*cell->get_history());
-		Cell* prev = new Cell(cell->get_name(), cell->get_contents(), h_cpy);
-		cells->insert_or_assign(s, cell->get_history()->top());
-		cell->get_history()->pop();
-
-		history->push(prev);
-		if (cell->get_history()->empty())
+		Cell* cell = get_cell(s);
+		if (!cell->get_history()->empty())
 		{
-			Cell* new_cell = new Cell(cell->get_name(), "");
-			cell->add_history(new_cell);
-		}
-	}
+			success = true;
+			std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*cell->get_history());
+			Cell* prev = new Cell(cell->get_name(), cell->get_contents(), h_cpy);
+			cells->insert_or_assign(s, cell->get_history()->top());
+			cell->get_history()->pop();
 
-	return cells->at(s);
+			history->push(prev);
+			if (cell->get_history()->empty())
+			{
+				Cell* new_cell = new Cell(cell->get_name(), "");
+				cell->add_history(new_cell);
+			}
+		}
+		else
+			return cell;
+
+		try
+		{
+			Formula formula(cell->get_contents());
+			check_circular_dependency(formula);
+			return cells->at(s);
+		}
+		catch (const char* msg)
+		{
+			continue;
+		}		
+	}
 }
 
 void Cell::add_history(Cell* cell)
