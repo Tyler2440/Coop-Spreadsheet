@@ -22,7 +22,7 @@ int Server::next_ID;
 std::mutex connections_lock, next_ID_lock, spreadsheets_lock;
 
 // Code came from: https://www.codeproject.com/Articles/1264257/Socket-Programming-in-Cplusplus-using-boost-asio-T
-Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server * s)
+Server::connection_handler::connection_handler(boost::asio::io_context& io_context, Server* s)
 	: sock(io_context)
 {
 	server = s;
@@ -43,9 +43,9 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 		std::string file_path = file.path().string();
 		try {
 			Spreadsheet s = load_from_file(file_path);
-		
-		std::string name = file_path.substr(15, file_path.size() - 15 - 4);
-		spreadsheets->insert_or_assign(name, s);
+
+			std::string name = file_path.substr(15, file_path.size() - 15 - 4);
+			spreadsheets->insert_or_assign(name, s);
 		}
 		catch (std::exception& e) {
 		}
@@ -262,7 +262,7 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 					}
 					connections_lock.unlock();
 				}
-				else 
+				else
 				{
 					std::string invalid = "Edit request was invalid!";
 					std::string message = "{ messageType: \"requestError\", cellName: \" " + cellName + "\", message: \"" + invalid + "\"" + "}\n";
@@ -373,7 +373,7 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 		second = temp.find("\"");
 		cellName = s.substr(first + 1, second);
 	}
-	
+
 	else if (val == "editCell")
 	{
 		first = s.find("\"");
@@ -387,7 +387,7 @@ std::string Server::connection_handler::find_request_type(std::string s, std::st
 		second = temp.find("\"");
 		contents = s.substr(first + 1, second);
 	}
-	
+
 	else if (val == "undoCell")
 	{
 		return val;
@@ -422,7 +422,7 @@ void Server::save_to_file(Spreadsheet s)
 }
 
 void Server::connection_handler::client_disconnected()
-{	
+{
 	sock.close();
 
 	connections_lock.lock();
@@ -436,7 +436,7 @@ void Server::connection_handler::client_disconnected()
 			it->second.get()->sock.write_some(boost::asio::buffer(message, max_length));
 		}
 	}
-	
+
 	spreadsheets_lock.lock();
 	if (server->spreadsheets->find(curr_spreadsheet) != server->spreadsheets->end())
 		server->spreadsheets->at(curr_spreadsheet).delete_user(ID);

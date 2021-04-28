@@ -25,7 +25,7 @@ void Cell::set_name(std::string name)
 void Cell::set_contents(std::string content)
 {
 	std::stack<Cell*>* h_cpy = new std::stack<Cell*>(*history);
-	history->push(new Cell(cell_name, contents, h_cpy));
+	//history->push(new Cell(cell_name, contents, h_cpy));
 	this->contents = content;
 }
 
@@ -73,7 +73,7 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 			check_circular_dependency(formula);
 		}
 		catch (const char* msg)
-		{ 
+		{
 			std::vector<std::string> vector;
 			for (std::string dependee : oldDependees)
 			{
@@ -84,19 +84,21 @@ bool Spreadsheet::set_cell(std::string cell_name, std::string contents)
 			return false;
 		}
 	}
-	
+
 	if (cells->find(cell_name) != cells->end())
 	{
 		Cell* cell = new Cell(cell_name, cells->at(cell_name)->get_contents(), cells->at(cell_name)->get_history());
 		history->push(cell);
 		cells->at(cell_name)->set_contents(contents);
+		cells->at(cell_name)->add_history(cell);
 	}
 	else
 	{
 		Cell* cell = new Cell(cell_name, "");
 		history->push(cell);
 		cells->insert(std::pair<std::string, Cell*>(cell_name, new Cell(cell_name, contents)));
-	}	
+		cells->at(cell_name)->add_history(cell);
+	}
 
 	return true;
 }
@@ -162,7 +164,7 @@ User::User()
 	selected = "A1";
 }
 
-User::User(int ID, std::string name) 
+User::User(int ID, std::string name)
 {
 	this->ID = ID;
 	this->name = name;
@@ -189,10 +191,22 @@ Cell* Spreadsheet::undo()
 {
 	Cell* cell = history->top();
 	history->pop();
-
 	cells->insert_or_assign(cell->get_name(), cell);
+	cell->pop_history();
+
+	if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
+	{
+		Cell* new_cell = new Cell(cell->get_name(), "");
+		cells->at(new_cell->get_name())->add_history(new_cell);
+	}
 
 	return cell;
+}
+
+void Cell::pop_history()
+{
+	if (!history->empty())
+		history->pop();
 }
 
 Spreadsheet::Spreadsheet(std::string s)
@@ -230,7 +244,7 @@ std::string Spreadsheet::get_json()
 boost::json::array Spreadsheet::get_json_graph()
 {
 	boost::json::array arr(cells->size());
-	
+
 	int i = 0;
 	for (std::pair<std::string, Cell*> cell : *cells)
 	{
@@ -345,5 +359,11 @@ Cell* Spreadsheet::revert(std::string s, bool& success)
 			cell->add_history(new_cell);
 		}
 	}
+
 	return cells->at(s);
+}
+
+void Cell::add_history(Cell* cell)
+{
+	history->push(cell);
 }
