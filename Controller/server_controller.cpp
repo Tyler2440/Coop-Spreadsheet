@@ -41,21 +41,15 @@ Server::Server(boost::asio::io_context& io_context) : io_context_(io_context), a
 	for (const auto& file : boost::filesystem::directory_iterator(path))
 	{
 		std::string file_path = file.path().string();
-		//try {
+		try {
 			Spreadsheet s = load_from_file(file_path);
 
 			std::string name = file_path.substr(15, file_path.size() - 15 - 4);
 			spreadsheets->insert_or_assign(name, s);
-		//}
-		//catch (std::exception& e) {
-		//}
+		}
+		catch (std::exception& e) {
+		}
 	}
-	//Spreadsheet s("test1");
-	//s.edit_cell(new Cell("A2", "Table"));
-	//s.edit_cell(new Cell("A3", "=A2"));
-	//s.edit_cell(new Cell("A2", "Text"));
-	//s.revert(s.get_cells()->at("A3"));
-	//spreadsheets->insert_or_assign("test1", s);
 	next_ID = 0;
 	start_accept();
 }
@@ -118,7 +112,6 @@ void Server::connection_handler::on_name(const boost::system::error_code& err, s
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
 	else {
-		std::cerr << "error: " << err.message() << std::endl;
 		client_disconnected();
 	}
 }
@@ -181,7 +174,6 @@ void Server::connection_handler::on_spreadsheet(const boost::system::error_code&
 				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
 	else {
-		std::cerr << "error: " << err.message() << std::endl;
 		client_disconnected();
 	}
 }
@@ -323,7 +315,6 @@ void Server::connection_handler::handle_read(const boost::system::error_code& er
 	}
 	else
 	{
-		std::cerr << "error: " << err.message() << std::endl;
 		client_disconnected();
 	}
 }
