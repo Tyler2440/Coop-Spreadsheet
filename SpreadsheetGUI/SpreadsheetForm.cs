@@ -71,7 +71,27 @@ namespace SpreadsheetGUI
             int rowTemp;
             controller.GetColRow(cellName, out colTemp, out rowTemp);
             controller.SetCellContent(colTemp, rowTemp, contents);
+            RefreshAllCells();
             UpdateSpreadsheetValue(cellName);
+        }
+
+        /// <summary>
+        /// Makes client refresh dependent cells upon change 
+        /// </summary>
+        private void RefreshAllCells()
+        {
+            foreach (string c in controller.GetNonEmptyCells())
+            {
+                int colTemp;
+                int rowTemp;
+                controller.GetColRow(c, out colTemp, out rowTemp);
+                spreadsheetPanel1.SetValue(colTemp, rowTemp, controller.GetCellValue(colTemp, rowTemp));
+            }
+
+            this.BeginInvoke((MethodInvoker)delegate ()
+            {
+                spreadsheetPanel1.Refresh();
+            });
         }
 
         /// <summary>
@@ -111,6 +131,7 @@ namespace SpreadsheetGUI
         {
             this.BeginInvoke((MethodInvoker)delegate ()
             {
+                
                 int colTemp = col;
                 int rowTemp = row;
                 controller.GetColRow(cell, out colTemp, out rowTemp);
@@ -123,6 +144,7 @@ namespace SpreadsheetGUI
                 {
                     displaySelection(spreadsheetPanel1); // updates all text boxes for current selection 
                 }
+                spreadsheetPanel1.Refresh();
             });
         }
 
@@ -158,7 +180,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void CellContentText_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == (char)Keys.Enter) 
+            if (e.KeyChar == (char)Keys.Enter)
             {
                 int colTemp;
                 int rowTemp;
