@@ -189,22 +189,10 @@ Cell* Spreadsheet::undo()
 {
 	Cell* cell = history->top();
 	history->pop();
-	cells->insert_or_assign(cell->get_name(), cell);
-	cell->pop_history();
 
-	if (cells->at(cell->get_name())->get_history()->empty() && !history->empty())
-	{
-		Cell* new_cell = new Cell(cell->get_name(), "");
-		cells->at(new_cell->get_name())->add_history(new_cell);
-	}
+	cells->insert_or_assign(cell->get_name(), cell);
 
 	return cell;
-}
-
-void Cell::pop_history()
-{
-	if (!history->empty())
-		history->pop();
 }
 
 Spreadsheet::Spreadsheet(std::string s)
@@ -357,11 +345,5 @@ Cell* Spreadsheet::revert(std::string s, bool& success)
 			cell->add_history(new_cell);
 		}
 	}
-
 	return cells->at(s);
-}
-
-void Cell::add_history(Cell* cell)
-{
-	history->push(cell);
 }
