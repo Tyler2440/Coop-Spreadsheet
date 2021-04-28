@@ -25,6 +25,7 @@ namespace SpreadsheetController
         private static string name = ""; //user name of local client 
         private int id;
         private bool finishedHandshake = false;
+        private bool ServerShutDown = true;
 
         // Event to update wiew with new info from server
         public delegate void DataHandler(List<string> spreadsheets);
@@ -72,6 +73,7 @@ namespace SpreadsheetController
             }
 
             theServer = state;
+            ServerShutDown = false;
             Networking.Send(state.TheSocket, name + "\n"); //update server with user name 
             state.OnNetworkAction = OnRecieveFile; //set up OnNetworkAction for handshake protocol 
 
@@ -181,10 +183,16 @@ namespace SpreadsheetController
                 else if (result["messageType"].ToString() == "disconnected")
                 {
                     UserDisconnected(Int32.Parse(result["user"].ToString()));
+                    theServer.TheSocket.Close();
+                    ServerShutDown = true;
                 }
 
             }
-            Networking.GetData(state);
+
+            if (!ServerShutDown)
+            {
+                Networking.GetData(state);
+            }
         }
 
         /// <summary>
