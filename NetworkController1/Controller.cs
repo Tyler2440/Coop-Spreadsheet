@@ -129,7 +129,7 @@ namespace SpreadsheetController
         {
             if (state.ErrorOccured)
             {
-                Error("Error while retrieving Client ID"); //update view of error 
+                Error("Error while retrieving data from server"); //update view of error 
                 return;
             }
 
@@ -178,13 +178,13 @@ namespace SpreadsheetController
                 else if (result["messageType"].ToString() == "serverError")
                 {
                     ServerError(result["message"].ToString());
+                    theServer.TheSocket.Close();
+                    ServerShutDown = true;
                 }
 
                 else if (result["messageType"].ToString() == "disconnected")
                 {
-                    UserDisconnected(Int32.Parse(result["user"].ToString()));
-                    theServer.TheSocket.Close();
-                    ServerShutDown = true;
+                    UserDisconnected(Int32.Parse(result["user"].ToString()));                    
                 }
 
             }
