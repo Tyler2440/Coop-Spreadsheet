@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <cstring>
+#include <algorithm>
 #include "Formula.h"
 
 Formula::Formula(std::string formula)
