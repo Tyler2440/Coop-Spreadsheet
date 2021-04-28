@@ -93,7 +93,6 @@ namespace SpreadsheetGUI
         private void DisconnectUser(int ID)
         {
             controller.RemoveUser(ID);
-            spreadsheetPanel1.Refresh();
         }
 
         /// <summary>
