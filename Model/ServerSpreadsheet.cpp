@@ -197,7 +197,7 @@ Cell* Spreadsheet::undo()
 		// IF WE DETECT HISTORY IS EMPTY, RETURN OUT
 		if (history->empty())
 		{
-			return new Cell()
+			return new Cell();
 		}
 
 		Cell* cell = history->top();
