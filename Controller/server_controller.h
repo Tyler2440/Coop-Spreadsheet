@@ -78,7 +78,6 @@ public:
   std::string get_spreadsheets();
   void stop();
   void save_to_file(Spreadsheet s);
-  
 };
 
 #endif
